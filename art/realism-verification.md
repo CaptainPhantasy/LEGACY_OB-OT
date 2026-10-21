@@ -1,3 +1,5 @@
+> Update after user-reported black artifacts: version 5 is superseded by the rendering correction below. Its earlier source checks did not establish visual correctness.
+
 # Legacy visual upgrade — 21 October 2026
 
 Implemented together in this revision:

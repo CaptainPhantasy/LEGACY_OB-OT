@@ -4,7 +4,7 @@ import { ShopSound } from './sound.js';
 import { PhysicalPageTurn } from './page-physics.js';
 import { RoomAtmosphere } from './room-atmosphere.js';
 import { RoomLook } from './room-look.js';
-import { RoomRadiance, RoomFinish } from './room-radiance.js';
+import { RoomRadiance } from './room-radiance.js';
 import { enhanceMaterials } from './room-materials.js';
 import { applyBakedLighting } from './room-lighting.js';
 import { curiosities } from './curiosities.js';
@@ -18,7 +18,7 @@ const persist=()=>{try{localStorage.setItem(key,JSON.stringify(saved));}catch{ca
 const announce=t=>{$('#announcement').textContent=t;};
 let gentle=saved.gentle??matchMedia('(prefers-reduced-motion: reduce)').matches;
 let bright=!!saved.bright, simple=false, place='entrance', busy=false, hasOpened=!!saved.opened;
-let scene,renderer,camera,room,hinge,hingeStart,mixer,openAction,magicLight,atmosphere,radiance,finish;
+let scene,renderer,camera,room,hinge,hingeStart,mixer,openAction,magicLight,atmosphere,radiance;
 let revealAt=0,renderReady=false,move=null,closing=null,lastFrame=performance.now(),time=0,dragging=false,dragPointer=null,dragX=0,dragY=0,openingToken=0,pointerTravel=0;
 let pose=new THREE.Vector3(0,1.6,6.6),focus=new THREE.Vector3(0,1.25,-5.4);
 const roomLook=new RoomLook(),lookTarget=new THREE.Vector3();
@@ -74,10 +74,10 @@ async function initScene(){
     const gltf=await new GLTFLoader().loadAsync('./assets/bookstore.glb');room=gltf.scene;scene.add(room);
     room.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
     await enhanceMaterials(room,renderer);
-    try{await applyBakedLighting(room);}catch(error){console.warn('Baked room lighting unavailable; live lighting remains active.',error);}
+    try{await applyBakedLighting(room,{occlusionStrength:0});}catch(error){console.warn('Baked room lighting unavailable; live lighting remains active.',error);}
     room.traverse(o=>{if(!o.isMesh)return;const mats=Array.isArray(o.material)?o.material:[o.material];if(mats.every(m=>m.emissiveIntensity>0&&m.emissive?.getHex()>0))o.castShadow=false;});
-    radiance.capture(room,atmosphere);
-    finish=new RoomFinish(renderer);finish.resize();
+    try{radiance.capture(room,atmosphere);}catch(error){console.warn('Room reflections unavailable; direct lighting remains active.',error);}
+    renderer.shadowMap.needsUpdate=true;
     hinge=room.getObjectByName('BookCoverHinge');if(hinge)hingeStart=hinge.quaternion.clone();
     if(gltf.animations.length){mixer=new THREE.AnimationMixer(room);const clip=gltf.animations.find(a=>/open/i.test(a.name))||gltf.animations[0];openAction=mixer.clipAction(clip);openAction.setLoop(THREE.LoopOnce,1);openAction.clampWhenFinished=true;}
     renderReady=true;document.body.classList.add('scene-ready');$('#load-note').textContent='Take your time. The shelves don’t mind.';$('#load-note').classList.add('ready');
@@ -117,10 +117,10 @@ function frame(now){
     if(revealAt){const elapsed=(now-revealAt)/1000,wave=Math.max(0,Math.sin(Math.min(elapsed/8,1)*Math.PI));magicLight.intensity=gentle?3:wave*95;
       if(hinge&&!openAction){const p=Math.min(elapsed/4.8,1),angle=p*p*(3-2*p)*2.75;hinge.quaternion.copy(hingeStart).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),angle));}
     }
-    finish.render(scene,camera);updateWaypoints();
+    renderer.render(scene,camera);updateWaypoints();
     // Count whole active frames, including GPU waits, and ignore tab-resume gaps.
     if(!qualitySettled&&time>3&&!move&&elapsedFrame<1000){frameCost+=Math.min(elapsedFrame,100);frameSamples++;
-      if(frameSamples===90){qualitySettled=true;if(frameCost/frameSamples>24){renderer.setPixelRatio(Math.min(devicePixelRatio,1.15));renderer.setSize(innerWidth,innerHeight);finish.resize();}}
+      if(frameSamples===90){qualitySettled=true;if(frameCost/frameSamples>24){renderer.setPixelRatio(Math.min(devicePixelRatio,1.15));renderer.setSize(innerWidth,innerHeight);}}
     }
   }
   requestAnimationFrame(frame);
@@ -174,7 +174,7 @@ $('#world').addEventListener('pointercancel',stopLooking);
 $('#world').addEventListener('lostpointercapture',stopLooking);
 $('#world').addEventListener('keydown',e=>{const directions={ArrowLeft:[40,0],ArrowRight:[-40,0],ArrowUp:[0,40],ArrowDown:[0,-40]};const delta=directions[e.key];if(delta){e.preventDefault();roomLook.turn(...delta,pose,focus);}});
 $('#world').addEventListener('webglcontextlost',e=>{e.preventDefault();useSimpleView('The moving room paused. The simple shop keeps every place available.');});
-addEventListener('resize',()=>{stopPageTurn();if(renderer){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth<600?58:52;camera.updateProjectionMatrix();finish?.resize();}renderPages();});
+addEventListener('resize',()=>{stopPageTurn();if(renderer){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth<600?58:52;camera.updateProjectionMatrix();}renderPages();});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#book-reader').open){const guideOpen=['shelf-panel','chair-panel'].some(id=>!$('#'+id).hidden);closePanels();if(guideOpen)$('#waypoints').hidden=false;$('#explore-toggle').focus();}if($('#book-reader').open&&!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)){if(e.key==='ArrowRight'){e.preventDefault();turnPage(1);}if(e.key==='ArrowLeft'){e.preventDefault();turnPage(-1);}}});
 
 let pages=[],basePages=[],chapters=[],pageIndex=Math.max(0,Number(saved.page)||0),plain=false,contentReady;
