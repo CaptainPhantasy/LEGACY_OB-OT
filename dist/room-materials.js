@@ -141,7 +141,7 @@ export async function enhanceMaterials(room, renderer) {
     const loaded = await Promise.all([
       loader.loadAsync(`./assets/surfaces/${name}-color.webp`),
       loader.loadAsync(`./assets/surfaces/${name}-height.png`),
-      loader.loadAsync(`./assets/surfaces/${name}-roughness.png`),
+      loader.loadAsync(`./assets/surfaces/${name}-roughness.png?depth=1`),
     ]);
     for (const texture of loaded) {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;

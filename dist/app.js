@@ -5,7 +5,7 @@ import { PhysicalPageTurn } from './page-physics.js';
 import { RoomAtmosphere } from './room-atmosphere.js';
 import { RoomLook } from './room-look.js';
 import { RoomRadiance } from './room-radiance.js';
-import { enhanceMaterials } from './room-materials.js';
+import { enhanceMaterials } from './room-materials.js?depth=1';
 import { applyRoomLightmap, updateRoomRevelation } from './room-lightmap.js';
 import { curiosities } from './curiosities.js';
 import { escapeHTML, inline, markdown, loadBook } from './book-content.js';

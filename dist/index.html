@@ -132,7 +132,7 @@
   <div id="announcement" class="sr-only" aria-live="polite"></div>
   <noscript><div class="noscript">You’re welcome here. The moving shop needs JavaScript, but <a href="./content/oath.txt">the book is still yours to read</a>.</div></noscript>
   <script type="module">
-    import('./app.js').catch(error => {
+    import('./app.js?depth=1').catch(error => {
       console.error('The shop could not finish opening.', error);
       const note=document.querySelector('#load-note');
       note.textContent='Part of the room could not arrive. Your saved place is safe. You can try opening the door again.';
