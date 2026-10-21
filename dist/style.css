@@ -64,3 +64,24 @@ body.gentle *,body.gentle *:before,body.gentle *:after{scroll-behavior:auto!impo
 
 .reader-top>div{flex-wrap:wrap;justify-content:flex-end}.reader-top button{min-height:36px}.reader-sound-caption{position:fixed;bottom:65px;left:50%;transform:translateX(-50%);max-width:85%;z-index:30;background:#19140feb;border:1px solid #846c3c66;color:#d0be9d;font-family:Georgia,serif;font-size:11px;padding:9px 15px;pointer-events:none}
 @media(max-width:600px){.reader-top{gap:15px;align-items:flex-start}.reader-top>div{gap:4px 16px;max-width:74%}.reader-top button{font-size:10px;min-height:32px}.reader-sound-caption{bottom:67px;font-size:10px}.book-heading{margin-top:16px}}
+
+/* Keep the room visible between guide text and links, including on phones. */
+.discovery-panel,#shelf-panel,.explore-menu{background:transparent;border-color:transparent;box-shadow:none;backdrop-filter:none;pointer-events:none;text-shadow:0 1px 4px #000,0 2px 12px #000}
+.discovery-panel>*,.explore-menu>*{pointer-events:auto}
+.discovery-panel>.curiosity-mark{pointer-events:none}
+.discovery-panel>:is(.eyebrow,h2,p,label),.explore-menu>:is(.eyebrow,p){width:fit-content;max-width:100%;padding:6px 9px;background:#17130fb8;border-radius:2px}
+.explore-menu>button,#curiosity-menu>button{background:#17130fb8;padding-left:10px;padding-right:10px}
+.explore-menu #curiosity-menu,.discovery-panel .rabbit-holes,.discovery-panel .rummage-actions{pointer-events:none}
+#curiosity-menu>button,.rabbit-holes>a,.rummage-actions>button{pointer-events:auto}
+.rabbit-holes>a{border-color:#b49a6b55}
+.rabbit-holes>a:hover{background:transparent}
+.rabbit-holes>a>span:nth-child(2){padding:8px 10px;background:#17130fc4;border-radius:2px}
+.discovery-panel .underlined{padding:8px 10px;background:#17130fb8}
+.discovery-panel .close-panel{width:36px;height:36px;background:#17130fbd;border-radius:50%;line-height:1}
+.chair-panel textarea{background:#17130fc4}
+.waypoint>span:last-child{background:#17130f80;border-color:#b39a6a50;backdrop-filter:none}
+.scene-caption{pointer-events:none}
+.scene-caption .place-actions{pointer-events:none}
+.scene-caption button{pointer-events:auto}
+#world{cursor:grab}
+#world:active{cursor:grabbing}

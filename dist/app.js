@@ -3,6 +3,7 @@ import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
 import { ShopSound } from './sound.js';
 import { PhysicalPageTurn } from './page-physics.js';
 import { RoomAtmosphere } from './room-atmosphere.js';
+import { RoomLook } from './room-look.js';
 import { curiosities } from './curiosities.js';
 import { escapeHTML, inline, markdown, loadBook } from './book-content.js';
 
@@ -15,8 +16,9 @@ const announce=t=>{$('#announcement').textContent=t;};
 let gentle=saved.gentle??matchMedia('(prefers-reduced-motion: reduce)').matches;
 let bright=!!saved.bright, simple=false, place='entrance', busy=false, hasOpened=!!saved.opened;
 let scene,renderer,camera,room,hinge,hingeStart,mixer,openAction,magicLight,atmosphere;
-let revealAt=0,renderReady=false,move=null,closing=null,lastFrame=performance.now(),time=0,dragging=false,dragX=0,dragY=0,lookOffset=0,lookPitch=0,openingToken=0,pointerTravel=0;
+let revealAt=0,renderReady=false,move=null,closing=null,lastFrame=performance.now(),time=0,dragging=false,dragPointer=null,dragX=0,dragY=0,openingToken=0,pointerTravel=0;
 let pose=new THREE.Vector3(0,1.6,6.6),focus=new THREE.Vector3(0,1.25,-5.4);
+const roomLook=new RoomLook(),lookTarget=new THREE.Vector3();
 const audio=new ShopSound();
 const listenerDirection=new THREE.Vector3();
 let soundCaptions=!!saved.soundCaptions,captionTimer;
@@ -106,7 +108,7 @@ function frame(now){
       if(p===1){const arrival=move.onArrive;move=null;busy=false;audio.stopFootsteps();arrival?.(true);}
     }
     camera.position.copy(pose);if(!gentle){camera.position.y+=bob;camera.position.x+=sway;}
-    const target=focus.clone();target.x+=lookOffset;target.y+=lookPitch;camera.lookAt(target);
+    camera.lookAt(roomLook.target(camera.position,focus,lookTarget));
     audio.setPosition(camera.position,camera.getWorldDirection(listenerDirection));
     atmosphere.update(dt,time,camera.position,gentle);
     if(!gentle)warmLights.forEach((l,i)=>l.light.intensity=l.power*(1+.011*Math.sin(time*1.3+i)+.004*Math.sin(time*4.7+i*2)));
@@ -121,7 +123,7 @@ function frame(now){
 }
 function updateWaypoints(){if($('#waypoints').hidden)return;for(const b of $$('.waypoint')){const v=spots[b.dataset.place].clone().project(camera);const visible=v.z>-1&&v.z<1&&Math.abs(v.x)<.86&&Math.abs(v.y)<.72;b.style.left=`${(v.x*.5+.5)*innerWidth}px`;b.style.top=`${(-v.y*.5+.5)*innerHeight}px`;b.style.opacity=visible?'1':'0';b.style.pointerEvents=visible?'auto':'none';b.tabIndex=visible?0:-1;}}
 function glide(name){
-  const pair=poses[name]||poses.aisle;lookOffset=0;lookPitch=0;audio.stopFootsteps();move?.onArrive?.(false);
+  const pair=poses[name]||poses.aisle;roomLook.reset();audio.stopFootsteps();move?.onArrive?.(false);
   if(gentle||simple||!renderReady){pose.fromArray(pair[0]);focus.fromArray(pair[1]);busy=false;move=null;audio.setPosition(pose,focus.clone().sub(pose).normalize());return;}
   const destination=new THREE.Vector3(...pair[0]),distance=pose.distanceTo(destination);
   busy=distance>.1;move={from:pose.clone(),to:destination,lookFrom:focus.clone(),lookTo:new THREE.Vector3(...pair[1]),start:performance.now(),duration:THREE.MathUtils.clamp(distance*930,2100,6800),distance,lastStep:0};
@@ -143,7 +145,7 @@ function go(name){
 }
 $('#enter').onclick=async()=>{await toggleSound(true);audio.bell();go('aisle');};$('#enter-quietly').onclick=async()=>{await toggleSound(false);go('aisle');};$('#home').onclick=()=>go('entrance');$('#return-shop').onclick=()=>go('aisle');$('#resume').onclick=()=>{go('table');openBook(true);};
 $$('[data-go]').forEach(el=>el.onclick=()=>go(el.dataset.go));$$('.waypoint').forEach(el=>el.onclick=()=>go(el.dataset.place));
-$$('[data-close]').forEach(el=>el.onclick=()=>{go('aisle');$('#explore-toggle').focus();});
+$$('[data-close]').forEach(el=>el.onclick=()=>{$('#'+el.dataset.close).hidden=true;$('#waypoints').hidden=false;$('#explore-toggle').focus();});
 function togglePanel(id,button){const next=$('#'+id).hidden;closePanels();$('#'+id).hidden=!next;$('#'+button).setAttribute('aria-expanded',String(next));if(next)$('#'+id).scrollTop=0;}
 $('#explore-toggle').onclick=()=>togglePanel('explore-menu','explore-toggle');$('#settings-toggle').onclick=()=>togglePanel('settings-panel','settings-toggle');
 async function toggleSound(value){
@@ -160,13 +162,16 @@ $('#sound-toggle').onclick=()=>toggleSound(!audio.enabled);$('#reader-sound').on
 function setGentle(value){gentle=value;stopPageTurn();applyComfort();if(move){pose.copy(move.to);focus.copy(move.lookTo);move.onArrive?.(true);move=null;busy=false;audio.stopFootsteps();}}
 $('#motion-setting').onchange=e=>setGentle(e.target.checked);$('#reader-motion').onclick=()=>setGentle(!gentle);
 $('#brightness-setting').onchange=e=>{bright=e.target.checked;applyComfort();};
-$('#world').addEventListener('pointerdown',e=>{if(busy||$('#book-reader').open)return;dragging=true;dragX=e.clientX;dragY=e.clientY;pointerTravel=0;$('#world').setPointerCapture(e.pointerId);});
-$('#world').addEventListener('pointermove',e=>{if(dragging){pointerTravel+=Math.abs(e.clientX-dragX)+Math.abs(e.clientY-dragY);lookPitch=THREE.MathUtils.clamp(lookPitch-(e.clientY-dragY)*.004,-.8,.9);dragY=e.clientY;lookOffset=THREE.MathUtils.clamp(lookOffset+(e.clientX-dragX)*.006,-1.7,1.7);dragX=e.clientX;}});
-$('#world').addEventListener('pointerup',e=>{if(!dragging)return;dragging=false;if(pointerTravel>7||!room||!hinge||busy)return;const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,1-e.clientY/innerHeight*2),camera);if(ray.intersectObject(hinge,true).length){if(place==='table')openBook();else go('table');}});
-$('#world').addEventListener('pointercancel',()=>{dragging=false;});
+$('#world').addEventListener('pointerdown',e=>{if($('#book-reader').open||!e.isPrimary||(e.pointerType==='mouse'&&e.button!==0))return;dragging=true;dragPointer=e.pointerId;dragX=e.clientX;dragY=e.clientY;pointerTravel=0;$('#world').focus({preventScroll:true});$('#world').setPointerCapture(e.pointerId);});
+$('#world').addEventListener('pointermove',e=>{if(dragging&&e.pointerId===dragPointer){const dx=e.clientX-dragX,dy=e.clientY-dragY;pointerTravel+=Math.abs(dx)+Math.abs(dy);roomLook.turn(dx,dy,pose,focus);dragX=e.clientX;dragY=e.clientY;}});
+$('#world').addEventListener('pointerup',e=>{if(!dragging||e.pointerId!==dragPointer)return;dragging=false;dragPointer=null;if(pointerTravel>7||!room||!hinge||busy)return;const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,1-e.clientY/innerHeight*2),camera);if(ray.intersectObject(hinge,true).length){if(place==='table')openBook();else go('table');}});
+const stopLooking=e=>{if(e.pointerId===dragPointer){dragging=false;dragPointer=null;}};
+$('#world').addEventListener('pointercancel',stopLooking);
+$('#world').addEventListener('lostpointercapture',stopLooking);
+$('#world').addEventListener('keydown',e=>{const directions={ArrowLeft:[40,0],ArrowRight:[-40,0],ArrowUp:[0,40],ArrowDown:[0,-40]};const delta=directions[e.key];if(delta){e.preventDefault();roomLook.turn(...delta,pose,focus);}});
 $('#world').addEventListener('webglcontextlost',e=>{e.preventDefault();useSimpleView('The moving room paused. The simple shop keeps every place available.');});
 addEventListener('resize',()=>{stopPageTurn();if(renderer){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth<600?58:52;camera.updateProjectionMatrix();}renderPages();});
-addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#book-reader').open){closePanels();if(place!=='entrance')go('aisle');}if($('#book-reader').open&&!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)){if(e.key==='ArrowRight'){e.preventDefault();turnPage(1);}if(e.key==='ArrowLeft'){e.preventDefault();turnPage(-1);}}});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#book-reader').open){const guideOpen=['shelf-panel','chair-panel'].some(id=>!$('#'+id).hidden);closePanels();if(guideOpen)$('#waypoints').hidden=false;$('#explore-toggle').focus();}if($('#book-reader').open&&!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)){if(e.key==='ArrowRight'){e.preventDefault();turnPage(1);}if(e.key==='ArrowLeft'){e.preventDefault();turnPage(-1);}}});
 
 let pages=[],basePages=[],chapters=[],pageIndex=Math.max(0,Number(saved.page)||0),plain=false,contentReady;
 const pageTurn=new PhysicalPageTurn($('#spread'));

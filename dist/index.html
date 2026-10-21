@@ -30,7 +30,7 @@
 </head>
 <body>
   <a class="skip-link" href="#explore-toggle">Skip to places to explore</a>
-  <canvas id="world" aria-label="A dingy cellar bazaar under low beams, crowded with weathered books, maps, jars, cages, hanging cloth and unfamiliar objects; a narrow passage leads farther back" role="img"></canvas>
+  <canvas id="world" tabindex="0" aria-label="A cellar of old books and curious objects. Drag or swipe to look around, or use the arrow keys while the room is selected." role="img"></canvas>
   <div class="vignette" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
   <div id="revelation" aria-hidden="true"><div class="solar-ring"></div><div class="solar-ring second"></div><div class="flare-core"></div></div>
@@ -79,7 +79,7 @@
       <button id="fullscreen" class="underlined immersive-button">Fill the screen with the room ↗</button>
       <p id="sound-status" role="status">Sounds begin only when you choose them.</p>
       <a class="sound-credits" href="./assets/audio/credits.html" target="_blank" rel="noopener">Sound credits ↗</a>
-      <p>Choose a place to move there. You can also drag the scene to look around. Every place is reachable with Tab and Enter.</p>
+      <p>Choose a place to move there. Drag or swipe to look around, or select the room and use the arrow keys. Every place is reachable with Tab and Enter.</p>
     </aside>
     <section id="shelf-panel" class="discovery-panel" hidden aria-labelledby="shelf-title">
       <button class="close-panel" data-close="shelf-panel" aria-label="Close the shelf">×</button>
