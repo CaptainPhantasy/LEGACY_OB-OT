@@ -1,7 +1,7 @@
 """Cycles lighting delivery for the existing shop; run with Blender 4.5.
 
 blender -b --python art/build-room-depth.py -- --root /absolute/project --stage prepare
-Stages: prepare, repair-atlas, preview, bake, review, beauty. Originals are never overwritten.
+Stages: prepare, repair-atlas, preview, bake, export-only, review, beauty. Originals are never overwritten.
 The exported bake review intentionally isolates diffuse lighting; it is not a
 claim that the browser's reflections, postprocessing or interaction were tested.
 """
@@ -24,7 +24,7 @@ from mathutils import Vector
 def arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', required=True, type=Path)
-    parser.add_argument('--stage', choices=['prepare', 'repair-atlas', 'preview', 'bake', 'review', 'beauty'], required=True)
+    parser.add_argument('--stage', choices=['prepare', 'repair-atlas', 'preview', 'bake', 'export-only', 'review', 'beauty'], required=True)
     parser.add_argument('--samples', type=int)
     parser.add_argument('--resolution', type=int, default=4096)
     parser.add_argument('--width', type=int, default=1400)
@@ -665,18 +665,20 @@ def export_material(source, static):
         coords.append(uv)
     color = nodes.new('ShaderNodeTexImage')
     color.image = connected_image(original.inputs['Base Color']) if original else None
+    # The white image keeps UV0 in glTF; it is not an authored surface image.
+    # Runtime may replace this placeholder with the existing family color map.
+    result['room_depth_placeholder_color'] = color.image is None
+    alpha = float(p.inputs['Alpha'].default_value)
+    factor = list(p.inputs['Base Color'].default_value[:3]) if color.image is None else [1.0, 1.0, 1.0]
+    factor.append(alpha)
+    result['room_depth_base_color_factor'] = factor
     color.image = color.image or solid_image()
     links.new(coords[0].outputs[0], color.inputs['Vector'])
-    # Preserve the original texture and constant multiplier via glTF's standard pattern.
-    multiply = nodes.new('ShaderNodeMixRGB')
-    multiply.blend_type = 'MULTIPLY'
-    multiply.inputs[0].default_value = 1
-    multiply.inputs[2].default_value = p.inputs['Base Color'].default_value
-    # A linked original base image replaces the constant in Blender, so its factor is white.
-    if original and connected_image(original.inputs['Base Color']):
-        multiply.inputs[2].default_value = (1, 1, 1, 1)
-    links.new(color.outputs['Color'], multiply.inputs[1])
-    links.new(multiply.outputs[0], p.inputs['Base Color'])
+    # Keep image pixels untouched. Blender can flatten a MixRGB constant into
+    # the exported image, which loses that factor when runtime replaces a white
+    # placeholder. The exact linear factor is installed into glTF JSON below.
+    p.inputs['Base Color'].default_value = (1, 1, 1, 1)
+    links.new(color.outputs['Color'], p.inputs['Base Color'])
     kind = family(source.name)
     rough_path = ASSETS / 'surfaces' / ((kind or '') + '-roughness.png')
     rough = nodes.new('ShaderNodeTexImage')
@@ -746,6 +748,53 @@ def glb_document(path):
     return json.loads(content[20:20 + length].decode('utf-8'))
 
 
+def enforce_export_color_factors(path):
+    """Write explicit linear material factors, preserving every binary payload byte."""
+    content = path.read_bytes()
+    magic, version, declared_length = struct.unpack_from('<4sII', content, 0)
+    if magic != b'glTF' or version != 2 or declared_length != len(content):
+        raise RuntimeError('Invalid GLB header before color-factor preservation')
+    chunks, offset, document = [], 12, None
+    while offset < len(content):
+        length, kind = struct.unpack_from('<II', content, offset)
+        payload = content[offset + 8:offset + 8 + length]
+        if len(payload) != length:
+            raise RuntimeError('Truncated GLB chunk')
+        if kind == 0x4e4f534a:
+            if document is not None:
+                raise RuntimeError('Multiple GLB JSON chunks are not supported')
+            document = json.loads(payload.decode('utf-8'))
+        chunks.append((kind, payload))
+        offset += 8 + length
+    if document is None:
+        raise RuntimeError('GLB contains no material document')
+    factors = {}
+    for material in document.get('materials', []):
+        factor = material.get('extras', {}).get('room_depth_base_color_factor')
+        if not isinstance(factor, list) or len(factor) != 4 or any(not math.isfinite(value) or value < 0 or value > 1 for value in factor):
+            raise RuntimeError('Missing or invalid preserved base color factor: ' + material.get('name', '?'))
+        pbr = material.setdefault('pbrMetallicRoughness', {})
+        if 'baseColorTexture' not in pbr:
+            raise RuntimeError('Delivery base texture reference was omitted: ' + material.get('name', '?'))
+        pbr['baseColorFactor'] = factor
+        factors[material.get('name', str(len(factors)))] = factor
+    json_bytes = json.dumps(document, ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+    json_bytes += b' ' * (-len(json_bytes) % 4)
+    rebuilt = bytearray()
+    for kind, payload in chunks:
+        if kind == 0x4e4f534a:
+            payload = json_bytes
+        rebuilt.extend(struct.pack('<II', len(payload), kind))
+        rebuilt.extend(payload)
+    path.write_bytes(struct.pack('<4sII', b'glTF', 2, 12 + len(rebuilt)) + rebuilt)
+    verified = glb_document(path)
+    if any(material['pbrMetallicRoughness']['baseColorFactor'] != material['extras']['room_depth_base_color_factor']
+           for material in verified['materials']):
+        raise RuntimeError('Explicit color-factor verification failed after writing GLB')
+    note('Explicit linear material color factors preserved', count=len(factors))
+    return factors
+
+
 def export_delivery():
     originals, export_cache = {}, {}
     excluded = set(volume_objects())
@@ -772,6 +821,7 @@ def export_delivery():
         for name, materials in originals.items():
             for i, material in enumerate(materials):
                 bpy.data.objects[name].data.materials[i] = material
+    color_factors = enforce_export_color_factors(EXPORT)
     doc = glb_document(EXPORT)
     static_nodes = [node for node in doc['nodes'] if node.get('name') == 'OldCuriosityShop']
     if len(static_nodes) != 1 or 'mesh' not in static_nodes[0]:
@@ -785,7 +835,52 @@ def export_delivery():
     note('Portable GLB verified', primitives=len(primitives), texcoords=[0, 1, 2])
     return {'path': str(EXPORT.relative_to(ROOT)), 'bytes': EXPORT.stat().st_size,
             'sha256': hashlib.sha256(EXPORT.read_bytes()).hexdigest(), 'static_primitives': len(primitives),
-            'required_texcoords': [0, 1, 2], 'hinge_preserved': True}
+            'required_texcoords': [0, 1, 2], 'hinge_preserved': True,
+            'explicit_base_color_factors': color_factors}
+
+
+def export_only():
+    """Re-export the checked native geometry without recalculating illumination."""
+    import shutil
+    if not MANIFEST.exists() or not LIGHTMAP.exists():
+        raise RuntimeError('A completed lightmap and manifest are required for export-only')
+    before_lightmap = hashlib.sha256(LIGHTMAP.read_bytes()).hexdigest()
+    if EXPORT.exists():
+        quarantine = ART / 'rendering.quarantine' / 'bookstore-depth-before-color-factor-fix.glb'
+        quarantine.parent.mkdir(parents=True, exist_ok=True)
+        if not quarantine.exists():
+            shutil.copy2(EXPORT, quarantine)
+    bpy.ops.wm.open_mainfile(filepath=str(NATIVE), load_ui=False)
+    retained_image = bpy.data.images.get('Room diffuse irradiance linear')
+    retention_repaired = retained_image is None or not retained_image.use_fake_user
+    if retained_image is None:
+        exr = ART / 'room-lightmap-linear.exr'
+        if not exr.exists():
+            raise RuntimeError('The native scene lost its baked image and the recovery EXR is missing')
+        retained_image = bpy.data.images.load(str(exr), check_existing=True)
+        retained_image.name = 'Room diffuse irradiance linear'
+        retained_image.colorspace_settings.name = 'Linear Rec.709'
+    if retention_repaired:
+        backup = ART / 'rendering.quarantine' / 'room-depth-before-lightmap-retention.blend'
+        backup.parent.mkdir(parents=True, exist_ok=True)
+        if not backup.exists():
+            shutil.copy2(NATIVE, backup)
+        retained_image.use_fake_user = True
+        retained_image.pack()
+        bpy.ops.wm.save_as_mainfile(filepath=str(NATIVE), compress=True)
+        note('Recovered and retained the native float illumination image', image=retained_image.name)
+    before_native = hashlib.sha256(NATIVE.read_bytes()).hexdigest()
+    exported = export_delivery()
+    if hashlib.sha256(LIGHTMAP.read_bytes()).hexdigest() != before_lightmap:
+        raise RuntimeError('Export-only changed the completed illumination map')
+    if hashlib.sha256(NATIVE.read_bytes()).hexdigest() != before_native:
+        raise RuntimeError('Export-only changed the native checkpoint')
+    manifest = json.loads(MANIFEST.read_text())
+    manifest['export'] = exported
+    MANIFEST.write_text(json.dumps(manifest, indent=2) + '\n')
+    report_update(bake=manifest, export_only={'lightmap_unchanged': True, 'native_unchanged_during_export': True,
+                                           'native_lightmap_retention_repaired': retention_repaired, 'export': exported})
+    note('Delivery export refreshed without rebaking', path=str(EXPORT), sha256=exported['sha256'])
 
 
 def bake():
@@ -796,6 +891,9 @@ def bake():
     note('UV atlas measured before baking', **uv_stats)
     image = bpy.data.images.new('Room diffuse irradiance linear', width=ARGS.resolution, height=ARGS.resolution,
                                 alpha=False, float_buffer=True)
+    # Temporary bake-target nodes are removed after baking. Keep the packed
+    # source image alive when this native checkpoint is reopened later.
+    image.use_fake_user = True
     image.colorspace_settings.name = 'Linear Rec.709'
     hidden, metallic, temporary_nodes = {}, [], []
     for obj in scene.objects:
@@ -976,6 +1074,8 @@ if __name__ == '__main__':
         repair_atlas()
     elif ARGS.stage == 'bake':
         bake()
+    elif ARGS.stage == 'export-only':
+        export_only()
     elif ARGS.stage == 'review':
         review()
     else:
