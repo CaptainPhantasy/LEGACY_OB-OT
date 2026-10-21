@@ -4,8 +4,10 @@ import * as THREE from 'three';
  * Load the room's offline ray-traced contact occlusion and single diffuse bounce.
  * The bake never touches moving book geometry. Dynamic lights and shadows remain
  * live; this data only changes indirect illumination. No runtime ray tracing is claimed.
+ * Vertex occlusion is opt-in: the source walls contain 26 m² triangles, so their
+ * corner samples cannot safely represent small contact shadows across the face.
  */
-export async function applyBakedLighting(room, { bounceStrength = 1, occlusionStrength = 1 } = {}) {
+export async function applyBakedLighting(room, { bounceStrength = 1, occlusionStrength = 0 } = {}) {
   const [manifestResponse, dataResponse] = await Promise.all([
     fetch(new URL('./assets/room-irradiance.json', import.meta.url)),
     fetch(new URL('./assets/room-irradiance.bin', import.meta.url))
