@@ -90,7 +90,11 @@ export async function applyRoomLightmap(room, renderer, { movingShadowStrength =
   texture.flipY = false;
   texture.channel = 2;
   texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
-  texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  // Atlas islands have a finite three-pixel bleed. Global mipmaps would mix
+  // distant islands with the unused black atlas and reintroduce dark seams.
+  texture.generateMipmaps = false;
+  texture.minFilter = texture.magFilter = THREE.LinearFilter;
+  texture.anisotropy = 1;
   texture.needsUpdate = true;
 
   const copies = new Map();

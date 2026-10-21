@@ -29,7 +29,7 @@ async function withImageTransport(callback, resolution = 4096) {
 }
 
 async function loadRoom({ syntheticUV = false } = {}) {
-  const bytes = await readFile(new URL('../dist/assets/bookstore.glb', import.meta.url));
+  const bytes = await readFile(new URL('../dist/assets/bookstore-depth.glb', import.meta.url));
   const gltf = await withImageTransport(() => new GLTFLoader().parseAsync(
     bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength), ''));
   if (syntheticUV) gltf.scene.getObjectByName('OldCuriosityShop').traverse(mesh => {
