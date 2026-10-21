@@ -19,14 +19,14 @@ export class RoomAtmosphere {
         vec4 view=modelViewMatrix*vec4(p,1.);gl_PointSize=clamp(moteSize*9.*pixelRatio/max(1.,-view.z),.65,6.);gl_Position=projectionMatrix*view;
       }`,fragmentShader:`varying float brightness;void main(){float d=length(gl_PointCoord-.5)*2.;if(d>1.)discard;float edge=pow(1.-d,1.8);gl_FragColor=vec4(1.,.78,.45,edge*brightness);}`});
     this.points=new THREE.Points(geometry,this.material);this.points.frustumCulled=false;scene.add(this.points);this.beams=[];
-    for(const p of this.lamps)this.beams.push(this.beam(scene,p,new THREE.Vector3(p.x*.7,.1,p.z+.2),.75,.032));
+    for(const p of this.lamps)this.beams.push(this.beam(scene,p,new THREE.Vector3(p.x*.7,.1,p.z+.2),.75,.020));
     this.bookRays=[];
     for(let i=0;i<7;i++){const angle=i*Math.PI*2/7;const source=new THREE.Vector3(Math.cos(angle)*.08,1.15,-4.92+Math.sin(angle)*.1),target=new THREE.Vector3(Math.cos(angle)*1.5,3.6,-4.92+Math.sin(angle)*1.7);this.bookRays.push(this.beam(scene,source,target,.42,0));}
   }
   reset(i){const p=i*3;this.positions[p]=(Math.random()-.5)*4.7;this.positions[p+1]=.2+Math.random()*2.6;this.positions[p+2]=Math.random()*14-7.2;this.velocity[p]=(Math.random()-.5)*.015;this.velocity[p+1]=-Math.random()*.015;this.velocity[p+2]=(Math.random()-.5)*.015;this.sizes[i]=.5+Math.random()*1.5;}
   beam(scene,from,to,radius,opacity){
     const length=from.distanceTo(to),geometry=new THREE.CylinderGeometry(.018,radius,length,32,1,true);
-    const material=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,uniforms:{strength:{value:opacity}},vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'varying vec2 vUv;uniform float strength;void main(){float fade=sin(vUv.y*3.14159)*pow(vUv.y,.4);float folds=.65+.35*sin(vUv.x*31.4159);gl_FragColor=vec4(1.,.72,.34,fade*strength*folds);}'});
+    const material=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,uniforms:{strength:{value:opacity}},vertexShader:'varying vec2 vUv;varying vec3 vWorld;varying vec3 vNormal;void main(){vUv=uv;vWorld=(modelMatrix*vec4(position,1.)).xyz;vNormal=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:'varying vec2 vUv;varying vec3 vWorld;varying vec3 vNormal;uniform float strength;void main(){float fade=sin(vUv.y*3.14159)*smoothstep(0.,.15,vUv.y);float facing=pow(abs(dot(normalize(cameraPosition-vWorld),normalize(vNormal))),1.7);gl_FragColor=vec4(1.,.79,.51,fade*facing*strength);}'});
     const mesh=new THREE.Mesh(geometry,material);mesh.position.copy(from).add(to).multiplyScalar(.5);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,-1,0),to.clone().sub(from).normalize());scene.add(mesh);return mesh;
   }
   open(){

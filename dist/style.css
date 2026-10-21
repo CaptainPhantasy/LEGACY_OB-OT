@@ -85,3 +85,9 @@ body.gentle *,body.gentle *:before,body.gentle *:after{scroll-behavior:auto!impo
 .scene-caption button{pointer-events:auto}
 #world{cursor:grab}
 #world:active{cursor:grabbing}
+
+/* Keep the texture and lighting visible; shade only the edges and reading areas. */
+#world{filter:none}
+.grain{opacity:.022}
+.vignette{background:linear-gradient(90deg,rgba(13,11,8,.74),rgba(13,11,8,.38) 29%,transparent 65%),linear-gradient(0deg,rgba(12,10,8,.72),transparent 22%,transparent 78%,rgba(12,10,8,.5))}
+body.inside .vignette{background:radial-gradient(ellipse at 50% 42%,transparent 42%,rgba(12,10,8,.19) 78%,rgba(12,10,8,.5)),linear-gradient(0deg,rgba(12,10,8,.72),transparent 26%)}

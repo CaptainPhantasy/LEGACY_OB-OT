@@ -4,6 +4,9 @@ import { ShopSound } from './sound.js';
 import { PhysicalPageTurn } from './page-physics.js';
 import { RoomAtmosphere } from './room-atmosphere.js';
 import { RoomLook } from './room-look.js';
+import { RoomRadiance, RoomFinish } from './room-radiance.js';
+import { enhanceMaterials } from './room-materials.js';
+import { applyBakedLighting } from './room-lighting.js';
 import { curiosities } from './curiosities.js';
 import { escapeHTML, inline, markdown, loadBook } from './book-content.js';
 
@@ -15,7 +18,7 @@ const persist=()=>{try{localStorage.setItem(key,JSON.stringify(saved));}catch{ca
 const announce=t=>{$('#announcement').textContent=t;};
 let gentle=saved.gentle??matchMedia('(prefers-reduced-motion: reduce)').matches;
 let bright=!!saved.bright, simple=false, place='entrance', busy=false, hasOpened=!!saved.opened;
-let scene,renderer,camera,room,hinge,hingeStart,mixer,openAction,magicLight,atmosphere;
+let scene,renderer,camera,room,hinge,hingeStart,mixer,openAction,magicLight,atmosphere,radiance,finish;
 let revealAt=0,renderReady=false,move=null,closing=null,lastFrame=performance.now(),time=0,dragging=false,dragPointer=null,dragX=0,dragY=0,openingToken=0,pointerTravel=0;
 let pose=new THREE.Vector3(0,1.6,6.6),focus=new THREE.Vector3(0,1.25,-5.4);
 const roomLook=new RoomLook(),lookTarget=new THREE.Vector3();
@@ -29,7 +32,7 @@ const poses={entrance:[[0,1.6,6.6],[0,1.25,-5.4]],aisle:[[0,1.6,1.6],[0,1.3,-5.1
 const spots={table:new THREE.Vector3(0,1.14,-4.92)};
 for(const c of curiosities){poses[c.id]=c.pose;spots[c.id]=new THREE.Vector3(...c.position);}
 let currentCuriosity='maps';
-const warmLights=[];
+let frameCost=0,frameSamples=0,qualitySettled=false;
 
 for(const c of [...curiosities,{id:'table',name:'Farther into the back',mark:'·'}]){
   const b=document.createElement('button');b.className='waypoint';b.dataset.place=c.id;
@@ -49,7 +52,7 @@ $('#rummage').onclick=rummage;
 
 function applyComfort(){
   document.body.classList.toggle('gentle',gentle);$('#motion-setting').checked=gentle;$('#reader-motion').textContent=gentle?'Allow slow page turns':'Keep the pages still';$('#brightness-setting').checked=bright;
-  if(renderer)renderer.toneMappingExposure=bright?1.8:.94;
+  if(renderer)renderer.toneMappingExposure=bright?1.75:1.12;
   saved.gentle=gentle;saved.bright=bright;persist();
 }
 applyComfort();
@@ -58,26 +61,23 @@ $('#note').value=saved.note||'';
 $('#music-box').onclick=async()=>{await toggleSound(true);[659.25,783.99,987.77,783.99].forEach((f,i)=>audio.tone(f,1.8,.09,i*.65));$('#music-box-status').textContent='Four notes. Then the room is quiet again.';};
 $('#note').addEventListener('input',()=>{saved.note=$('#note').value;persist();$('#note-status').textContent=canSave?'Kept here, in this browser on this device.':'This browser cannot save your note. Copy it before leaving.';});
 
-function surfaceTexture(wood=false){
-  const c=document.createElement('canvas');c.width=c.height=256;const ctx=c.getContext('2d'),im=ctx.createImageData(256,256);
-  for(let y=0;y<256;y++)for(let x=0;x<256;x++){const i=(y*256+x)*4,n=Math.random()*34;const k=wood?120+22*Math.sin(x*.4+Math.sin(y*.035)*2)+12*Math.sin(x*1.2+y*.012)+n:95+Math.random()*100;im.data[i]=im.data[i+1]=im.data[i+2]=k;im.data[i+3]=255;}
-  ctx.putImageData(im,0,0);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(wood?2:4,wood?1:4);return t;
-}
-function lamp(x,y,z,intensity=30){const l=new THREE.PointLight(0xffd3a0,intensity,8,2);l.position.set(x,y,z);scene.add(l);warmLights.push({light:l,power:intensity});return l;}
 async function initScene(){
   try{
     renderer=new THREE.WebGLRenderer({canvas:$('#world'),antialias:true,alpha:false,powerPreference:'high-performance'});
-    renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-    scene=new THREE.Scene();scene.background=new THREE.Color(0x17120e);scene.fog=new THREE.FogExp2(0x18120d,.035);
+    renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia('(pointer: coarse)').matches?1.5:1.85));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
+    scene=new THREE.Scene();scene.background=new THREE.Color(0x17120e);scene.fog=new THREE.FogExp2(0x24201a,.024);
     camera=new THREE.PerspectiveCamera(innerWidth<600?58:52,innerWidth/innerHeight,.04,60);
-    scene.add(new THREE.HemisphereLight(0x9aa39a,0x241a13,.2));scene.add(new THREE.AmbientLight(0xaaa08c,.055));
-    lamp(-1.55,2.402,4.47,24);lamp(1.46,2.485,-.63,20);lamp(-1.3,2.403,-6.65,12);lamp(-.86,1.31,-5.66,10);
-    const top=new THREE.SpotLight(0xffd8a7,15,7,.9,.8,1.5);top.position.set(-1.3,2.4,-6.65);top.target.position.set(0,0,-5);top.castShadow=true;top.shadow.mapSize.set(1024,1024);top.shadow.bias=-.0005;scene.add(top,top.target);
+    radiance=new RoomRadiance(scene,renderer);
     magicLight=new THREE.PointLight(0xffd893,0,12,1.5);magicLight.position.set(0,1.45,-5);scene.add(magicLight);atmosphere=new RoomAtmosphere(scene);applyComfort();
+    $('#load-note').textContent='The lamps are warming. The room is coming into view…';
     const gltf=await new GLTFLoader().loadAsync('./assets/bookstore.glb');room=gltf.scene;scene.add(room);
-    const woodGrain=surfaceTexture(true),leatherGrain=surfaceTexture(false);
-    room.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){if(m.metalness>.8)m.metalness=.65;if(/walnut|joinery/i.test(m.name)&&!m.normalMap){m.bumpMap=woodGrain;m.bumpScale=.018;m.roughness=.8;}if(/leather|cloth|plaster/i.test(m.name)&&!m.normalMap){m.bumpMap=leatherGrain;m.bumpScale=.009;m.roughness=.92;}}}}});
+    room.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+    await enhanceMaterials(room,renderer);
+    await applyBakedLighting(room);
+    room.traverse(o=>{if(!o.isMesh)return;const mats=Array.isArray(o.material)?o.material:[o.material];if(mats.every(m=>m.emissiveIntensity>0&&m.emissive?.getHex()>0))o.castShadow=false;});
+    radiance.capture(room,atmosphere);
+    finish=new RoomFinish(renderer);finish.resize();
     hinge=room.getObjectByName('BookCoverHinge');if(hinge)hingeStart=hinge.quaternion.clone();
     if(gltf.animations.length){mixer=new THREE.AnimationMixer(room);const clip=gltf.animations.find(a=>/open/i.test(a.name))||gltf.animations[0];openAction=mixer.clipAction(clip);openAction.setLoop(THREE.LoopOnce,1);openAction.clampWhenFinished=true;}
     renderReady=true;document.body.classList.add('scene-ready');$('#load-note').textContent='Take your time. The shelves don’t mind.';$('#load-note').classList.add('ready');
@@ -111,13 +111,17 @@ function frame(now){
     camera.lookAt(roomLook.target(camera.position,focus,lookTarget));
     audio.setPosition(camera.position,camera.getWorldDirection(listenerDirection));
     atmosphere.update(dt,time,camera.position,gentle);
-    if(!gentle)warmLights.forEach((l,i)=>l.light.intensity=l.power*(1+.011*Math.sin(time*1.3+i)+.004*Math.sin(time*4.7+i*2)));
+    radiance.update(time,gentle,!!closing||!!(revealAt&&now-revealAt<5000));
     if(mixer)mixer.update(dt);
     if(closing&&hinge){const progress=Math.min((now-closing.start)/2200,1),eased=progress*progress*(3-2*progress);hinge.quaternion.slerpQuaternions(closing.from,hingeStart,eased);if(progress===1)closing=null;}
     if(revealAt){const elapsed=(now-revealAt)/1000,wave=Math.max(0,Math.sin(Math.min(elapsed/8,1)*Math.PI));magicLight.intensity=gentle?3:wave*95;
       if(hinge&&!openAction){const p=Math.min(elapsed/4.8,1),angle=p*p*(3-2*p)*2.75;hinge.quaternion.copy(hingeStart).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),angle));}
     }
-    renderer.render(scene,camera);updateWaypoints();
+    const renderStart=performance.now();
+    finish.render(scene,camera);updateWaypoints();
+    if(!qualitySettled&&time>3&&!move){frameCost+=performance.now()-renderStart;frameSamples++;
+      if(frameSamples===90){qualitySettled=true;if(frameCost/frameSamples>24){renderer.setPixelRatio(Math.min(devicePixelRatio,1.15));renderer.setSize(innerWidth,innerHeight);finish.resize();}}
+    }
   }
   requestAnimationFrame(frame);
 }
@@ -170,7 +174,7 @@ $('#world').addEventListener('pointercancel',stopLooking);
 $('#world').addEventListener('lostpointercapture',stopLooking);
 $('#world').addEventListener('keydown',e=>{const directions={ArrowLeft:[40,0],ArrowRight:[-40,0],ArrowUp:[0,40],ArrowDown:[0,-40]};const delta=directions[e.key];if(delta){e.preventDefault();roomLook.turn(...delta,pose,focus);}});
 $('#world').addEventListener('webglcontextlost',e=>{e.preventDefault();useSimpleView('The moving room paused. The simple shop keeps every place available.');});
-addEventListener('resize',()=>{stopPageTurn();if(renderer){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth<600?58:52;camera.updateProjectionMatrix();}renderPages();});
+addEventListener('resize',()=>{stopPageTurn();if(renderer){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth<600?58:52;camera.updateProjectionMatrix();finish?.resize();}renderPages();});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#book-reader').open){const guideOpen=['shelf-panel','chair-panel'].some(id=>!$('#'+id).hidden);closePanels();if(guideOpen)$('#waypoints').hidden=false;$('#explore-toggle').focus();}if($('#book-reader').open&&!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)){if(e.key==='ArrowRight'){e.preventDefault();turnPage(1);}if(e.key==='ArrowLeft'){e.preventDefault();turnPage(-1);}}});
 
 let pages=[],basePages=[],chapters=[],pageIndex=Math.max(0,Number(saved.page)||0),plain=false,contentReady;
