@@ -1,6 +1,6 @@
 {
   "blender_version": "4.5.7 LTS",
-  "scene": "Cramped old curiosity shop, no recliner, no carpet, no grand arches",
+  "scene": "Dingy cellar bazaar with ancient repaired leather book",
   "coordinate_conversion": "Blender x,y,z \u2192 glTF x,z,-y",
   "entrance": [
     0,
@@ -75,6 +75,33 @@
     "width": 0.86,
     "length": 1.11,
     "thickness": 0.17
+  },
+  "hotspots": {
+    "gramophone": [
+      1.73,
+      1.5,
+      4.65
+    ],
+    "bowed_instrument": [
+      -1.25,
+      1.15,
+      -2.47
+    ],
+    "hanging_keys": [
+      1.2,
+      1.5,
+      -2.55
+    ],
+    "old_balance": [
+      -2.32,
+      1.1,
+      -1.12
+    ],
+    "loose_maps": [
+      1.64,
+      0.95,
+      1.48
+    ]
   },
   "poster": "dist/assets/poster.png"
 }
