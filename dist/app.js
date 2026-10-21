@@ -6,7 +6,7 @@ import { RoomAtmosphere } from './room-atmosphere.js';
 import { RoomLook } from './room-look.js';
 import { RoomRadiance } from './room-radiance.js';
 import { enhanceMaterials } from './room-materials.js';
-import { applyBakedLighting } from './room-lighting.js';
+import { applyRoomLightmap } from './room-lightmap.js';
 import { curiosities } from './curiosities.js';
 import { escapeHTML, inline, markdown, loadBook } from './book-content.js';
 
@@ -64,7 +64,7 @@ $('#note').addEventListener('input',()=>{saved.note=$('#note').value;persist();$
 async function initScene(){
   try{
     renderer=new THREE.WebGLRenderer({canvas:$('#world'),antialias:true,alpha:false,powerPreference:'high-performance'});
-    renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia('(pointer: coarse)').matches?1.5:1.85));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia('(pointer: coarse)').matches?1.5:1.85));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.AgXToneMapping;
     renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;
     scene=new THREE.Scene();scene.background=new THREE.Color(0x17120e);scene.fog=new THREE.FogExp2(0x24201a,.024);
     camera=new THREE.PerspectiveCamera(innerWidth<600?58:52,innerWidth/innerHeight,.04,60);
@@ -74,7 +74,7 @@ async function initScene(){
     const gltf=await new GLTFLoader().loadAsync('./assets/bookstore.glb');room=gltf.scene;scene.add(room);
     room.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
     await enhanceMaterials(room,renderer);
-    try{await applyBakedLighting(room,{occlusionStrength:0});}catch(error){console.warn('Baked room lighting unavailable; live lighting remains active.',error);}
+    try{await applyRoomLightmap(room,renderer);}catch(error){console.warn('Baked room lighting unavailable; live lighting remains active.',error);}
     room.traverse(o=>{if(!o.isMesh)return;const mats=Array.isArray(o.material)?o.material:[o.material];if(mats.every(m=>m.emissiveIntensity>0&&m.emissive?.getHex()>0))o.castShadow=false;});
     try{radiance.capture(room,atmosphere);}catch(error){console.warn('Room reflections unavailable; direct lighting remains active.',error);}
     renderer.shadowMap.needsUpdate=true;
