@@ -760,6 +760,90 @@ def isolate_conflicting_uv_faces(shop, face_indices):
     return {'target_faces': len(targets), 'triangulated_ngons': len(ngons), 'isolated_triangles': repaired}
 
 
+def allocate_repaired_uv_triangles(shop, face_indices, occupied, resolution):
+    """Put only defective triangles into unused tiles; retain the existing dense atlas."""
+    mesh = shop.data
+    targets = [mesh.polygons[index] for index in sorted(face_indices)]
+    if any(len(face.loop_indices) != 3 for face in targets):
+        raise RuntimeError('Reserved-tile repair requires already triangulated target faces')
+    layer = mesh.uv_layers[2].data
+    before = np.empty(len(mesh.loops) * 2, dtype=np.float32)
+    layer.foreach_get('uv', before)
+    before = before.reshape(-1, 2)
+    target_loops = np.array([index for face in targets for index in face.loop_indices], dtype=np.int64)
+    protected = np.ones(len(mesh.loops), dtype=bool)
+    protected[target_loops] = False
+    reserved = occupied.copy()
+    finite_bounded = np.isfinite(before).all(axis=1) & (before >= 0).all(axis=1) & (before <= 1).all(axis=1)
+    # Raster coverage can omit a subpixel triangle. Reserve all existing vertices
+    # and conservative boxes for tiny triangles as well, before adding separation.
+    points = np.floor(before[finite_bounded & protected] * resolution).astype(np.int32)
+    points = np.clip(points, 0, resolution - 1)
+    reserved[points[:, 1], points[:, 0]] = True
+    target_set = set(face_indices)
+    mesh.calc_loop_triangles()
+    for triangle in mesh.loop_triangles:
+        if triangle.polygon_index in target_set:
+            continue
+        indices = list(triangle.loops)
+        if not finite_bounded[indices].all():
+            continue
+        a, b, c = before[indices].astype(np.float64) * resolution
+        area = abs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) * .5
+        if area < 1:
+            low = np.maximum(0, np.floor(np.minimum(np.minimum(a, b), c)).astype(np.int32))
+            high = np.minimum(resolution - 1, np.ceil(np.maximum(np.maximum(a, b), c)).astype(np.int32))
+            reserved[low[1]:high[1] + 1, low[0]:high[0] + 1] = True
+    horizontal = reserved.copy()
+    for distance in range(1, 9):
+        horizontal[:, distance:] |= reserved[:, :-distance]
+        horizontal[:, :-distance] |= reserved[:, distance:]
+    expanded = horizontal.copy()
+    for distance in range(1, 9):
+        expanded[distance:, :] |= horizontal[:-distance, :]
+        expanded[:-distance, :] |= horizontal[distance:, :]
+    integral = np.pad(expanded.cumsum(axis=0, dtype=np.int32).cumsum(axis=1, dtype=np.int32), ((1, 0), (1, 0)))
+    chosen = None
+    availability = []
+    for size in (24, 16, 12):
+        sums = integral[size:, size:] - integral[:-size, size:] - integral[size:, :-size] + integral[:-size, :-size]
+        available = sums == 0
+        best_count, best_phase = 0, (0, 0)
+        # A shared grid guarantees disjoint tiles. Try all phase offsets to avoid
+        # wasting free strips just because their origin misses the first grid.
+        for y_phase in range(size):
+            for x_phase in range(size):
+                count = int(available[y_phase::size, x_phase::size].sum())
+                if count > best_count:
+                    best_count, best_phase = count, (y_phase, x_phase)
+        availability.append({'tile_pixels': size, 'free_tiles': best_count})
+        if best_count >= len(targets):
+            y_phase, x_phase = best_phase
+            grid = np.argwhere(available[y_phase::size, x_phase::size])[:len(targets)]
+            chosen = (size, [(int(x * size + x_phase), int(y * size + y_phase)) for y, x in grid])
+            break
+    if chosen is None:
+        raise RuntimeError('Not enough unused atlas tiles with eight-pixel separation: ' + json.dumps(availability))
+    size, origins = chosen
+    # Defective faces are microscopic rope/leather triangles. A regular triangle
+    # provides finite texel coverage instead of allowing razor-thin UV collapse.
+    # This changes only lightmap parameterization; the original material UV0 stays intact.
+    corner_offsets = ((3.5, 3.5), (size - 3.5, 3.5), (3.5, size - 3.5))
+    for face, (x, y) in zip(targets, origins):
+        for index, (u, v) in zip(face.loop_indices, corner_offsets):
+            layer[index].uv = ((x + u) / resolution, (y + v) / resolution)
+    after = np.empty(len(mesh.loops) * 2, dtype=np.float32)
+    layer.foreach_get('uv', after)
+    after = after.reshape(-1, 2)
+    if not np.array_equal(before[protected], after[protected]):
+        raise RuntimeError('Reserved-tile allocation changed an existing protected UV loop')
+    mesh.update()
+    return {'target_faces': len(targets), 'isolated_triangles': len(targets), 'triangulated_ngons': 0,
+            'tile_pixels': size, 'bake_padding_pixels': 3, 'existing_footprint_separation_pixels': 8,
+            'protected_uv_loops_unchanged': int(protected.sum()), 'tile_availability': availability,
+            'global_repacking': False}
+
+
 def repair_atlas():
     """Repair the existing checkpoint without repeating bevels or lighting edits."""
     import shutil
@@ -774,7 +858,7 @@ def repair_atlas():
     hinge_before = [tuple(hinge.location), tuple(hinge.rotation_euler), tuple(hinge.scale)]
     history = []
     for attempt in range(4):
-        _, stats = atlas_coverage(shop, ARGS.resolution, strict=False)
+        occupied, stats = atlas_coverage(shop, ARGS.resolution, strict=False)
         history.append({'inspection': stats})
         (ART / 'room-atlas-repair-diagnostics.json').write_text(json.dumps(history, indent=2) + '\n')
         note('Targeted atlas inspection', attempt=attempt, overlap_texels=stats['interior_overlap_texels'],
@@ -793,6 +877,8 @@ def repair_atlas():
                 raise RuntimeError('Atlas repair changed the book hinge')
             # Repeat the unchanged strict gate used by the actual bake.
             _, verified = atlas_coverage(shop, ARGS.resolution)
+            if verified['occupied_texels'] < history[0]['inspection']['occupied_texels']:
+                raise RuntimeError('Atlas repair reduced existing measurable texel coverage')
             shop.data.uv_layers.active_index = 0
             shop.data.uv_layers[0].active_render = True
             if any('repair' in item for item in history):
@@ -807,12 +893,8 @@ def repair_atlas():
             return
         if attempt == 3:
             break
-        if targets:
-            history[-1]['repair'] = isolate_conflicting_uv_faces(shop, targets)
-        else:
-            pack_all_lightmap_uvs(shop)
-            history[-1]['repair'] = {'repacked_existing_islands': True, 'triangulated_ngons': 0,
-                                    'out_of_bounds_uv_loops_before': stats['out_of_bounds_uv_loops']}
+        targets.update(stats['out_of_bounds_uv_faces'])
+        history[-1]['repair'] = allocate_repaired_uv_triangles(shop, targets, occupied, ARGS.resolution)
         note('Targeted UV islands repaired and repacked', **history[-1]['repair'])
     raise RuntimeError('Targeted atlas repair did not converge; original native checkpoint remains unchanged. Inspect room-atlas-repair-diagnostics.json')
 
