@@ -11,6 +11,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
+import runpy
 import struct
 import sys
 import zlib
@@ -39,7 +40,7 @@ ROOT = ARGS.root.resolve()
 ART = ROOT / 'art'
 ASSETS = ROOT / 'dist' / 'assets'
 NATIVE = ART / 'room-depth.blend'
-EXPORT = ASSETS / 'bookstore-depth.glb'
+EXPORT = ART / 'bookstore-depth.glb'
 LIGHTMAP = ASSETS / 'room-lightmap.png'
 MANIFEST = ASSETS / 'room-lightmap.json'
 REPORT = ART / 'room-depth-report.json'
@@ -988,10 +989,17 @@ def export_delivery():
     if not any(node.get('name') == 'BookCoverHinge' for node in doc['nodes']):
         raise RuntimeError('The export lost the book hinge')
     note('Portable GLB verified', primitives=len(primitives), texcoords=[0, 1, 2])
-    return {'path': str(EXPORT.relative_to(ROOT)), 'bytes': EXPORT.stat().st_size,
-            'sha256': hashlib.sha256(EXPORT.read_bytes()).hexdigest(), 'static_primitives': len(primitives),
-            'required_texcoords': [0, 1, 2], 'hinge_preserved': True,
-            'explicit_base_color_factors': color_factors}
+    splitter = runpy.run_path(str(ROOT / 'scripts' / 'split-room-glb.py'))['split_glb']
+    delivery = splitter(EXPORT, ASSETS / 'bookstore-depth.gltf')
+    delivery['path'] = str((ASSETS / delivery['path']).relative_to(ROOT))
+    for item in delivery['files']:
+        item['path'] = str((ASSETS / item['path']).relative_to(ROOT))
+    delivery['source_glb']['path'] = str(EXPORT.relative_to(ROOT))
+    delivery.update(static_primitives=len(primitives), required_texcoords=[0, 1, 2],
+                    hinge_preserved=True, explicit_base_color_factors=color_factors)
+    note('Portable glTF verified', parts=delivery['buffer_parts'],
+         bytes=delivery['total_bytes'], source_glb_sha256=delivery['source_glb']['sha256'])
+    return delivery
 
 
 def export_only():
