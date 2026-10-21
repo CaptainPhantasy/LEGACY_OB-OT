@@ -71,7 +71,7 @@ async function initScene(){
     radiance=new RoomRadiance(scene,renderer);
     magicLight=new THREE.PointLight(0xffd893,0,12,1.5);magicLight.position.set(0,1.45,-5);scene.add(magicLight);atmosphere=new RoomAtmosphere(scene);applyComfort();
     $('#load-note').textContent='The lamps are warming. The room is coming into view…';
-    const gltf=await new GLTFLoader().loadAsync('./assets/bookstore-depth.glb');room=gltf.scene;scene.add(room);
+    const gltf=await new GLTFLoader().loadAsync('./assets/bookstore-depth.gltf');room=gltf.scene;scene.add(room);
     room.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
     await enhanceMaterials(room,renderer);
     try{await applyRoomLightmap(room,renderer);}catch(error){console.warn('Baked room lighting unavailable; live lighting remains active.',error);}
