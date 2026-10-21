@@ -1,7 +1,7 @@
 """Cycles lighting delivery for the existing shop; run with Blender 4.5.
 
 blender -b --python art/build-room-depth.py -- --root /absolute/project --stage prepare
-Stages: prepare, preview, bake, review, beauty. Originals are never overwritten.
+Stages: prepare, repair-atlas, preview, bake, review, beauty. Originals are never overwritten.
 The exported bake review intentionally isolates diffuse lighting; it is not a
 claim that the browser's reflections, postprocessing or interaction were tested.
 """
@@ -24,7 +24,7 @@ from mathutils import Vector
 def arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', required=True, type=Path)
-    parser.add_argument('--stage', choices=['prepare', 'preview', 'bake', 'review', 'beauty'], required=True)
+    parser.add_argument('--stage', choices=['prepare', 'repair-atlas', 'preview', 'bake', 'review', 'beauty'], required=True)
     parser.add_argument('--samples', type=int)
     parser.add_argument('--resolution', type=int, default=4096)
     parser.add_argument('--width', type=int, default=1400)
@@ -395,14 +395,17 @@ def png_chunk(kind, payload):
     return struct.pack('>I', len(payload)) + kind + payload + struct.pack('>I', zlib.crc32(kind + payload) & 0xffffffff)
 
 
-def atlas_coverage(shop, resolution):
-    """Rasterize triangle interiors; count overlaps independently of empty image pixels."""
+def atlas_coverage(shop, resolution, strict=True):
+    """Measure interior overlaps and their owners without weakening the bake gate."""
     mesh = shop.data
     mesh.calc_loop_triangles()
     uv = mesh.uv_layers[2].data
     coverage = np.zeros((resolution, resolution), dtype=np.uint16)
+    owners = np.full((resolution, resolution), -1, dtype=np.int32)
     degenerate = 0
-    for triangle in mesh.loop_triangles:
+    degenerate_positive_area_faces = set()
+    conflict_faces, collision_pairs = set(), {}
+    for triangle_index, triangle in enumerate(mesh.loop_triangles):
         a, b, c = [(uv[index].uv.x * resolution - .5, uv[index].uv.y * resolution - .5) for index in triangle.loops]
         x0 = max(0, math.ceil(min(a[0], b[0], c[0])))
         x1 = min(resolution - 1, math.floor(max(a[0], b[0], c[0])))
@@ -411,6 +414,8 @@ def atlas_coverage(shop, resolution):
         denominator = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1])
         if abs(denominator) < 1e-9:
             degenerate += 1
+            if triangle.area > 1e-12:
+                degenerate_positive_area_faces.add(triangle.polygon_index)
             continue
         if x1 < x0 or y1 < y0:
             continue
@@ -419,15 +424,162 @@ def atlas_coverage(shop, resolution):
         wb = ((c[1] - a[1]) * (xx - c[0]) + (a[0] - c[0]) * (yy - c[1])) / denominator
         # Exclude shared triangle edges from overlap accounting.
         inside = (wa > 1e-6) & (wb > 1e-6) & ((wa + wb) < 1 - 1e-6)
-        coverage[y0:y1 + 1, x0:x1 + 1] += inside.astype(np.uint16)
+        region = coverage[y0:y1 + 1, x0:x1 + 1]
+        owner_region = owners[y0:y1 + 1, x0:x1 + 1]
+        collision = inside & (region > 0)
+        if collision.any():
+            conflict_faces.add(triangle.polygon_index)
+            previous, counts = np.unique(owner_region[collision], return_counts=True)
+            for previous_index, count in zip(previous, counts):
+                previous_triangle = mesh.loop_triangles[int(previous_index)]
+                conflict_faces.add(previous_triangle.polygon_index)
+                key = (int(previous_index), triangle_index)
+                collision_pairs[key] = collision_pairs.get(key, 0) + int(count)
+        owner_region[inside & (owner_region < 0)] = triangle_index
+        region += inside.astype(np.uint16)
     occupied = coverage > 0
     stats = {'occupied_texels': int(occupied.sum()), 'atlas_coverage_fraction': float(occupied.mean()),
-             'interior_overlap_texels': int((coverage > 1).sum()), 'degenerate_uv_triangles': degenerate}
-    if stats['interior_overlap_texels']:
+             'interior_overlap_texels': int((coverage > 1).sum()), 'degenerate_uv_triangles': degenerate,
+             'positive_area_degenerate_uv_faces': sorted(degenerate_positive_area_faces),
+             'conflicting_faces': sorted(conflict_faces), 'collision_triangle_pair_count': len(collision_pairs)}
+    details = []
+    for (first, second), count in sorted(collision_pairs.items(), key=lambda item: item[1], reverse=True)[:40]:
+        pair = [mesh.loop_triangles[first], mesh.loop_triangles[second]]
+        areas_uv = []
+        for tri in pair:
+            a, b, c = [uv[index].uv for index in tri.loops]
+            areas_uv.append(abs((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) * .5)
+        details.append({'triangle_indices': [first, second], 'face_indices': [t.polygon_index for t in pair],
+                        'overlap_texels': count, 'shared_vertices': len(set(pair[0].vertices) & set(pair[1].vertices)),
+                        'world_area_m2': [float(t.area) for t in pair], 'uv_area': areas_uv,
+                        'materials': [mesh.materials[t.material_index].name for t in pair]})
+    stats['collision_examples'] = details
+    if strict and stats['interior_overlap_texels']:
         raise RuntimeError('Unique UV atlas contains overlapping triangle interiors: ' + json.dumps(stats))
     if not stats['occupied_texels']:
         raise RuntimeError('UV atlas has no measurable texel coverage')
     return occupied, stats
+
+
+def uv0_signature(mesh):
+    """UV0 coordinates may be repeated by triangulation, but never relocated."""
+    values = {}
+    uv = mesh.uv_layers[0].data
+    for loop in mesh.loops:
+        coordinate = tuple(round(float(value), 7) for value in uv[loop.index].uv)
+        values.setdefault(loop.vertex_index, set()).add(coordinate)
+    return values
+
+
+def mesh_positions(mesh):
+    values = array.array('f', [0.0]) * (len(mesh.vertices) * 3)
+    mesh.vertices.foreach_get('co', values)
+    return values.tobytes()
+
+
+def isolate_conflicting_uv_faces(shop, face_indices):
+    """Triangulate only specified faces; retain topology, UV0 and materials elsewhere."""
+    bm = bmesh.new()
+    bm.from_mesh(shop.data)
+    bm.faces.ensure_lookup_table()
+    targets = [bm.faces[index] for index in sorted(face_indices)]
+    original_triangles = [face for face in targets if len(face.verts) == 3]
+    ngons = [face for face in targets if len(face.verts) > 3]
+    created = bmesh.ops.triangulate(bm, faces=ngons, quad_method='BEAUTY', ngon_method='BEAUTY')['faces'] if ngons else []
+    # BMesh can reuse an original face for one output triangle. Include both
+    # returned faces and surviving targets instead of depending on reuse details.
+    surviving = [face for face in targets if face.is_valid and len(face.verts) == 3]
+    isolated = list(set(original_triangles + list(created) + surviving))
+    uv = bm.loops.layers.uv.get(BAKE_UV)
+    if uv is None:
+        bm.free()
+        raise RuntimeError('Unique lightmap layer missing during targeted repair')
+    repaired = 0
+    for ordinal, face in enumerate(isolated):
+        if not face.is_valid or len(face.verts) != 3:
+            continue
+        vertices = [loop.vert.co for loop in face.loops]
+        # Put the longest edge on the horizontal axis for a stable planar triangle.
+        first, second = max([(0, 1), (1, 2), (2, 0)], key=lambda pair: (vertices[pair[1]] - vertices[pair[0]]).length_squared)
+        third = 3 - first - second
+        origin = vertices[first]
+        tangent = vertices[second] - origin
+        normal = tangent.cross(vertices[third] - origin)
+        if tangent.length_squared < 1e-24 or normal.length_squared < 4e-24:
+            continue  # Existing zero-area geometry cannot acquire a physical lightmap surface.
+        tangent.normalize()
+        normal.normalize()
+        bitangent = normal.cross(tangent)
+        # Unique remote offsets prevent neighboring repaired faces from becoming
+        # a shared island before the global density normalization and packing.
+        # Keep offsets small: huge UV coordinates lose tiny bevel-triangle
+        # precision because Blender stores UV coordinates as float32.
+        offset = Vector((2.0 + (ordinal % 31) * .0311, 2.0 + (ordinal // 31) * .0297))
+        for loop in face.loops:
+            delta = loop.vert.co - origin
+            loop[uv].uv = (delta.dot(tangent) + offset.x, delta.dot(bitangent) + offset.y)
+        repaired += 1
+    bm.normal_update()
+    bm.to_mesh(shop.data)
+    bm.free()
+    shop.data.update()
+    bpy.ops.object.select_all(action='DESELECT')
+    shop.hide_set(False)
+    shop.select_set(True)
+    bpy.context.view_layer.objects.active = shop
+    shop.data.uv_layers.active_index = 2
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.uv.average_islands_scale()
+    bpy.ops.uv.pack_islands(rotate=True, scale=True, margin_method='FRACTION', margin=8 / ARGS.resolution)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    return {'target_faces': len(targets), 'triangulated_ngons': len(ngons), 'isolated_triangles': repaired}
+
+
+def repair_atlas():
+    """Repair the existing checkpoint without repeating bevels or lighting edits."""
+    import shutil
+    backup = ART / 'room-depth-before-atlas-repair.blend'
+    if not backup.exists():
+        shutil.copy2(NATIVE, backup)
+    bpy.ops.wm.open_mainfile(filepath=str(NATIVE), load_ui=False)
+    shop = bpy.data.objects['OldCuriosityShop']
+    positions_before = mesh_positions(shop.data)
+    uv0_before = uv0_signature(shop.data)
+    hinge = bpy.data.objects['BookCoverHinge']
+    hinge_before = [tuple(hinge.location), tuple(hinge.rotation_euler), tuple(hinge.scale)]
+    history = []
+    for attempt in range(4):
+        _, stats = atlas_coverage(shop, ARGS.resolution, strict=False)
+        history.append({'inspection': stats})
+        (ART / 'room-atlas-repair-diagnostics.json').write_text(json.dumps(history, indent=2) + '\n')
+        note('Targeted atlas inspection', attempt=attempt, overlap_texels=stats['interior_overlap_texels'],
+             conflicting_faces=len(stats['conflicting_faces']), collapsed_positive_area_faces=len(stats['positive_area_degenerate_uv_faces']),
+             coverage=stats['atlas_coverage_fraction'], collision_examples=stats['collision_examples'][:8])
+        targets = set(stats['conflicting_faces']) | set(stats['positive_area_degenerate_uv_faces'])
+        if not targets:
+            if mesh_positions(shop.data) != positions_before:
+                raise RuntimeError('Atlas repair changed vertex positions')
+            if uv0_signature(shop.data) != uv0_before:
+                raise RuntimeError('Atlas repair changed original material UV0 coordinates')
+            if [tuple(hinge.location), tuple(hinge.rotation_euler), tuple(hinge.scale)] != hinge_before:
+                raise RuntimeError('Atlas repair changed the book hinge')
+            # Repeat the unchanged strict gate used by the actual bake.
+            _, verified = atlas_coverage(shop, ARGS.resolution)
+            shop.data.uv_layers.active_index = 0
+            shop.data.uv_layers[0].active_render = True
+            bpy.ops.wm.save_as_mainfile(filepath=str(NATIVE), compress=True)
+            report_update(atlas_repair={'attempts': history, 'verified': verified,
+                                       'vertex_positions_unchanged': True, 'uv0_unchanged': True,
+                                       'hinge_unchanged': True, 'backup': str(backup.relative_to(ROOT))})
+            note('Atlas repair verified and saved', overlap_texels=verified['interior_overlap_texels'],
+                 occupied_texels=verified['occupied_texels'], path=str(NATIVE))
+            return
+        if attempt == 3:
+            break
+        history[-1]['repair'] = isolate_conflicting_uv_faces(shop, targets)
+        note('Targeted UV islands repaired and repacked', **history[-1]['repair'])
+    raise RuntimeError('Targeted atlas repair did not converge; original native checkpoint remains unchanged. Inspect room-atlas-repair-diagnostics.json')
 
 
 def save_lightmap(image, path, occupied):
@@ -820,6 +972,8 @@ if __name__ == '__main__':
     ASSETS.mkdir(parents=True, exist_ok=True)
     if ARGS.stage == 'prepare':
         prepare()
+    elif ARGS.stage == 'repair-atlas':
+        repair_atlas()
     elif ARGS.stage == 'bake':
         bake()
     elif ARGS.stage == 'review':
