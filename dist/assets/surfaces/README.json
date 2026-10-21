@@ -1,0 +1,36 @@
+{
+  "generator": "art/build_material_textures.py",
+  "seed": 445,
+  "resolution": 512,
+  "lighting": "None: these encode only colour, surface height and roughness.",
+  "tile_metres": {
+    "wood": [
+      0.24,
+      1.6
+    ],
+    "mineral": [
+      0.6,
+      0.6
+    ],
+    "cloth": [
+      0.08,
+      0.08
+    ],
+    "paper": [
+      0.18,
+      0.18
+    ],
+    "leather": [
+      0.18,
+      0.18
+    ],
+    "metal": [
+      0.24,
+      0.24
+    ],
+    "glass": [
+      0.3,
+      0.3
+    ]
+  }
+}
