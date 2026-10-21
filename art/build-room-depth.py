@@ -775,33 +775,15 @@ def allocate_repaired_uv_triangles(shop, face_indices, occupied, resolution):
     protected[target_loops] = False
     reserved = occupied.copy()
     finite_bounded = np.isfinite(before).all(axis=1) & (before >= 0).all(axis=1) & (before <= 1).all(axis=1)
-    # Raster coverage can omit a subpixel triangle. Reserve all existing vertices
-    # and conservative boxes for tiny triangles as well, before adding separation.
-    points = np.floor(before[finite_bounded & protected] * resolution).astype(np.int32)
-    points = np.clip(points, 0, resolution - 1)
-    reserved[points[:, 1], points[:, 0]] = True
     target_set = set(face_indices)
-    mesh.calc_loop_triangles()
-    for triangle in mesh.loop_triangles:
-        if triangle.polygon_index in target_set:
-            continue
-        indices = list(triangle.loops)
-        if not finite_bounded[indices].all():
-            continue
-        a, b, c = before[indices].astype(np.float64) * resolution
-        area = abs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) * .5
-        if area < 1:
-            low = np.maximum(0, np.floor(np.minimum(np.minimum(a, b), c)).astype(np.int32))
-            high = np.minimum(resolution - 1, np.ceil(np.maximum(np.maximum(a, b), c)).astype(np.int32))
-            reserved[low[1]:high[1] + 1, low[0]:high[0] + 1] = True
-    horizontal = reserved.copy()
-    for distance in range(1, 9):
-        horizontal[:, distance:] |= reserved[:, :-distance]
-        horizontal[:, :-distance] |= reserved[:, distance:]
-    expanded = horizontal.copy()
-    for distance in range(1, 9):
-        expanded[distance:, :] |= horizontal[:-distance, :]
-        expanded[:-distance, :] |= horizontal[distance:, :]
+    if not finite_bounded[protected].all():
+        raise RuntimeError('Protected lightmap UV loops are not finite and bounded')
+    # Thin triangles may have substantial area but no interior texel centers.
+    # Reserve every protected edge conservatively, not just small-area boxes.
+    clearance = runpy.run_path(str(ROOT / 'scripts' / 'validate-room-atlas-clearance.py'))
+    edge_mask, edge_stats = clearance['conservative_uv_edge_mask'](mesh, before, target_set, resolution)
+    reserved |= edge_mask
+    expanded = clearance['dilate_square'](reserved, 8)
     integral = np.pad(expanded.cumsum(axis=0, dtype=np.int32).cumsum(axis=1, dtype=np.int32), ((1, 0), (1, 0)))
     chosen = None
     availability = []
@@ -841,7 +823,7 @@ def allocate_repaired_uv_triangles(shop, face_indices, occupied, resolution):
     return {'target_faces': len(targets), 'isolated_triangles': len(targets), 'triangulated_ngons': 0,
             'tile_pixels': size, 'bake_padding_pixels': 3, 'existing_footprint_separation_pixels': 8,
             'protected_uv_loops_unchanged': int(protected.sum()), 'tile_availability': availability,
-            'global_repacking': False}
+            'global_repacking': False, 'protected_edge_reservation': edge_stats}
 
 
 def repair_atlas():
