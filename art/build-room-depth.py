@@ -899,6 +899,31 @@ def repair_atlas():
     raise RuntimeError('Targeted atlas repair did not converge; original native checkpoint remains unchanged. Inspect room-atlas-repair-diagnostics.json')
 
 
+def filtered_png_row(rgba, previous=None):
+    """Choose a reversible PNG filter; all four numeric RGBA channels stay exact."""
+    row = np.asarray(rgba, dtype=np.uint8).reshape(-1).astype(np.int16)
+    above = np.zeros_like(row) if previous is None else np.asarray(previous, dtype=np.uint8).reshape(-1).astype(np.int16)
+    if row.size % 4 or above.size != row.size:
+        raise ValueError('PNG filter rows must have equal RGBA8 dimensions')
+    left = np.zeros_like(row)
+    left[4:] = row[:-4]
+    upper_left = np.zeros_like(row)
+    upper_left[4:] = above[:-4]
+    estimate = left + above - upper_left
+    pa, pb, pc = np.abs(estimate - left), np.abs(estimate - above), np.abs(estimate - upper_left)
+    paeth = np.where((pa <= pb) & (pa <= pc), left, np.where(pb <= pc, above, upper_left))
+    predictors = (np.zeros_like(row), left, above, (left + above) // 2, paeth)
+    best, best_score = None, None
+    for tag, predictor in enumerate(predictors):
+        residual = ((row - predictor) & 255).astype(np.uint8)
+        # PNG's signed-residual heuristic selects the most compressible row.
+        signed = residual.astype(np.int16)
+        score = int(np.minimum(signed, 256 - signed).sum())
+        if best_score is None or score < best_score:
+            best, best_score = bytes((tag,)) + residual.tobytes(), score
+    return best
+
+
 def save_lightmap(image, path, occupied):
     """Encode linear illumination as square-root RGBM data, without color transforms."""
     width, height = image.size
@@ -912,8 +937,9 @@ def save_lightmap(image, path, occupied):
     maximum = float(measured.max())
     maximum_all = float(rgb.max())
     scale = float(max(SCALE, 2 ** math.ceil(math.log2(max(maximum_all, 1e-6)))))
-    compressor = zlib.compressobj(6)
+    compressor = zlib.compressobj(9)
     compressed = []
+    previous_rgba = None
     clipped = int((rgb > scale).sum())
     if clipped:
         raise RuntimeError('RGBM scale does not cover the source illumination range')
@@ -943,7 +969,8 @@ def save_lightmap(image, path, occupied):
             positive_decoded = decoded[row_occupied][decoded[row_occupied] > 0]
             if positive_decoded.size:
                 minimum_positive = min(minimum_positive, float(positive_decoded.min()))
-        compressed.append(compressor.compress(b'\0' + rgba.tobytes()))
+        compressed.append(compressor.compress(filtered_png_row(rgba, previous_rgba)))
+        previous_rgba = rgba
     compressed.append(compressor.flush())
     png = b'\x89PNG\r\n\x1a\n' + png_chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 6, 0, 0, 0))
     # No sRGB/gAMA chunk: all four channels store non-color numeric data.
