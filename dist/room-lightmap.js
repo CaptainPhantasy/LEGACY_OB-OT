@@ -12,12 +12,13 @@ export function updateRoomRevelation(room, power) {
 // Cycles' diffuse bake excludes material colour and contains direct + indirect
 // illumination. It replaces diffuse lighting; adding it to live diffuse lights
 // would light the room twice. View-dependent reflections remain live.
-function lightmappedMaterial(source, texture, scale, shadowStrength, revelation) {
+function lightmappedMaterial(source, texture, scale, shadowStrength, revelation, encoding) {
   const material = source.clone();
   const previousCompile = source.onBeforeCompile;
   const previousKey = source.customProgramCacheKey.bind(source);
   material.lightMap = texture;
   material.lightMapIntensity = scale;
+  if (encoding === 'RGBM_SQRT') material.defines = { ...material.defines, ROOM_LIGHTMAP_RGBM_SQRT: '' };
   material.onBeforeCompile = (shader, renderer) => {
     previousCompile.call(source, shader, renderer);
     const shadowAnchor = '#include <shadowmap_pars_fragment>';
@@ -45,7 +46,12 @@ function lightmappedMaterial(source, texture, scale, shadowStrength, revelation)
       `)
       .replace(diffuseAnchor, `${diffuseAnchor}
         #ifdef USE_LIGHTMAP
-          vec3 roomDiffuseIllumination = texture2D( lightMap, vLightMapUv ).rgb * lightMapIntensity;
+          vec4 roomLightmapSample = texture2D( lightMap, vLightMapUv );
+          #ifdef ROOM_LIGHTMAP_RGBM_SQRT
+            vec3 roomDiffuseIllumination = pow( roomLightmapSample.rgb * roomLightmapSample.a, vec3( 2.0 ) ) * lightMapIntensity;
+          #else
+            vec3 roomDiffuseIllumination = roomLightmapSample.rgb * lightMapIntensity;
+          #endif
           float roomMovingShadow = mix( 1.0, getShadowMask(), roomMovingShadowStrength );
           vec3 roomRevelationDiffuse = vec3( 0.0 );
           if ( roomRevelationPower > 0.0 ) {
@@ -62,18 +68,20 @@ function lightmappedMaterial(source, texture, scale, shadowStrength, revelation)
         #endif
       `);
   };
-  material.customProgramCacheKey = () => `${previousKey()}|room-uv-lightmap-v2`;
+  material.customProgramCacheKey = () => `${previousKey()}|room-uv-lightmap-v3|${encoding || 'SRGB'}`;
   material.userData.roomLightmap = true;
   material.needsUpdate = true;
   return material;
 }
 
 function validateManifest(manifest) {
-  const { resolution, illuminationScale } = manifest;
+  const { resolution, illuminationScale, encoding } = manifest;
+  const rgbm = encoding === 'RGBM_SQRT';
   if (manifest.version !== 1 || manifest.node !== 'OldCuriosityShop' ||
+      (encoding !== undefined && !rgbm) ||
       !Number.isInteger(resolution) || resolution < 256 || resolution > 8192 ||
       (resolution & (resolution - 1)) !== 0 ||
-      !Number.isFinite(illuminationScale) || illuminationScale <= 0 || illuminationScale > 64) {
+      !Number.isFinite(illuminationScale) || illuminationScale <= 0 || illuminationScale > (rgbm ? 4096 : 64)) {
     throw new Error('The room lightmap has an unexpected format.');
   }
 }
@@ -120,7 +128,10 @@ export async function applyRoomLightmap(room, renderer, { movingShadowStrength =
     texture.dispose();
     throw new Error('The room lightmap image does not match its manifest.');
   }
-  texture.colorSpace = THREE.SRGBColorSpace;
+  // RGBM's alpha is a multiplier, not opacity. Raw bytes must reach the shader:
+  // automatic sRGB decoding would corrupt their product and crush low light.
+  texture.colorSpace = manifest.encoding === 'RGBM_SQRT' ? THREE.NoColorSpace : THREE.SRGBColorSpace;
+  texture.premultiplyAlpha = false;
   texture.flipY = false;
   texture.channel = 2;
   texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
@@ -141,7 +152,7 @@ export async function applyRoomLightmap(room, renderer, { movingShadowStrength =
     const source = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
     const materials = source.map(material => {
       if (!copies.has(material)) copies.set(material,
-        lightmappedMaterial(material, texture, manifest.illuminationScale, movingShadowStrength, revelation));
+        lightmappedMaterial(material, texture, manifest.illuminationScale, movingShadowStrength, revelation, manifest.encoding));
       return copies.get(material);
     });
     return [mesh, Array.isArray(mesh.material) ? materials : materials[0]];
