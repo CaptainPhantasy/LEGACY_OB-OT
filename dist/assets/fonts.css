@@ -1,0 +1,3 @@
+/* The shop also works with the visitor's local Georgia serif. */
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:400;font-display:swap;src:url('./cormorant.ttf') format('truetype')}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:400;font-display:swap;src:url('./cormorant-italic.ttf') format('truetype')}

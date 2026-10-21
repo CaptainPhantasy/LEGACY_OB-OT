@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17130f">
+  <meta name="description" content="A little secondhand bookshop. A Sunday afternoon. There is still time to look around.">
+  <title>Sunday’s — Old books & odd things</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/mark.svg">
+  <link rel="stylesheet" href="./style.css">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+</head>
+<body>
+  <a class="skip-link" href="#choices">Skip to the choices</a>
+  <canvas id="world" aria-label="A dark, cramped antique shop, crowded with old books, crates, jars and unfamiliar objects, with a narrow passage into the back" role="img"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div id="revelation" aria-hidden="true"><div class="solar-ring"></div><div class="solar-ring second"></div><div class="flare-core"></div></div>
+  <header class="shop-header">
+    <button id="home" class="wordmark" aria-label="Return to the shop entrance"><span class="brand-ornament" aria-hidden="true">✧</span><span>Sunday’s<small>OLD BOOKS & ODD THINGS</small></span></button>
+    <nav aria-label="Shop controls">
+      <button id="explore-toggle" class="text-button" aria-expanded="false" aria-controls="explore-menu">Look around <span aria-hidden="true">↗</span></button>
+      <button id="settings-toggle" class="icon-button" aria-label="Comfort and sound settings" aria-expanded="false" aria-controls="settings-panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="#17130f"/><circle cx="15" cy="17" r="3" fill="#17130f"/></svg></button>
+    </nav>
+  </header>
+  <main id="experience">
+    <section id="intro" class="intro">
+      <div class="eyebrow"><span class="fine-line"></span> COME IN. WE’RE STILL OPEN.</div>
+      <h1>Just<br><em>looking?</em></h1>
+      <p>Mind the boxes. Some things have been here for years.<br>There’s more in the back.</p>
+      <div class="intro-actions" id="choices">
+        <button id="enter" class="brass-button">Step inside with sound <span aria-hidden="true">→</span></button>
+        <button id="enter-quietly" class="quiet-button">Enter quietly</button>
+        <button id="resume" class="quiet-button" hidden>Return to your bookmark <span aria-hidden="true">↗</span></button>
+      </div>
+      <div id="load-note" class="load-note" role="status">The shop is settling into view…</div>
+    </section>
+    <section id="scene-caption" class="scene-caption" hidden aria-live="polite">
+      <div id="place-label" class="eyebrow">BETWEEN THE SHELVES</div>
+      <h2 id="place-title">Follow your curiosity.</h2>
+      <p id="place-description">There is no right way to look around.</p>
+      <div id="place-actions" class="place-actions"></div>
+    </section>
+    <div id="waypoints" hidden>
+      <button class="waypoint" data-place="shelves"><span class="point" aria-hidden="true"></span><span>Among the shelves <i>01</i></span></button>
+      <button class="waypoint" data-place="table"><span class="point" aria-hidden="true"></span><span>The back table <i>02</i></span></button>
+      <button class="waypoint" data-place="chair"><span class="point" aria-hidden="true"></span><span>A cabinet of oddities <i>03</i></span></button>
+    </div>
+    <aside id="explore-menu" class="panel explore-menu" hidden aria-label="Places to explore">
+      <div class="eyebrow">WHICHEVER WAY YOU LIKE</div>
+      <button data-go="shelves"><span>01</span>Among the shelves <b>↗</b></button>
+      <button data-go="table"><span>02</span>The back table <b>↗</b></button>
+      <button data-go="chair"><span>03</span>A cabinet of oddities <b>↗</b></button>
+      <button data-go="leave"><span>04</span>Back out into the world <b>↗</b></button>
+      <p>You can come back whenever you like.</p>
+    </aside>
+    <aside id="settings-panel" class="panel settings-panel" hidden aria-label="Comfort and sound">
+      <div class="eyebrow">MAKE YOURSELF COMFORTABLE</div>
+      <label><span>Shop sounds<small>A clock, floorboards, paper and leather</small></span><input id="sound-setting" type="checkbox" role="switch"></label>
+      <label><span>Gentle movement<small>Still views and a softer book opening</small></span><input id="motion-setting" type="checkbox" role="switch"></label>
+      <label><span>Brighter room<small>Lift the shadows</small></span><input id="brightness-setting" type="checkbox" role="switch"></label>
+      <button id="simple-view" class="underlined">Use the simple shop view</button>
+      <p>Choose a place to move there. You can also drag the scene to look around. Every place is reachable with Tab and Enter.</p>
+    </aside>
+    <section id="shelf-panel" class="discovery-panel" hidden aria-labelledby="shelf-title">
+      <button class="close-panel" data-close="shelf-panel" aria-label="Close the shelf">×</button>
+      <div class="eyebrow">A FEW THINGS LEFT LYING AROUND</div>
+      <h2 id="shelf-title">One thing leads<br>to <em>another.</em></h2>
+      <p class="panel-intro">A page, a song, a question. Any of these could take the rest of the afternoon.</p>
+      <div class="rabbit-holes">
+        <a href="https://en.wikipedia.org/wiki/Special:Random" target="_blank" rel="noopener noreferrer"><span class="shelf-number">I</span><span>An unmarked volume<small>Open a random page of Wikipedia.</small></span><span aria-hidden="true">↗</span></a>
+        <a href="https://www.gutenberg.org/" target="_blank" rel="noopener noreferrer"><span class="shelf-number">II</span><span>A story without an appointment<small>Wander through Project Gutenberg.</small></span><span aria-hidden="true">↗</span></a>
+        <a href="https://images.nasa.gov/" target="_blank" rel="noopener noreferrer"><span class="shelf-number">III</span><span>Something beyond the ceiling<small>Lose yourself in NASA’s image library.</small></span><span aria-hidden="true">↗</span></a>
+        <a href="https://archive.org/details/etree" target="_blank" rel="noopener noreferrer"><span class="shelf-number">IV</span><span>Just one more song<small>Live music from the Internet Archive.</small></span><span aria-hidden="true">↗</span></a>
+      </div>
+      <p class="small-note">These doors open other websites in a new tab. The shop stays here.</p>
+      <button class="underlined" data-close="shelf-panel">Keep wandering here <span aria-hidden="true">→</span></button>
+    </section>
+    <section id="chair-panel" class="discovery-panel chair-panel" hidden aria-labelledby="chair-title">
+      <button class="close-panel" data-close="chair-panel" aria-label="Step away from the cabinet">×</button>
+      <div class="eyebrow">THINGS WITHOUT LABELS</div>
+      <h2 id="chair-title">No labels.<br><em>No explanations.</em></h2>
+      <p>A tarnished cage. A cloudy bottle. A little box with a winding key. You could spend all afternoon wondering.</p>
+      <button id="music-box" class="underlined">Wind the little music box <span aria-hidden="true">↻</span></button><p id="music-box-status" class="small-note" role="status">It looks as though it might still work.</p><label for="note">A blank postcard, if you have something to remember.</label>
+      <textarea id="note" placeholder="Leave yourself a little note…" maxlength="5000" rows="5"></textarea>
+      <p id="note-status" class="small-note" role="status">Your note stays in this browser, on this device.</p>
+      <button class="underlined" data-close="chair-panel">Step away from the cabinet <span aria-hidden="true">→</span></button>
+    </section>
+    <section id="leave-panel" class="leave-panel" hidden>
+      <div class="eyebrow">THE LITTLE BELL ABOVE THE DOOR</div>
+      <h2>Until <em>next time.</em></h2>
+      <p>The afternoon is still yours.<br>The shop will be here.</p>
+      <button id="return-shop" class="brass-button">Step back inside <span aria-hidden="true">→</span></button>
+      <a href="https://en.wikipedia.org/wiki/Special:Random" target="_blank" rel="noopener noreferrer" class="underlined">Let the world surprise you ↗</a>
+    </section>
+    <div id="opening-caption" class="opening-caption" hidden role="status">The spine gives.<br><em>Something in the room answers.</em></div>
+  </main>
+  <footer class="shop-footer">
+    <div class="clock"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16"/><path d="M18 18 6 18M18 18 23 24"/><circle cx="18" cy="18" r="1"/></svg><span>4:45 <small>SUNDAY AFTERNOON</small></span></div>
+    <div id="footer-note">FIFTEEN MINUTES TO CLOSE. GIVE OR TAKE.</div>
+    <button id="sound-toggle" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h4l5-4v12l-5-4H4zM17 9c2 2 2 4 0 6M20 6c4 4 4 8 0 12"/></svg><span>Sound off</span></button>
+  </footer>
+  <dialog id="book-reader" aria-labelledby="book-title">
+    <div class="reader-top"><span>LEGACY AI SOLUTIONS</span><div><button id="reading-mode">Plain reading</button><button id="close-book">Close the book <span aria-hidden="true">×</span></button></div></div>
+    <div class="book-heading"><div class="eyebrow">YOU FOUND YOUR WAY HERE.</div><h2 id="book-title">The Book of <em>Immutable Truths</em></h2><p>The principles that guide every decision in the Legacy AI universe.</p></div>
+    <div class="book-spread" id="spread" aria-live="polite"><article class="paper left-paper" id="left-page"></article><article class="paper right-paper" id="right-page"></article><div class="book-ribbon" aria-hidden="true"></div></div>
+    <article id="plain-reading" class="plain-reading" hidden></article>
+    <div class="reader-bottom"><button id="prev-page" aria-label="Previous pages">← <span>Previous</span></button><span id="page-status"></span><button id="next-page" aria-label="Next pages"><span>Turn the page</span> →</button></div>
+    <div class="reader-tools"><button id="contents-toggle" aria-expanded="false" aria-controls="contents">Find a promise</button><span id="bookmark-status">Your place is kept in this browser.</span><a href="./content/oath.txt" download="What Software Owes You.txt">Keep a copy ↓</a></div>
+    <nav id="contents" hidden aria-label="Book contents"></nav>
+  </dialog>
+  <div id="announcement" class="sr-only" aria-live="polite"></div>
+  <noscript><div class="noscript">You’re welcome here. The moving shop needs JavaScript, but <a href="./content/oath.txt">the book is still yours to read</a>.</div></noscript>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

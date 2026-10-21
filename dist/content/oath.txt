@@ -1,0 +1,133 @@
+# What Software Owes You or, Douglas’s Oath To This Work
+
+*A candidate for the Legacy AI / Floyd's Labs Standards & Practices collection.
+Offered as prose, not law. It earns its place only if we make it truth.
+---
+
+## Who this software or application we build is for
+
+Everyone. Because everyone is a beginner somewhere.
+
+The engineer who has run servers for thirty years picks up a phone app for the
+first time and is a beginner. A child opens a homework tool and is a beginner.
+A tired parent, at the end of a long day, opens anything at all — beginner.
+
+Most software is built for people who already know the software. That is a
+strange way to build things, and it leaves out almost everyone at the exact
+moment they arrive.
+
+This document describes what a software platform owes the people who use it,
+if its goal is to welcome every level of user — the child, the elder, the
+expert, the exhausted, the one who simply does not have time to learn its
+ways.
+
+It is written in plain words on purpose. If a sentence here needs a
+dictionary, that sentence is wrong.
+
+---
+
+## The promises software owes you
+
+### 1. You never need to know what you were never taught
+
+Software may not assume you arrived knowing it. Whatever it needs from you,
+it teaches you at the moment it needs it — in one short sentence, right there,
+not in a manual somewhere else.
+
+### 2. It always tells you what happened
+
+After anything happens — success, failure, or nothing — the software says so,
+in plain words you can repeat to another person. No codes. No silence. No
+"Done." with no explanation of what was done.
+
+### 3. It tells you what you can do next
+
+Every screen and every message is a map, not a dead end. The software names
+your choices out loud: *you can do this, or this.* You should never have to
+guess what is possible. You cannot be expected to want what you were never
+shown.
+
+### 4. It tells you what only you can do
+
+Some decisions belong to a person and cannot be made for them — what gets
+published, what gets deleted, what gets paid for. Good software says so,
+plainly, at the exact moment the decision becomes yours. It never lets you
+discover afterwards that you were responsible for something you were never
+told about.
+
+### 5. It tells you what happens without you
+
+Some things continue on their own — a watch, a timer, a helper working in the
+background. The software says what is still running, so you can walk away with
+a clear head, and it tells you what came of it when you return.
+
+### 6. When it fails, it teaches
+
+An error that only says something went wrong is half an error. Software that
+fails must say three things: what went wrong, how to fix it, and what you can
+do right now. A failure you can learn from is worth more than a success you
+cannot understand.
+
+### 7. It never shames you for not knowing
+
+There is no "obviously," no "as you know," no punishment for curiosity, no
+door that locks because you opened it in the wrong order. Not knowing is the
+normal condition of every person, in every new place, forever. Software that
+forgets this is software that works for almost no one.
+
+### 8. One door, for everyone
+
+The expert and the first-timer walk through the same door. The simple way is
+the real way — not a toy copy of the real way. Depth is always available, on
+request, but it is never a toll charged at the entrance.
+
+### 9. It carries what you would have to remember
+
+Where you were, what you chose, what is still waiting — the software keeps
+these, so you can put them down. Your attention is the rarest thing you own,
+and software should spend it like the treasure it is.
+
+### 10. It waits for you
+
+You may leave. You may come back tomorrow, or next month. The work is where
+you left it, nothing was lost, and the software picks up the thread with you
+as if you had never gone.
+
+### 11. It proves what it claims
+
+If it says a job succeeded, you can see the result. If it says a file is
+safe, you can open it. Trust is earned by showing, not by asserting. And when
+the software does not know something, it says "I don't know" — in those words.
+
+### 12. It never lies about you
+
+It does not say you approved what you did not approve, decided what you did
+not decide, or wrote what you did not write. When software speaks about you,
+it speaks the truth about you, or it says nothing.
+
+### 13. If you cannot see, hear, type, or read well — it still welcomes you
+
+Not as a special mode bolted on at the end, but as a guest expected from the
+first day. A tool that only works for the strong is a tool that fails the
+rest of us, and the rest of us is everyone, eventually.
+
+---
+
+## The one idea underneath all of it
+
+**The user is intelligent and busy.** Not ignorant and lazy. Intelligent —
+capable of anything they are shown. Busy — unable to spare what you waste.
+
+Software built on that belief tears down the wall between the people who make
+technology and the people who need it. Children, elders, experts, and
+strangers walk in the same door, because the door was built human-sized.
+
+---
+
+## A note on what this document is
+
+This is not a law and it does not call itself one. Documents do not become
+true by describing themselves as binding; they become true when people find
+them so. If these promises turn out to be real — if the software that keeps
+them earns back time and trust — then it will have earned whatever place it
+is given.

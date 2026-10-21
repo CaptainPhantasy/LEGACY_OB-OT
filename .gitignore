@@ -1,0 +1,7 @@
+qa/
+.openai/deployment.json
+*.blend1
+art/*.log
+art/*.dmg
+art/__pycache__/
+.DS_Store
