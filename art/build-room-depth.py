@@ -1,7 +1,7 @@
 """Cycles lighting delivery for the existing shop; run with Blender 4.5.
 
 blender -b --python art/build-room-depth.py -- --root /absolute/project --stage prepare
-Stages: prepare, repair-atlas, preview, bake, export-only, review, beauty. Originals are never overwritten.
+Stages: prepare, repair-atlas, repair-normals, preview, bake, export-only, review, beauty. Originals are never overwritten.
 The exported bake review intentionally isolates diffuse lighting; it is not a
 claim that the browser's reflections, postprocessing or interaction were tested.
 """
@@ -24,7 +24,7 @@ from mathutils import Vector
 def arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', required=True, type=Path)
-    parser.add_argument('--stage', choices=['prepare', 'repair-atlas', 'preview', 'bake', 'export-only', 'review', 'beauty'], required=True)
+    parser.add_argument('--stage', choices=['prepare', 'repair-atlas', 'repair-normals', 'preview', 'bake', 'export-only', 'review', 'beauty'], required=True)
     parser.add_argument('--samples', type=int)
     parser.add_argument('--resolution', type=int, default=4096)
     parser.add_argument('--width', type=int, default=1400)
@@ -159,7 +159,7 @@ def bevel_shelf_books(shop):
     bm.from_mesh(shop.data)
     cloth = {i for i, m in enumerate(shop.data.materials) if m and m.name.startswith('Book cloth ')}
     candidates = {face for face in bm.faces if face.material_index in cloth}
-    edges, cuboids = set(), 0
+    edges, cuboids, inward_corrected = set(), 0, 0
     while candidates:
         first = candidates.pop()
         pending, component = [first], {first}
@@ -175,10 +175,15 @@ def bevel_shelf_books(shop):
         component_edges = {edge for face in component for edge in face.edges}
         if len(component) == 6 and len(vertices) == 8 and len(component_edges) == 12:
             if all(len(e.link_faces) == 2 and all(f in component for f in e.link_faces) for e in component_edges):
+                volume, tolerance = component_signed_volume(component)
+                if volume < -tolerance:
+                    bmesh.ops.reverse_faces(bm, faces=list(component))
+                    inward_corrected += 1
                 edges.update(component_edges)
                 cuboids += 1
     before = len(bm.verts)
     if edges:
+        bm.normal_update()
         bmesh.ops.bevel(bm, geom=list(edges), offset=.0015, segments=3,
                         affect='EDGES', profile=.5, clamp_overlap=True,
                         loop_slide=True, harden_normals=True)
@@ -188,7 +193,7 @@ def bevel_shelf_books(shop):
     after = len(bm.verts)
     bm.free()
     return {'cuboids': cuboids, 'edges': len(edges), 'vertices_before': before, 'vertices_after': after,
-            'width_metres': .0015, 'segments': 3}
+            'width_metres': .0015, 'segments': 3, 'inward_cuboids_corrected_before_bevel': inward_corrected}
 
 
 def atlas(shop):
@@ -351,6 +356,7 @@ def prepare():
         if obj.type == 'MESH' and obj.name != 'Render-only dust':
             ensure_uvs(obj)
     bevel = bevel_shelf_books(shop)
+    orientation = repair_closed_component_normals(shop)
     polish_surface_normals(shop)
     for material in list(bpy.data.materials):
         pin_original_texture_uvs(material)
@@ -362,7 +368,7 @@ def prepare():
     scene['room_depth_source'] = 'antique-bookstore.blend preserved without modification'
     scene['room_depth_light_scale'] = ARGS.light_scale
     bpy.ops.wm.save_as_mainfile(filepath=str(NATIVE), compress=True)
-    report_update(prepare={'blender': bpy.app.version_string, 'bevel': bevel,
+    report_update(prepare={'blender': bpy.app.version_string, 'bevel': bevel, 'orientation': orientation,
                           'hinge_transform': hinge_state, 'static_vertices': len(shop.data.vertices),
                           'uv_layers': [uv.name for uv in shop.data.uv_layers],
                           'light_scale': ARGS.light_scale, 'samples_ceiling': 1024,
@@ -475,6 +481,138 @@ def mesh_positions(mesh):
     values = array.array('f', [0.0]) * (len(mesh.vertices) * 3)
     mesh.vertices.foreach_get('co', values)
     return values.tobytes()
+
+
+def component_signed_volume(faces):
+    """Translation-stable signed volume and a scale-relative zero tolerance."""
+    vertices = {vertex for face in faces for vertex in face.verts}
+    origin = tuple(next(iter(vertices)).co)
+    bounds = [(min(vertex.co[i] for vertex in vertices), max(vertex.co[i] for vertex in vertices)) for i in range(3)]
+    terms = []
+    for face in faces:
+        coordinates = [tuple(float(vertex.co[i]) - origin[i] for i in range(3)) for vertex in face.verts]
+        a = coordinates[0]
+        for i in range(1, len(coordinates) - 1):
+            b, c = coordinates[i], coordinates[i + 1]
+            cross = (b[1] * c[2] - b[2] * c[1], b[2] * c[0] - b[0] * c[2], b[0] * c[1] - b[1] * c[0])
+            terms.append((a[0] * cross[0] + a[1] * cross[1] + a[2] * cross[2]) / 6)
+    bound_volume = math.prod(high - low for low, high in bounds)
+    return math.fsum(terms), max(1e-18, bound_volume * 1e-8)
+
+
+def face_uv_material_fingerprint(mesh):
+    """Orientation-independent hash of each face's material and corner-to-UV mapping."""
+    layers = list(mesh.uv_layers)
+    corner_format = '<I' + 'f' * (len(layers) * 2)
+    fingerprints = []
+    for polygon in mesh.polygons:
+        corners = []
+        for loop_index in polygon.loop_indices:
+            values = [mesh.loops[loop_index].vertex_index]
+            for layer in layers:
+                values.extend(layer.data[loop_index].uv)
+            corners.append(tuple(values))
+        payload = struct.pack('<II', polygon.material_index, len(corners))
+        payload += b''.join(struct.pack(corner_format, *corner) for corner in sorted(corners))
+        fingerprints.append(hashlib.sha256(payload).digest())
+    result = hashlib.sha256()
+    for digest in sorted(fingerprints):
+        result.update(digest)
+    return result.hexdigest()
+
+
+def repair_closed_component_normals(shop):
+    """Reverse only genuinely inward, closed manifold components; leave open sheets alone."""
+    bm = bmesh.new()
+    bm.from_mesh(shop.data)
+    pending = set(bm.faces)
+    stats = {'components': 0, 'closed_components': 0, 'positive_components': 0,
+             'negative_components_reversed': 0, 'near_zero_closed_components': 0,
+             'open_or_nonmanifold_components_unchanged': 0, 'inconsistent_closed_components_unchanged': 0,
+             'faces_reversed': 0, 'verified_negative_components_remaining': 0,
+             'reversed_material_face_counts': {}, 'component_examples': []}
+    while pending:
+        first = pending.pop()
+        queue, faces = [first], {first}
+        while queue:
+            face = queue.pop()
+            for edge in face.edges:
+                for neighbor in edge.link_faces:
+                    if neighbor in pending:
+                        pending.remove(neighbor)
+                        faces.add(neighbor)
+                        queue.append(neighbor)
+        stats['components'] += 1
+        edges = {edge for face in faces for edge in face.edges}
+        if not all(len(edge.link_faces) == 2 for edge in edges):
+            stats['open_or_nonmanifold_components_unchanged'] += 1
+            continue
+        stats['closed_components'] += 1
+        # A signed volume establishes inside/outside only for consistently
+        # wound closed shells. Mixed winding requires a separate diagnosis.
+        if not all(edge.is_contiguous for edge in edges):
+            stats['inconsistent_closed_components_unchanged'] += 1
+            continue
+        volume, tolerance = component_signed_volume(faces)
+        if abs(volume) <= tolerance:
+            stats['near_zero_closed_components'] += 1
+            continue
+        if volume > 0:
+            stats['positive_components'] += 1
+            continue
+        materials = {}
+        for face in faces:
+            name = shop.data.materials[face.material_index].name
+            materials[name] = materials.get(name, 0) + 1
+            stats['reversed_material_face_counts'][name] = stats['reversed_material_face_counts'].get(name, 0) + 1
+        bmesh.ops.reverse_faces(bm, faces=list(faces))
+        repaired_volume, repaired_tolerance = component_signed_volume(faces)
+        if repaired_volume <= repaired_tolerance:
+            stats['verified_negative_components_remaining'] += 1
+            bm.free()
+            raise RuntimeError('Closed component did not become outward after reversing its face winding')
+        stats['negative_components_reversed'] += 1
+        stats['faces_reversed'] += len(faces)
+        if len(stats['component_examples']) < 30:
+            stats['component_examples'].append({'faces': len(faces), 'materials': materials,
+                                                'signed_volume_before_m3': volume, 'signed_volume_after_m3': repaired_volume})
+    if stats['negative_components_reversed']:
+        bm.normal_update()
+        bm.to_mesh(shop.data)
+        shop.data.update()
+    bm.free()
+    return stats
+
+
+def repair_normals():
+    """Correct saved mesh orientation without rebuilding geometry or repacking its atlas."""
+    import shutil
+    backup = ART / 'room-depth-before-normal-repair.blend'
+    if not backup.exists():
+        shutil.copy2(NATIVE, backup)
+    bpy.ops.wm.open_mainfile(filepath=str(NATIVE), load_ui=False)
+    shop = bpy.data.objects['OldCuriosityShop']
+    positions_before = mesh_positions(shop.data)
+    uv_material_before = face_uv_material_fingerprint(shop.data)
+    hinge = bpy.data.objects['BookCoverHinge']
+    hinge_before = [tuple(hinge.location), tuple(hinge.rotation_euler), tuple(hinge.scale)]
+    stats = repair_closed_component_normals(shop)
+    if mesh_positions(shop.data) != positions_before:
+        raise RuntimeError('Normal repair changed vertex positions')
+    if face_uv_material_fingerprint(shop.data) != uv_material_before:
+        raise RuntimeError('Normal repair changed a face material or its corner UV correspondence')
+    if [tuple(hinge.location), tuple(hinge.rotation_euler), tuple(hinge.scale)] != hinge_before:
+        raise RuntimeError('Normal repair changed the book hinge')
+    _, atlas_stats = atlas_coverage(shop, ARGS.resolution)
+    if stats['negative_components_reversed']:
+        bpy.context.scene['room_depth_lightmap_needs_rebake'] = True
+    bpy.ops.wm.save_as_mainfile(filepath=str(NATIVE), compress=True)
+    result = {'orientation': stats, 'atlas': atlas_stats, 'vertex_positions_unchanged': True,
+              'face_uv_and_material_correspondence_unchanged': True, 'hinge_unchanged': True,
+              'backup': str(backup.relative_to(ROOT)), 'requires_rebake': bool(stats['negative_components_reversed'])}
+    report_update(normal_repair=result)
+    note('Normal repair verified and saved', orientation=stats, atlas_overlap_texels=atlas_stats['interior_overlap_texels'],
+         requires_rebake=result['requires_rebake'])
 
 
 def isolate_conflicting_uv_faces(shop, face_indices):
@@ -851,6 +989,8 @@ def export_only():
         if not quarantine.exists():
             shutil.copy2(EXPORT, quarantine)
     bpy.ops.wm.open_mainfile(filepath=str(NATIVE), load_ui=False)
+    if bpy.context.scene.get('room_depth_lightmap_needs_rebake', False):
+        raise RuntimeError('Mesh normals were repaired; rebake lighting before export-only')
     retained_image = bpy.data.images.get('Room diffuse irradiance linear')
     retention_repaired = retained_image is None or not retained_image.use_fake_user
     if retained_image is None:
@@ -889,8 +1029,14 @@ def bake():
     shop = bpy.data.objects['OldCuriosityShop']
     occupied, uv_stats = atlas_coverage(shop, ARGS.resolution)
     note('UV atlas measured before baking', **uv_stats)
-    image = bpy.data.images.new('Room diffuse irradiance linear', width=ARGS.resolution, height=ARGS.resolution,
-                                alpha=False, float_buffer=True)
+    image = bpy.data.images.get('Room diffuse irradiance linear')
+    previous_image = None
+    if image is None or tuple(image.size) != (ARGS.resolution, ARGS.resolution) or not image.is_float:
+        if image is not None:
+            previous_image = image
+            previous_image.name = 'Room diffuse irradiance linear / prior resolution'
+        image = bpy.data.images.new('Room diffuse irradiance linear', width=ARGS.resolution, height=ARGS.resolution,
+                                   alpha=False, float_buffer=True)
     # Temporary bake-target nodes are removed after baking. Keep the packed
     # source image alive when this native checkpoint is reopened later.
     image.use_fake_user = True
@@ -943,6 +1089,11 @@ def bake():
     image.file_format = 'OPEN_EXR'
     image.save()
     image.pack()
+    if previous_image is not None:
+        # Prior native checkpoints already retain the old image; keep only the
+        # current packed lightmap alive in this next saved source revision.
+        previous_image.use_fake_user = False
+    scene['room_depth_lightmap_needs_rebake'] = False
     bpy.ops.wm.save_as_mainfile(filepath=str(NATIVE), compress=True)
     export = export_delivery()
     manifest = {'version': 1, 'node': 'OldCuriosityShop', 'uv_channel': 2, 'scale': scale, 'illuminationScale': scale,
@@ -1072,6 +1223,8 @@ if __name__ == '__main__':
         prepare()
     elif ARGS.stage == 'repair-atlas':
         repair_atlas()
+    elif ARGS.stage == 'repair-normals':
+        repair_normals()
     elif ARGS.stage == 'bake':
         bake()
     elif ARGS.stage == 'export-only':
