@@ -1,7 +1,7 @@
 """Cycles lighting delivery for the existing shop; run with Blender 4.5.
 
 blender -b --python art/build-room-depth.py -- --root /absolute/project --stage prepare
-Stages: prepare, repair-atlas, repair-normals, preview, bake, export-only, review, beauty. Originals are never overwritten.
+Stages: prepare, repair-atlas, repair-normals, preview, bake, export-only, reencode-only, review, beauty. Originals are never overwritten.
 The exported bake review intentionally isolates diffuse lighting; it is not a
 claim that the browser's reflections, postprocessing or interaction were tested.
 """
@@ -24,7 +24,7 @@ from mathutils import Vector
 def arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', required=True, type=Path)
-    parser.add_argument('--stage', choices=['prepare', 'repair-atlas', 'repair-normals', 'preview', 'bake', 'export-only', 'review', 'beauty'], required=True)
+    parser.add_argument('--stage', choices=['prepare', 'repair-atlas', 'repair-normals', 'preview', 'bake', 'export-only', 'reencode-only', 'review', 'beauty'], required=True)
     parser.add_argument('--samples', type=int)
     parser.add_argument('--resolution', type=int, default=4096)
     parser.add_argument('--width', type=int, default=1400)
@@ -722,49 +722,65 @@ def repair_atlas():
 
 
 def save_lightmap(image, path, occupied):
-    """Encode float scene-linear / SCALE with the sRGB transfer only, no view transform."""
+    """Encode linear illumination as square-root RGBM data, without color transforms."""
     width, height = image.size
     pixels = array.array('f', [0.0]) * (width * height * 4)
     image.pixels.foreach_get(pixels)
     rgb = np.frombuffer(pixels, dtype=np.float32).reshape(height, width, 4)[..., :3]
     measured = rgb[occupied]
-    nonfinite = int((~np.isfinite(measured)).sum())
+    nonfinite = int((~np.isfinite(rgb)).sum())
     if nonfinite:
-        raise RuntimeError('Bake contains non-finite values on occupied texels')
+        raise RuntimeError('Bake contains non-finite values')
     maximum = float(measured.max())
-    scale = min(64.0, max(SCALE, 2 ** math.ceil(math.log2(max(maximum, 1e-6)))))
+    maximum_all = float(rgb.max())
+    scale = float(max(SCALE, 2 ** math.ceil(math.log2(max(maximum_all, 1e-6)))))
     compressor = zlib.compressobj(6)
     compressed = []
-    clipped, all_nonfinite = 0, 0
-    black = 0
+    clipped = int((rgb > scale).sum())
+    if clipped:
+        raise RuntimeError('RGBM scale does not cover the source illumination range')
+    maximum_error, error_sum, channel_count = 0.0, 0.0, 0
+    shadow_error, shadow_count = 0.0, 0
+    minimum_positive = float('inf')
     for y in range(height - 1, -1, -1):
-        row = bytearray(1 + width * 3)
-        for x in range(width):
-            base = (y * width + x) * 4
-            if pixels[base] + pixels[base + 1] + pixels[base + 2] < 1e-7:
-                black += 1
-            for channel in range(3):
-                value = pixels[base + channel]
-                if not math.isfinite(value):
-                    all_nonfinite += 1
-                    value = 0.0
-                if value > scale:
-                    clipped += 1
-                value = max(0.0, min(1.0, value / scale))
-                encoded = 12.92 * value if value <= .0031308 else 1.055 * value ** (1 / 2.4) - .055
-                row[1 + x * 3 + channel] = round(255 * encoded)
-        compressed.append(compressor.compress(row))
+        linear = np.maximum(rgb[y].astype(np.float64), 0.0)
+        roots = np.sqrt(linear / scale)
+        # Alpha is a shared numeric multiplier, never opacity. Quantizing it
+        # upward ensures each encoded RGB component remains in [0, 1].
+        multiplier_byte = np.clip(np.ceil(roots.max(axis=1) * 255.0), 1, 255).astype(np.uint8)
+        multiplier = multiplier_byte.astype(np.float64) / 255.0
+        rgba = np.empty((width, 4), dtype=np.uint8)
+        rgba[:, :3] = np.rint(np.clip(roots / multiplier[:, None], 0, 1) * 255.0).astype(np.uint8)
+        rgba[:, 3] = multiplier_byte
+        decoded = np.square((rgba[:, :3].astype(np.float64) / 255.0) * multiplier[:, None]) * scale
+        row_occupied = occupied[y]
+        difference = np.abs(decoded[row_occupied] - linear[row_occupied])
+        if difference.size:
+            maximum_error = max(maximum_error, float(difference.max()))
+            error_sum += float(difference.sum())
+            channel_count += int(difference.size)
+            shadow = (linear[row_occupied] > 0) & (linear[row_occupied] < .05)
+            shadow_error += float(difference[shadow].sum())
+            shadow_count += int(shadow.sum())
+            positive_decoded = decoded[row_occupied][decoded[row_occupied] > 0]
+            if positive_decoded.size:
+                minimum_positive = min(minimum_positive, float(positive_decoded.min()))
+        compressed.append(compressor.compress(b'\0' + rgba.tobytes()))
     compressed.append(compressor.flush())
-    png = b'\x89PNG\r\n\x1a\n' + png_chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 2, 0, 0, 0))
-    png += png_chunk(b'sRGB', b'\0') + png_chunk(b'IDAT', b''.join(compressed)) + png_chunk(b'IEND', b'')
+    png = b'\x89PNG\r\n\x1a\n' + png_chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 6, 0, 0, 0))
+    # No sRGB/gAMA chunk: all four channels store non-color numeric data.
+    png += png_chunk(b'IDAT', b''.join(compressed)) + png_chunk(b'IEND', b'')
     path.write_bytes(png)
     stats = {'max_linear_occupied': maximum, 'mean_linear_occupied': float(measured.mean()),
              'linear_percentiles_occupied': dict(zip(['p01', 'p50', 'p95', 'p9999'], [float(v) for v in np.percentile(measured, [1, 50, 95, 99.99])])),
              'channels_clipped': clipped, 'fraction_occupied_channels_clipped': float((measured > scale).mean()),
-             'nonfinite_channels': all_nonfinite, 'black_pixels_including_unused_atlas': black,
+             'nonfinite_channels': nonfinite, 'negative_channels_clamped': int((rgb < 0).sum()),
+             'black_pixels_including_unused_atlas': int((rgb.sum(axis=2) < 1e-7).sum()),
+             'max_abs_decode_error_occupied': maximum_error,
+             'mean_abs_decode_error_occupied': error_sum / max(1, channel_count),
+             'mean_abs_decode_error_shadow_channels': shadow_error / max(1, shadow_count),
+             'minimum_positive_decoded_occupied': minimum_positive if math.isfinite(minimum_positive) else 0,
              'total_pixels': width * height, 'bytes': len(png)}
-    if all_nonfinite:
-        raise RuntimeError('Bake contains non-finite values; output is not accepted')
     return stats, scale
 
 
@@ -1024,6 +1040,43 @@ def export_only():
     note('Delivery export refreshed without rebaking', path=str(EXPORT), sha256=exported['sha256'])
 
 
+def reencode_only():
+    """Improve PNG precision from the existing float bake; leave geometry and lighting untouched."""
+    import shutil
+    exr = ART / 'room-lightmap-linear.exr'
+    if not MANIFEST.exists() or not exr.exists():
+        raise RuntimeError('An existing float lightmap and manifest are required for reencoding')
+    manifest = json.loads(MANIFEST.read_text())
+    native_hash = hashlib.sha256(NATIVE.read_bytes()).hexdigest()
+    export_hash = hashlib.sha256(EXPORT.read_bytes()).hexdigest()
+    for source in [LIGHTMAP, MANIFEST]:
+        if source.exists():
+            backup = ART / 'rendering.quarantine' / ('room-lightmap-before-rgbm-square' + source.suffix)
+            backup.parent.mkdir(parents=True, exist_ok=True)
+            if not backup.exists():
+                shutil.copy2(source, backup)
+    bpy.ops.wm.open_mainfile(filepath=str(NATIVE), load_ui=False)
+    if bpy.context.scene.get('room_depth_lightmap_needs_rebake', False):
+        raise RuntimeError('Geometry has changed; reencoding cannot replace the required lighting bake')
+    image = bpy.data.images.load(str(exr), check_existing=False)
+    image.colorspace_settings.name = 'Linear Rec.709'
+    width, height = image.size
+    if width != height or width != manifest['resolution']:
+        raise RuntimeError('Float lightmap dimensions disagree with the saved manifest')
+    occupied, uv_stats = atlas_coverage(bpy.data.objects['OldCuriosityShop'], width)
+    stats, scale = save_lightmap(image, LIGHTMAP, occupied)
+    stats.update(uv_stats)
+    manifest.update({'encoding': 'RGBM_SQRT', 'scale': scale, 'illuminationScale': scale,
+                     'decode': '(rgb * alpha)^2 * illuminationScale; all channels are non-color data',
+                     'statistics': stats, 'sha256': hashlib.sha256(LIGHTMAP.read_bytes()).hexdigest()})
+    if hashlib.sha256(NATIVE.read_bytes()).hexdigest() != native_hash or hashlib.sha256(EXPORT.read_bytes()).hexdigest() != export_hash:
+        raise RuntimeError('Reencoding changed the native checkpoint or exported geometry')
+    MANIFEST.write_text(json.dumps(manifest, indent=2) + '\n')
+    report_update(bake=manifest, reencode_only={'native_unchanged': True, 'export_unchanged': True,
+                                               'encoding': 'RGBM_SQRT', 'statistics': stats})
+    note('Lightmap reencoded without rebaking', encoding='RGBM_SQRT', illumination_scale=scale, statistics=stats)
+
+
 def bake():
     bpy.ops.wm.open_mainfile(filepath=str(NATIVE), load_ui=False)
     scene = configure(ARGS.samples or 256)
@@ -1098,7 +1151,8 @@ def bake():
     bpy.ops.wm.save_as_mainfile(filepath=str(NATIVE), compress=True)
     export = export_delivery()
     manifest = {'version': 1, 'node': 'OldCuriosityShop', 'uv_channel': 2, 'scale': scale, 'illuminationScale': scale,
-                'resolution': ARGS.resolution, 'encoding': 'sRGB transfer of linear diffuse irradiance / scale; no AgX',
+                'resolution': ARGS.resolution, 'encoding': 'RGBM_SQRT',
+                'decode': '(rgb * alpha)^2 * illuminationScale; all channels are non-color data',
                 'file': 'room-lightmap.png', 'source': 'Cycles diffuse direct + indirect, color disabled',
                 'samples': ARGS.samples or 256, 'dynamic_cover_excluded': True, 'volume_excluded': True,
                 'atlas_inter_island_gap_pixels': 8, 'bake_extension_pixels': 3,
@@ -1168,7 +1222,10 @@ def review():
     configure(ARGS.samples or 64)
     bpy.ops.import_scene.gltf(filepath=str(EXPORT))
     lightmap = bpy.data.images.load(str(LIGHTMAP), check_existing=True)
-    lightmap.colorspace_settings.name = 'sRGB'
+    rgbm_sqrt = manifest.get('encoding') == 'RGBM_SQRT'
+    lightmap.colorspace_settings.name = 'Non-Color' if rgbm_sqrt else 'sRGB'
+    if rgbm_sqrt:
+        lightmap.alpha_mode = 'CHANNEL_PACKED'
     # glTF import reconstructs Blender coordinates; the same native cameras apply.
     static = bpy.data.objects.get('OldCuriosityShop')
     if static is None:
@@ -1214,13 +1271,24 @@ def review():
             tex.image = lightmap
             tex.extension = 'EXTEND'
             links.new(uv.outputs[0], tex.inputs['Vector'])
+            decoded_color = tex.outputs['Color']
+            if rgbm_sqrt:
+                root_value = nodes.new('ShaderNodeVectorMath')
+                root_value.operation = 'MULTIPLY'
+                links.new(tex.outputs['Color'], root_value.inputs[0])
+                links.new(tex.outputs['Alpha'], root_value.inputs[1])
+                square = nodes.new('ShaderNodeVectorMath')
+                square.operation = 'MULTIPLY'
+                links.new(root_value.outputs['Vector'], square.inputs[0])
+                links.new(root_value.outputs['Vector'], square.inputs[1])
+                decoded_color = square.outputs['Vector']
             multiply = nodes.new('ShaderNodeMixRGB')
             multiply.blend_type = 'MULTIPLY'
             multiply.inputs[0].default_value = 1
             multiply.inputs[1].default_value = base.default_value
             if color_source:
                 links.new(color_source, multiply.inputs[1])
-            links.new(tex.outputs['Color'], multiply.inputs[2])
+            links.new(decoded_color, multiply.inputs[2])
             emission = nodes.new('ShaderNodeEmission')
             nonmetal = nodes.new('ShaderNodeMath')
             nonmetal.operation = 'SUBTRACT'
@@ -1263,6 +1331,8 @@ if __name__ == '__main__':
         bake()
     elif ARGS.stage == 'export-only':
         export_only()
+    elif ARGS.stage == 'reencode-only':
+        reencode_only()
     elif ARGS.stage == 'review':
         review()
     else:
