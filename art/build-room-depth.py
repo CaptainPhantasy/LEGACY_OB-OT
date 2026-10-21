@@ -208,14 +208,67 @@ def atlas(shop):
     bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0,
                              area_weight=0, correct_aspect=True, scale_to_bounds=True)
-    bpy.ops.uv.average_islands_scale()
-    bpy.ops.uv.pack_islands(rotate=True, scale=True, margin_method='FRACTION', margin=8 / ARGS.resolution)
     bpy.ops.object.mode_set(mode='OBJECT')
-    values = [value for uv in shop.data.uv_layers[2].data for value in uv.uv]
-    if not values or any(not math.isfinite(x) or x < -1e-5 or x > 1.00001 for x in values):
-        raise RuntimeError('The unique lightmap UVs are not finite and bounded')
+    pack_all_lightmap_uvs(shop)
+    bounds = atlas_uv_bounds(shop)
+    if bounds['nonfinite_uv_loops'] or bounds['out_of_bounds_uv_loops']:
+        raise RuntimeError('The unique lightmap UVs are not finite and bounded: ' + json.dumps(bounds))
     shop.data.uv_layers[0].active_render = True
-    note('Unique lightmap atlas prepared', loops=len(values) // 2, padding_pixels=8)
+    note('Unique lightmap atlas prepared', loops=len(shop.data.loops), padding_pixels=8)
+
+
+def pack_all_lightmap_uvs(shop):
+    """Pack every unpinned UV2 loop into tile 1001, independent of saved UI selection."""
+    if bpy.context.object and bpy.context.object.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+    bpy.ops.object.select_all(action='DESELECT')
+    shop.hide_set(False)
+    shop.select_set(True)
+    bpy.context.view_layer.objects.active = shop
+    shop.data.uv_layers.active_index = 2
+    settings = bpy.context.scene.tool_settings
+    previous_sync, previous_mode = settings.use_uv_select_sync, settings.uv_select_mode
+    editors = []
+    # ACTIVE_UDIM uses the image tile or UV cursor. Clear any saved tiled image
+    # and put every image-editor cursor inside tile 1001 for deterministic packing.
+    for screen in bpy.data.screens:
+        for area in screen.areas:
+            for space in area.spaces:
+                if space.type == 'IMAGE_EDITOR':
+                    editors.append((space, space.image, tuple(space.cursor_location)))
+                    space.image = None
+                    space.cursor_location = (.5, .5)
+    settings.use_uv_select_sync = False
+    settings.uv_select_mode = 'VERTEX'
+    try:
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.reveal(select=True)
+        bpy.ops.mesh.select_all(action='SELECT')
+        bm = bmesh.from_edit_mesh(shop.data)
+        uv = bm.loops.layers.uv.get(BAKE_UV)
+        if uv is None:
+            raise RuntimeError('Unique lightmap layer missing during packing')
+        for face in bm.faces:
+            face.hide_set(False)
+            face.select_set(True)
+            for loop in face.loops:
+                loop[uv].select = True
+                loop[uv].select_edge = True
+                loop[uv].pin_uv = False
+        bmesh.update_edit_mesh(shop.data, loop_triangles=False, destructive=False)
+        bpy.ops.uv.select_all(action='SELECT')
+        bpy.ops.uv.average_islands_scale()
+        bpy.ops.uv.pack_islands(udim_source='ACTIVE_UDIM', rotate=True, scale=True,
+                               merge_overlap=False, pin=False,
+                               margin_method='FRACTION', margin=8 / ARGS.resolution)
+    finally:
+        if shop.mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode='OBJECT')
+        settings.use_uv_select_sync, settings.uv_select_mode = previous_sync, previous_mode
+        for space, image, cursor in editors:
+            space.image = image
+            space.cursor_location = cursor
+    shop.data.update()
 
 
 def polish_surface_normals(shop):
@@ -403,9 +456,46 @@ def png_chunk(kind, payload):
     return struct.pack('>I', len(payload)) + kind + payload + struct.pack('>I', zlib.crc32(kind + payload) & 0xffffffff)
 
 
-def atlas_coverage(shop, resolution, strict=True):
-    """Measure interior overlaps and their owners without weakening the bake gate."""
+def atlas_uv_bounds(shop):
+    """Inspect every UV2 loop before raster clipping can hide invalid islands."""
     mesh = shop.data
+    values = np.empty(len(mesh.loops) * 2, dtype=np.float32)
+    mesh.uv_layers[2].data.foreach_get('uv', values)
+    values = values.reshape(-1, 2)
+    finite = np.isfinite(values).all(axis=1)
+    outside = finite & ((values < 0).any(axis=1) | (values > 1).any(axis=1))
+    invalid = ~finite | outside
+    invalid_faces, nonfinite_faces, outside_faces, examples = [], [], [], []
+    for face in mesh.polygons:
+        indices = list(face.loop_indices)
+        if invalid[indices].any():
+            invalid_faces.append(face.index)
+            if (~finite[indices]).any():
+                nonfinite_faces.append(face.index)
+            if outside[indices].any():
+                outside_faces.append(face.index)
+            if len(examples) < 20:
+                examples.append({'face': face.index, 'material': mesh.materials[face.material_index].name,
+                                 'invalid_loops': [{'loop': index,
+                                                    'uv': [float(value) if math.isfinite(value) else None
+                                                           for value in values[index]]}
+                                                   for index in indices if invalid[index]][:6]})
+    valid_values = values[finite]
+    return {'uv_loops_checked': len(values), 'nonfinite_uv_loops': int((~finite).sum()),
+            'out_of_bounds_uv_loops': int(outside.sum()), 'invalid_uv_faces': invalid_faces,
+            'nonfinite_uv_faces': nonfinite_faces, 'out_of_bounds_uv_faces': outside_faces,
+            'uv_min': valid_values.min(axis=0).tolist() if len(valid_values) else None,
+            'uv_max': valid_values.max(axis=0).tolist() if len(valid_values) else None,
+            'invalid_uv_examples': examples}
+
+
+def atlas_coverage(shop, resolution, strict=True):
+    """Validate all loops, then measure interior overlaps without silently clipping defects."""
+    mesh = shop.data
+    bounds = atlas_uv_bounds(shop)
+    invalid_faces = set(bounds['invalid_uv_faces'])
+    if strict and invalid_faces:
+        raise RuntimeError('Unique UV atlas contains nonfinite or out-of-bounds loops: ' + json.dumps(bounds))
     mesh.calc_loop_triangles()
     uv = mesh.uv_layers[2].data
     coverage = np.zeros((resolution, resolution), dtype=np.uint16)
@@ -414,6 +504,8 @@ def atlas_coverage(shop, resolution, strict=True):
     degenerate_positive_area_faces = set()
     conflict_faces, collision_pairs = set(), {}
     for triangle_index, triangle in enumerate(mesh.loop_triangles):
+        if triangle.polygon_index in invalid_faces:
+            continue  # Diagnostic mode reports these explicitly; strict mode rejects them above.
         a, b, c = [(uv[index].uv.x * resolution - .5, uv[index].uv.y * resolution - .5) for index in triangle.loops]
         x0 = max(0, math.ceil(min(a[0], b[0], c[0])))
         x1 = min(resolution - 1, math.floor(max(a[0], b[0], c[0])))
@@ -450,6 +542,7 @@ def atlas_coverage(shop, resolution, strict=True):
              'interior_overlap_texels': int((coverage > 1).sum()), 'degenerate_uv_triangles': degenerate,
              'positive_area_degenerate_uv_faces': sorted(degenerate_positive_area_faces),
              'conflicting_faces': sorted(conflict_faces), 'collision_triangle_pair_count': len(collision_pairs)}
+    stats.update(bounds)
     details = []
     for (first, second), count in sorted(collision_pairs.items(), key=lambda item: item[1], reverse=True)[:40]:
         pair = [mesh.loop_triangles[first], mesh.loop_triangles[second]]
@@ -464,7 +557,7 @@ def atlas_coverage(shop, resolution, strict=True):
     stats['collision_examples'] = details
     if strict and stats['interior_overlap_texels']:
         raise RuntimeError('Unique UV atlas contains overlapping triangle interiors: ' + json.dumps(stats))
-    if not stats['occupied_texels']:
+    if strict and not stats['occupied_texels']:
         raise RuntimeError('UV atlas has no measurable texel coverage')
     return occupied, stats
 
@@ -663,23 +756,14 @@ def isolate_conflicting_uv_faces(shop, face_indices):
     bm.to_mesh(shop.data)
     bm.free()
     shop.data.update()
-    bpy.ops.object.select_all(action='DESELECT')
-    shop.hide_set(False)
-    shop.select_set(True)
-    bpy.context.view_layer.objects.active = shop
-    shop.data.uv_layers.active_index = 2
-    bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.uv.average_islands_scale()
-    bpy.ops.uv.pack_islands(rotate=True, scale=True, margin_method='FRACTION', margin=8 / ARGS.resolution)
-    bpy.ops.object.mode_set(mode='OBJECT')
+    pack_all_lightmap_uvs(shop)
     return {'target_faces': len(targets), 'triangulated_ngons': len(ngons), 'isolated_triangles': repaired}
 
 
 def repair_atlas():
     """Repair the existing checkpoint without repeating bevels or lighting edits."""
     import shutil
-    backup = ART / 'room-depth-before-atlas-repair.blend'
+    backup = ART / 'room-depth-before-atlas-bounds-repair.blend'
     if not backup.exists():
         shutil.copy2(NATIVE, backup)
     bpy.ops.wm.open_mainfile(filepath=str(NATIVE), load_ui=False)
@@ -695,9 +779,12 @@ def repair_atlas():
         (ART / 'room-atlas-repair-diagnostics.json').write_text(json.dumps(history, indent=2) + '\n')
         note('Targeted atlas inspection', attempt=attempt, overlap_texels=stats['interior_overlap_texels'],
              conflicting_faces=len(stats['conflicting_faces']), collapsed_positive_area_faces=len(stats['positive_area_degenerate_uv_faces']),
+             out_of_bounds_uv_loops=stats['out_of_bounds_uv_loops'], nonfinite_uv_loops=stats['nonfinite_uv_loops'],
              coverage=stats['atlas_coverage_fraction'], collision_examples=stats['collision_examples'][:8])
-        targets = set(stats['conflicting_faces']) | set(stats['positive_area_degenerate_uv_faces'])
-        if not targets:
+        targets = (set(stats['conflicting_faces']) | set(stats['positive_area_degenerate_uv_faces'])
+                   | set(stats['nonfinite_uv_faces']))
+        requires_repack = bool(stats['out_of_bounds_uv_loops'])
+        if not targets and not requires_repack:
             if mesh_positions(shop.data) != positions_before:
                 raise RuntimeError('Atlas repair changed vertex positions')
             if uv0_signature(shop.data) != uv0_before:
@@ -708,16 +795,24 @@ def repair_atlas():
             _, verified = atlas_coverage(shop, ARGS.resolution)
             shop.data.uv_layers.active_index = 0
             shop.data.uv_layers[0].active_render = True
+            if any('repair' in item for item in history):
+                bpy.context.scene['room_depth_lightmap_needs_rebake'] = True
             bpy.ops.wm.save_as_mainfile(filepath=str(NATIVE), compress=True)
             report_update(atlas_repair={'attempts': history, 'verified': verified,
                                        'vertex_positions_unchanged': True, 'uv0_unchanged': True,
-                                       'hinge_unchanged': True, 'backup': str(backup.relative_to(ROOT))})
+                                       'hinge_unchanged': True, 'backup': str(backup.relative_to(ROOT)),
+                                       'requires_rebake': any('repair' in item for item in history)})
             note('Atlas repair verified and saved', overlap_texels=verified['interior_overlap_texels'],
                  occupied_texels=verified['occupied_texels'], path=str(NATIVE))
             return
         if attempt == 3:
             break
-        history[-1]['repair'] = isolate_conflicting_uv_faces(shop, targets)
+        if targets:
+            history[-1]['repair'] = isolate_conflicting_uv_faces(shop, targets)
+        else:
+            pack_all_lightmap_uvs(shop)
+            history[-1]['repair'] = {'repacked_existing_islands': True, 'triangulated_ngons': 0,
+                                    'out_of_bounds_uv_loops_before': stats['out_of_bounds_uv_loops']}
         note('Targeted UV islands repaired and repacked', **history[-1]['repair'])
     raise RuntimeError('Targeted atlas repair did not converge; original native checkpoint remains unchanged. Inspect room-atlas-repair-diagnostics.json')
 
@@ -952,6 +1047,11 @@ def enforce_export_color_factors(path):
 
 
 def export_delivery():
+    if bpy.context.scene.get('room_depth_lightmap_needs_rebake', False):
+        raise RuntimeError('Room geometry or UVs changed; rebake illumination before exporting')
+    bounds = atlas_uv_bounds(bpy.data.objects['OldCuriosityShop'])
+    if bounds['nonfinite_uv_loops'] or bounds['out_of_bounds_uv_loops']:
+        raise RuntimeError('Refusing to export invalid lightmap UVs: ' + json.dumps(bounds))
     originals, export_cache = {}, {}
     excluded = set(volume_objects())
     bpy.ops.object.select_all(action='DESELECT')
