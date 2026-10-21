@@ -10,7 +10,7 @@ registerHooks({ resolve(specifier, context, nextResolve) {
 } });
 const THREE = await import(threeURL);
 const { GLTFLoader } = await import('../dist/vendor/loaders/GLTFLoader.js');
-const { applyRoomLightmap } = await import('../dist/room-lightmap.js');
+const { applyRoomLightmap, updateRoomRevelation } = await import('../dist/room-lightmap.js');
 const manifestURL = new URL('../dist/assets/room-lightmap.json', import.meta.url);
 
 async function withImageTransport(callback, resolution = 4096) {
@@ -60,6 +60,7 @@ test('full diffuse lightmap replaces live diffuse and leaves the moving cover in
   const moving = [];
   room.getObjectByName('BookCoverHinge').traverse(mesh => { if (mesh.isMesh) moving.push([mesh, mesh.material]); });
   const result = await applyFixture(room);
+  const revelationUniforms = [];
   assert.ok(result.meshes > 0);
   assert.equal(result.uvChannel, 2);
   for (const [mesh, material] of moving) {
@@ -83,12 +84,28 @@ test('full diffuse lightmap replaces live diffuse and leaves the moving cover in
       const reset = source.indexOf('reflectedLight.directDiffuse = vec3( 0.0 );');
       assert.ok(reset > source.indexOf('#include <lights_fragment_end>'));
       assert.ok(reset < source.indexOf('vec3 totalDiffuse ='));
-      assert.match(source, /reflectedLight\.indirectDiffuse = material\.diffuseColor \* roomDiffuseIllumination \* roomMovingShadow/);
+      assert.match(source, /reflectedLight\.indirectDiffuse = material\.diffuseColor \* \( roomDiffuseIllumination \* roomMovingShadow \+ roomRevelationDiffuse \)/);
       assert.match(source, /#include <shadowmask_pars_fragment>/);
       assert.doesNotMatch(source, /reflectedLight\.(?:directSpecular|indirectSpecular)\s*=/);
       assert.match(source, /totalSpecular \+ totalEmissiveRadiance/);
+      assert.match(source, /if \( roomRevelationPower > 0\.0 \)/);
+      assert.match(source, /getDistanceAttenuation\( max\( roomRevelationDistance, 0\.2 \), 12\.0, 1\.5 \)/);
+      assert.match(source, /inverseTransformDirection\( geometryNormal, viewMatrix \)/);
+      assert.match(shader.vertexShader, /modelMatrix \* vec4\( transformed, 1\.0 \)/);
+      assert.equal(shader.uniforms.roomRevelationPower.value, 0);
+      assert.ok(shader.uniforms.roomRevelationColor.value.equals(new THREE.Color(0xffd893)));
+      assert.deepEqual(shader.uniforms.roomRevelationPosition.value.toArray(), [0, 1.45, -5]);
+      revelationUniforms.push(shader.uniforms.roomRevelationPower);
     }
   });
+  assert.ok(revelationUniforms.length > 1);
+  assert.ok(revelationUniforms.every(uniform => uniform === revelationUniforms[0]),
+    'Every static material must respond to the same reveal-light update');
+  for (const [power, expected] of [[95, 95], [3, 3], [0, 0], [-1, 0], [NaN, 0]]) {
+    updateRoomRevelation(room, power);
+    assert.ok(revelationUniforms.every(uniform => uniform.value === expected));
+  }
+  assert.doesNotThrow(() => updateRoomRevelation(new THREE.Group(), 95), 'Live-light fallback needs no bake uniforms');
 });
 
 test('an invalid atlas fails before any room materials or shadow flags change', async () => {

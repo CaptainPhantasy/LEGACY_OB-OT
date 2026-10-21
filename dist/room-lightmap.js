@@ -1,9 +1,18 @@
 import * as THREE from 'three';
 
+const revelationByRoom = new WeakMap();
+
+// The book's temporary reveal light is deliberately absent from the fixed bake.
+// Share its power across static materials without recompiling their shaders.
+export function updateRoomRevelation(room, power) {
+  const uniforms = revelationByRoom.get(room);
+  if (uniforms) uniforms.power.value = Number.isFinite(power) ? Math.max(0, power) : 0;
+}
+
 // Cycles' diffuse bake excludes material colour and contains direct + indirect
 // illumination. It replaces diffuse lighting; adding it to live diffuse lights
 // would light the room twice. View-dependent reflections remain live.
-function lightmappedMaterial(source, texture, scale, shadowStrength) {
+function lightmappedMaterial(source, texture, scale, shadowStrength, revelation) {
   const material = source.clone();
   const previousCompile = source.onBeforeCompile;
   const previousKey = source.customProgramCacheKey.bind(source);
@@ -13,22 +22,47 @@ function lightmappedMaterial(source, texture, scale, shadowStrength) {
     previousCompile.call(source, shader, renderer);
     const shadowAnchor = '#include <shadowmap_pars_fragment>';
     const diffuseAnchor = '#include <aomap_fragment>';
-    if (!shader.fragmentShader.includes(shadowAnchor) || !shader.fragmentShader.includes(diffuseAnchor)) {
+    const positionAnchor = '#include <worldpos_vertex>';
+    if (!shader.fragmentShader.includes(shadowAnchor) || !shader.fragmentShader.includes(diffuseAnchor) ||
+        !shader.vertexShader.includes(positionAnchor)) {
       throw new Error('The room lightmap does not match this renderer.');
     }
     shader.uniforms.roomMovingShadowStrength = { value: shadowStrength };
+    shader.uniforms.roomRevelationPower = revelation.power;
+    shader.uniforms.roomRevelationColor = revelation.color;
+    shader.uniforms.roomRevelationPosition = revelation.position;
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vRoomWorldPosition;')
+      .replace(positionAnchor, `${positionAnchor}\nvRoomWorldPosition = ( modelMatrix * vec4( transformed, 1.0 ) ).xyz;`);
     shader.fragmentShader = shader.fragmentShader
-      .replace(shadowAnchor, `${shadowAnchor}\n#include <shadowmask_pars_fragment>\nuniform float roomMovingShadowStrength;`)
+      .replace(shadowAnchor, `${shadowAnchor}
+        #include <shadowmask_pars_fragment>
+        varying vec3 vRoomWorldPosition;
+        uniform float roomMovingShadowStrength;
+        uniform float roomRevelationPower;
+        uniform vec3 roomRevelationColor;
+        uniform vec3 roomRevelationPosition;
+      `)
       .replace(diffuseAnchor, `${diffuseAnchor}
         #ifdef USE_LIGHTMAP
           vec3 roomDiffuseIllumination = texture2D( lightMap, vLightMapUv ).rgb * lightMapIntensity;
           float roomMovingShadow = mix( 1.0, getShadowMask(), roomMovingShadowStrength );
+          vec3 roomRevelationDiffuse = vec3( 0.0 );
+          if ( roomRevelationPower > 0.0 ) {
+            vec3 roomToRevelation = roomRevelationPosition - vRoomWorldPosition;
+            float roomRevelationDistance = length( roomToRevelation );
+            vec3 roomRevelationDirection = roomToRevelation / max( roomRevelationDistance, 0.0001 );
+            vec3 roomWorldNormal = inverseTransformDirection( geometryNormal, viewMatrix );
+            float roomRevelationCosine = saturate( dot( roomWorldNormal, roomRevelationDirection ) );
+            float roomRevelationFalloff = getDistanceAttenuation( max( roomRevelationDistance, 0.2 ), 12.0, 1.5 );
+            roomRevelationDiffuse = roomRevelationColor * roomRevelationPower * roomRevelationFalloff * roomRevelationCosine * RECIPROCAL_PI;
+          }
           reflectedLight.directDiffuse = vec3( 0.0 );
-          reflectedLight.indirectDiffuse = material.diffuseColor * roomDiffuseIllumination * roomMovingShadow;
+          reflectedLight.indirectDiffuse = material.diffuseColor * ( roomDiffuseIllumination * roomMovingShadow + roomRevelationDiffuse );
         #endif
       `);
   };
-  material.customProgramCacheKey = () => `${previousKey()}|room-uv-lightmap-v1`;
+  material.customProgramCacheKey = () => `${previousKey()}|room-uv-lightmap-v2`;
   material.userData.roomLightmap = true;
   material.needsUpdate = true;
   return material;
@@ -97,17 +131,23 @@ export async function applyRoomLightmap(room, renderer, { movingShadowStrength =
   texture.anisotropy = 1;
   texture.needsUpdate = true;
 
+  const revelation = {
+    power: { value: 0 },
+    color: { value: new THREE.Color(0xffd893) },
+    position: { value: new THREE.Vector3(0, 1.45, -5) }
+  };
   const copies = new Map();
   const replacements = meshes.map(mesh => {
     const source = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
     const materials = source.map(material => {
       if (!copies.has(material)) copies.set(material,
-        lightmappedMaterial(material, texture, manifest.illuminationScale, movingShadowStrength));
+        lightmappedMaterial(material, texture, manifest.illuminationScale, movingShadowStrength, revelation));
       return copies.get(material);
     });
     return [mesh, Array.isArray(mesh.material) ? materials : materials[0]];
   });
   for (const [mesh, material] of replacements) mesh.material = material;
+  revelationByRoom.set(room, revelation);
 
   // Static shadows are already sampled in the bake. Its moving cover was
   // excluded, so only that cover casts an additional live shadow.

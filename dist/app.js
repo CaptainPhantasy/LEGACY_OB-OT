@@ -6,7 +6,7 @@ import { RoomAtmosphere } from './room-atmosphere.js';
 import { RoomLook } from './room-look.js';
 import { RoomRadiance } from './room-radiance.js';
 import { enhanceMaterials } from './room-materials.js';
-import { applyRoomLightmap } from './room-lightmap.js';
+import { applyRoomLightmap, updateRoomRevelation } from './room-lightmap.js';
 import { curiosities } from './curiosities.js';
 import { escapeHTML, inline, markdown, loadBook } from './book-content.js';
 
@@ -117,6 +117,7 @@ function frame(now){
     if(revealAt){const elapsed=(now-revealAt)/1000,wave=Math.max(0,Math.sin(Math.min(elapsed/8,1)*Math.PI));magicLight.intensity=gentle?3:wave*95;
       if(hinge&&!openAction){const p=Math.min(elapsed/4.8,1),angle=p*p*(3-2*p)*2.75;hinge.quaternion.copy(hingeStart).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),angle));}
     }
+    updateRoomRevelation(room,magicLight.intensity);
     renderer.render(scene,camera);updateWaypoints();
     // Count whole active frames, including GPU waits, and ignore tab-resume gaps.
     if(!qualitySettled&&time>3&&!move&&elapsedFrame<1000){frameCost+=Math.min(elapsedFrame,100);frameSamples++;
