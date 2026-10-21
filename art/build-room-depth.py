@@ -50,6 +50,7 @@ VIEWS = {
     'entrance': ((0, -6.60, 1.60), (0, 5.4, 1.25), 36.9),
     'table': ((.35, 3.48, 1.82), (0, 4.92, 1.06), 34),
     'close': ((.55, 4.00, 1.68), (0, 4.92, 1.07), 40),
+    'open': ((.35, 3.48, 1.82), (0, 4.92, 1.06), 34),
 }
 
 
@@ -1110,6 +1111,10 @@ def bake():
 
 def camera_view(name, dof=False):
     scene = bpy.context.scene
+    hinge = bpy.data.objects.get('BookCoverHinge')
+    if hinge is not None:
+        hinge.rotation_mode = 'XYZ'
+        hinge.rotation_euler[1] = 2.75 if name == 'open' else 0
     camera = scene.camera
     if camera is None:
         data = bpy.data.cameras.new('Room verification camera')
@@ -1120,6 +1125,14 @@ def camera_view(name, dof=False):
     camera.location = location
     camera.rotation_euler = (Vector(target) - camera.location).to_track_quat('-Z', 'Y').to_euler()
     camera.data.lens = lens
+    camera.data.sensor_fit = 'HORIZONTAL'
+    camera.data.sensor_width = 36
+    # The web camera's 52 degrees are vertical. Use its framing for the
+    # exported room/table diagnostics; beauty/close views remain photographic.
+    if ARGS.stage == 'review' and name in ('entrance', 'table', 'open'):
+        camera.data.sensor_fit = 'VERTICAL'
+        camera.data.sensor_height = 24
+        camera.data.lens = 24 / (2 * math.tan(math.radians(52) / 2))
     camera.data.dof.use_dof = dof
     if dof:
         focus = bpy.data.objects.get('Room depth focus')
@@ -1174,6 +1187,27 @@ def review():
             output = next(n for n in nodes if n.type == 'OUTPUT_MATERIAL')
             base = p.inputs['Base Color']
             color_source = base.links[0].from_socket if base.is_linked else None
+            if source.get('room_depth_placeholder_color', False):
+                kind = family(source.get('original_material_name', source.name))
+                family_color_path = ASSETS / 'surfaces' / ((kind or '') + '-color.webp')
+                if kind and family_color_path.exists():
+                    family_uv = nodes.new('ShaderNodeUVMap')
+                    family_uv.uv_map = obj.data.uv_layers[1].name
+                    family_tex = nodes.new('ShaderNodeTexImage')
+                    family_tex.image = bpy.data.images.load(str(family_color_path), check_existing=True)
+                    family_tex.image.colorspace_settings.name = 'sRGB'
+                    family_tex.extension = 'REPEAT'
+                    links.new(family_uv.outputs[0], family_tex.inputs['Vector'])
+                    family_multiply = nodes.new('ShaderNodeMixRGB')
+                    family_multiply.blend_type = 'MULTIPLY'
+                    family_multiply.inputs[0].default_value = 1
+                    # The imported base graph already contains the original
+                    # scalar/color factor. Multiply it once by the detail map.
+                    family_multiply.inputs[1].default_value = base.default_value
+                    if color_source:
+                        links.new(color_source, family_multiply.inputs[1])
+                    links.new(family_tex.outputs['Color'], family_multiply.inputs[2])
+                    color_source = family_multiply.outputs[0]
             uv = nodes.new('ShaderNodeUVMap')
             uv.uv_map = obj.data.uv_layers[2].name
             tex = nodes.new('ShaderNodeTexImage')

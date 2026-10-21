@@ -170,7 +170,9 @@ export async function enhanceMaterials(room, renderer) {
         isFinishedWood ? finishedWood(original) : original;
       const maps = textures[type], config = families[type];
       // Retain all authored colour maps, including the old leather cover.
-      if (!material.map) material.map = maps.color;
+      // The delivery GLB uses a neutral white texel to retain unused UV0.
+      // That marker is not authored colour and must not suppress real detail.
+      if (!material.map || material.userData.room_depth_placeholder_color) material.map = maps.color;
       if (material.map) material.map.anisotropy = anisotropy;
       if (material.normalMap) material.normalMap.anisotropy = anisotropy;
       else { material.bumpMap = maps.height; material.bumpScale = config.bump; }
