@@ -96,7 +96,7 @@ $('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await docum
 addEventListener('fullscreenchange',()=>{$('#fullscreen').textContent=document.fullscreenElement?'Return to the window ↙':'Fill the screen with the room ↗';});
 addEventListener('visibilitychange',()=>{if(document.hidden&&move){move.hiddenAt=performance.now();}else if(move?.hiddenAt){move.start+=performance.now()-move.hiddenAt;delete move.hiddenAt;}});
 function frame(now){
-  const dt=Math.min((now-lastFrame)/1000,.05);lastFrame=now;time+=dt;
+  const elapsedFrame=now-lastFrame,dt=Math.min(elapsedFrame/1000,.05);lastFrame=now;time+=dt;
   if(!document.hidden&&!simple){
     let bob=0,sway=0;
     if(move){
@@ -117,9 +117,9 @@ function frame(now){
     if(revealAt){const elapsed=(now-revealAt)/1000,wave=Math.max(0,Math.sin(Math.min(elapsed/8,1)*Math.PI));magicLight.intensity=gentle?3:wave*95;
       if(hinge&&!openAction){const p=Math.min(elapsed/4.8,1),angle=p*p*(3-2*p)*2.75;hinge.quaternion.copy(hingeStart).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),angle));}
     }
-    const renderStart=performance.now();
     finish.render(scene,camera);updateWaypoints();
-    if(!qualitySettled&&time>3&&!move){frameCost+=performance.now()-renderStart;frameSamples++;
+    // Count whole active frames, including GPU waits, and ignore tab-resume gaps.
+    if(!qualitySettled&&time>3&&!move&&elapsedFrame<1000){frameCost+=Math.min(elapsedFrame,100);frameSamples++;
       if(frameSamples===90){qualitySettled=true;if(frameCost/frameSamples>24){renderer.setPixelRatio(Math.min(devicePixelRatio,1.15));renderer.setSize(innerWidth,innerHeight);finish.resize();}}
     }
   }
@@ -136,7 +136,7 @@ function closePanels(){for(const id of ['explore-menu','settings-panel','shelf-p
 function setCaption(label,title,description,buttons=[]){$('#place-label').textContent=label;$('#place-title').textContent=title;$('#place-description').textContent=description;$('#place-actions').replaceChildren();for(const b of buttons){const el=document.createElement('button');el.className=b.primary?'brass-button':'quiet-button';el.textContent=b.label;el.onclick=()=>b.action();$('#place-actions').append(el);}$('#scene-caption').hidden=false;}
 function go(name){
   openingToken++;audio.stopActive('book-open');$('#opening-caption').hidden=true;$('#revelation').classList.remove('active');
-  if(revealAt&&!$('#book-reader').open){revealAt=0;if(magicLight)magicLight.intensity=0;atmosphere?.close();if(hinge&&hingeStart&&!closing)hinge.quaternion.copy(hingeStart);}
+  if(revealAt&&!$('#book-reader').open){revealAt=0;if(magicLight)magicLight.intensity=0;atmosphere?.close();if(hinge&&hingeStart&&!closing){hinge.quaternion.copy(hingeStart);if(renderer)renderer.shadowMap.needsUpdate=true;}}
   if($('#book-reader').open)closeBook();closePanels();place=name;$('#intro').hidden=name!=='entrance';$('#waypoints').hidden=name!=='aisle';$('#scene-caption').hidden=true;document.body.classList.toggle('inside',name!=='entrance');
   if(name==='entrance'){document.title='Legacy — Old books & odd things';glide(name);return;}
   if(name==='aisle'){glide(name);setCaption('SOMETHING, EVERYWHERE','This way. Or that.','Choose a tag for a closer look. There is no right order.',[{label:'Let something catch my eye ↝',action:rummage},{label:'Look around',action:()=>togglePanel('explore-menu','explore-toggle')}]);}
@@ -274,7 +274,7 @@ async function openBook(resume=false){
 function closeBook(){
   stopPageTurn();
   $('#book-reader').close();document.body.classList.remove('reading');audio.close();$('#footer-note').textContent='YOUR PLACE IS KEPT. THE REST OF THE AFTERNOON IS YOURS.';
-  if(openAction)openAction.stop();if(hinge&&hingeStart){if(gentle||simple)hinge.quaternion.copy(hingeStart);else closing={start:performance.now(),from:hinge.quaternion.clone()};}revealAt=0;if(magicLight)magicLight.intensity=0;atmosphere?.close();
+  if(openAction)openAction.stop();if(hinge&&hingeStart){if(gentle||simple){hinge.quaternion.copy(hingeStart);if(renderer)renderer.shadowMap.needsUpdate=true;}else closing={start:performance.now(),from:hinge.quaternion.clone()};}revealAt=0;if(magicLight)magicLight.intensity=0;atmosphere?.close();
   place='table';setCaption('THE BACK TABLE','A place held for you.','The old cover settles. Your place is kept for you.',[{label:'Open to your bookmark →',primary:true,action:()=>openBook(true)},{label:'Keep looking',action:()=>go('aisle')}]);$('#place-actions button').focus();
 }
 $('#close-book').onclick=closeBook;$('#book-reader').addEventListener('cancel',e=>{e.preventDefault();closeBook();});
