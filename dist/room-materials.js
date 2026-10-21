@@ -65,7 +65,9 @@ function timberAxes(g, worldPositions) {
 // GLB meshes contain many small objects merged by material, and some handmade
 // books have no usable UVs. Project in physical units instead of stretching a
 // texture over each whole mesh. Existing UV0 is never touched: the cover's
-// authored colour, normal maps and lettering remain exactly aligned.
+// authored colour, normal maps and lettering remain exactly aligned. UV1 is
+// reserved for repeating surface detail; UV2 remains available for unique
+// baked lightmaps and must never be overwritten by this projection.
 function addSurfaceUV(mesh, kind, tile) {
   const g = mesh.geometry, pos = g.attributes.position, normal = g.attributes.normal;
   if (!pos || !normal) return;
@@ -101,14 +103,33 @@ function addSurfaceUV(mesh, kind, tile) {
 
 function physicalGlass(source) {
   const material = new THREE.MeshPhysicalMaterial();
-  THREE.MeshStandardMaterial.prototype.copy.call(material, source);
+  if (source.isMeshPhysicalMaterial) material.copy(source);
+  else THREE.MeshStandardMaterial.prototype.copy.call(material, source);
   material.defines = { STANDARD: '', PHYSICAL: '' };
-  material.clearcoat = .55;
-  material.clearcoatRoughness = .23;
-  material.ior = 1.48;
-  // Opaque dusty bottles retain reliable depth and cheap rendering on phones.
-  // Their glass response comes from a dielectric clear coat and real room probes.
-  material.transmission = 0;
+  // Respect physical settings authored in Blender, including lamp glass.
+  // Unspecified old bottles retain their existing opaque, dusty appearance.
+  if (!source.isMeshPhysicalMaterial) {
+    material.clearcoat = .32;
+    material.clearcoatRoughness = .28;
+    material.ior = 1.48;
+  }
+  return material;
+}
+
+function woodFinish(source) {
+  // The current floor, shelves and back table are rough timber. A shared
+  // walnut material must not acquire a varnish simply because it is wood.
+  return /varnish|lacquer|shellac|polished wood/i.test(source.name) ||
+    source.userData?.surfaceFinish === 'finished' || source.roughness < .7;
+}
+
+function finishedWood(source) {
+  const material = new THREE.MeshPhysicalMaterial();
+  if (source.isMeshPhysicalMaterial) material.copy(source);
+  else THREE.MeshStandardMaterial.prototype.copy.call(material, source);
+  material.defines = { STANDARD: '', PHYSICAL: '' };
+  material.clearcoat = Math.max(source.clearcoat || 0, .22);
+  material.clearcoatRoughness = .25;
   return material;
 }
 
@@ -144,7 +165,9 @@ export async function enhanceMaterials(room, renderer) {
       if (enhanced.has(original)) return enhanced.get(original);
       const type = familyFor(original.name);
       if (!type) return original;
-      const material = type === 'glass' ? physicalGlass(original) : original;
+      const isFinishedWood = type === 'wood' && woodFinish(original);
+      const material = type === 'glass' ? physicalGlass(original) :
+        isFinishedWood ? finishedWood(original) : original;
       const maps = textures[type], config = families[type];
       // Retain all authored colour maps, including the old leather cover.
       if (!material.map) material.map = maps.color;
@@ -152,7 +175,10 @@ export async function enhanceMaterials(room, renderer) {
       if (material.normalMap) material.normalMap.anisotropy = anisotropy;
       else { material.bumpMap = maps.height; material.bumpScale = config.bump; }
       material.roughnessMap = maps.roughness;
-      material.roughness = 1;
+      // Both finishes retain varied roughness. Only an authored furniture
+      // finish is allowed the lower range; dry boards remain .78–.97.
+      material.roughness = isFinishedWood ? .68 : 1;
+      if (isFinishedWood) material.clearcoatRoughnessMap = maps.roughness;
       material.envMapIntensity = config.environment;
       if (type === 'metal') {
         if (/brass|bronze/i.test(material.name)) material.metalness = .76;
@@ -161,6 +187,7 @@ export async function enhanceMaterials(room, renderer) {
       // Ancient repairs remain dry and very worn; they never become varnished.
       if (/desiccated|rawhide/i.test(material.name)) material.envMapIntensity = .28;
       material.userData.surfaceFamily = type;
+      if (type === 'wood') material.userData.surfaceFinish = isFinishedWood ? 'finished' : 'dry';
       material.needsUpdate = true;
       enhanced.set(original, material);
       counts[type] = (counts[type] || 0) + 1;

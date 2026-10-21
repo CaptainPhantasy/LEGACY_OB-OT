@@ -38,8 +38,13 @@ grain = np.sin((x+warp)*2*np.pi*29)
 secondary = np.sin((x+warp*.45)*2*np.pi*87)
 pores = np.maximum(0, noise((8,.7))-1.6)
 wood = .49 + .12*grain + .045*secondary + .018*micro - .11*pores
+# The room is built from dry, weathered timber.  The earlier .58 mean made
+# every floorboard and shelf respond like polished furniture. Broad handled
+# areas vary gently, while pores retain more dust and stay rougher. Keep the
+# range bounded so a few noise outliers never become wet-looking patches.
+wood_roughness = np.clip(.875+.03*coarse-.022*grain+.028*pores+.01*fine, .78, .97)
 write('wood', wood, .86+.06*grain+.035*coarse-.08*pores,
-      .58+.07*coarse-.08*grain+.06*pores)
+      wood_roughness)
 
 # Stone and lime have broad erosion, sharp mineral grains and microscopic pits.
 pits = np.maximum(0, noise(.8)-1.3)
@@ -84,6 +89,8 @@ write('glass', .5+.01*micro, .96-.07*dust,
     'generator':'art/build_material_textures.py',
     'seed':445, 'resolution':512,
     'lighting':'None: these encode only colour, surface height and roughness.',
+    'wood_finish':{'default':'dry weathered timber', 'roughness_range':[.78,.97],
+                   'finished_wood':'The runtime scales the same wear map only for explicitly finished materials.'},
     'tile_metres':{'wood':[.24,1.6], 'mineral':[.6,.6], 'cloth':[.08,.08],
                    'paper':[.18,.18], 'leather':[.18,.18], 'metal':[.24,.24], 'glass':[.3,.3]}
 }, indent=2)+'\n')

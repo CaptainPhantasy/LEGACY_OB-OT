@@ -3,6 +3,14 @@
   "seed": 445,
   "resolution": 512,
   "lighting": "None: these encode only colour, surface height and roughness.",
+  "wood_finish": {
+    "default": "dry weathered timber",
+    "roughness_range": [
+      0.78,
+      0.97
+    ],
+    "finished_wood": "The runtime scales the same wear map only for explicitly finished materials."
+  },
   "tile_metres": {
     "wood": [
       0.24,
