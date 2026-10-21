@@ -1,0 +1,1178 @@
+{
+  "protected_triangles": 481479,
+  "edge_samples": 20292417,
+  "conservative_edge_pixels": 2129837,
+  "sampling_guard_pixels": 1,
+  "allocated_faces_checked": 1562,
+  "tile_pixels": 24,
+  "protected_edge_exclusion_pixels": 8,
+  "conservative_guard_pixels": 1,
+  "colliding_tile_count": 25,
+  "intersection_pixels": 581,
+  "safe": true,
+  "collision_examples": [
+    {
+      "face": 84580,
+      "tile_origin": [
+        3248,
+        3136
+      ],
+      "intersection_pixels": 24,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 84862,
+      "tile_origin": [
+        3248,
+        3160
+      ],
+      "intersection_pixels": 24,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 85171,
+      "tile_origin": [
+        3248,
+        3184
+      ],
+      "intersection_pixels": 24,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 85184,
+      "tile_origin": [
+        1136,
+        3280
+      ],
+      "intersection_pixels": 12,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 85203,
+      "tile_origin": [
+        1856,
+        3280
+      ],
+      "intersection_pixels": 3,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 85223,
+      "tile_origin": [
+        2240,
+        3280
+      ],
+      "intersection_pixels": 2,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 85314,
+      "tile_origin": [
+        3248,
+        3280
+      ],
+      "intersection_pixels": 24,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 85493,
+      "tile_origin": [
+        3248,
+        3304
+      ],
+      "intersection_pixels": 24,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 85691,
+      "tile_origin": [
+        3248,
+        3328
+      ],
+      "intersection_pixels": 24,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 85905,
+      "tile_origin": [
+        3248,
+        3352
+      ],
+      "intersection_pixels": 24,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253242,
+      "tile_origin": [
+        3248,
+        3376
+      ],
+      "intersection_pixels": 24,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253249,
+      "tile_origin": [
+        152,
+        3472
+      ],
+      "intersection_pixels": 48,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253360,
+      "tile_origin": [
+        152,
+        3496
+      ],
+      "intersection_pixels": 48,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253501,
+      "tile_origin": [
+        152,
+        3520
+      ],
+      "intersection_pixels": 48,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253642,
+      "tile_origin": [
+        152,
+        3544
+      ],
+      "intersection_pixels": 48,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253783,
+      "tile_origin": [
+        152,
+        3568
+      ],
+      "intersection_pixels": 48,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253918,
+      "tile_origin": [
+        488,
+        3808
+      ],
+      "intersection_pixels": 22,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253923,
+      "tile_origin": [
+        1424,
+        3808
+      ],
+      "intersection_pixels": 24,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253935,
+      "tile_origin": [
+        3440,
+        3808
+      ],
+      "intersection_pixels": 2,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253975,
+      "tile_origin": [
+        3104,
+        3928
+      ],
+      "intersection_pixels": 10,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253976,
+      "tile_origin": [
+        3128,
+        3928
+      ],
+      "intersection_pixels": 11,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253977,
+      "tile_origin": [
+        3152,
+        3928
+      ],
+      "intersection_pixels": 21,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253979,
+      "tile_origin": [
+        3200,
+        3928
+      ],
+      "intersection_pixels": 7,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253980,
+      "tile_origin": [
+        3224,
+        3928
+      ],
+      "intersection_pixels": 19,
+      "material": "Stained hemp rope"
+    },
+    {
+      "face": 253981,
+      "tile_origin": [
+        3248,
+        3928
+      ],
+      "intersection_pixels": 16,
+      "material": "Stained hemp rope"
+    }
+  ],
+  "all_colliding_faces": [
+    84580,
+    84862,
+    85171,
+    85184,
+    85203,
+    85223,
+    85314,
+    85493,
+    85691,
+    85905,
+    253242,
+    253249,
+    253360,
+    253501,
+    253642,
+    253783,
+    253918,
+    253923,
+    253935,
+    253975,
+    253976,
+    253977,
+    253979,
+    253980,
+    253981
+  ],
+  "native_file_unchanged": true,
+  "exact_refinement": {
+    "required_geometric_separation_pixels": 8,
+    "bake_extension_pixels_each": 3,
+    "remaining_filter_gap_pixels": 2,
+    "refined_tiles": 25,
+    "mask_proven_tiles": 1537,
+    "safe": true,
+    "tiles": [
+      {
+        "face": 84580,
+        "candidate_triangles": 12,
+        "minimum_distance_pixels": 11.73095703125,
+        "protected_face": 29811,
+        "protected_material": "Antique paper",
+        "target_triangle_pixels": [
+          [
+            3251.5,
+            3139.5
+          ],
+          [
+            3268.5,
+            3139.5
+          ],
+          [
+            3251.5,
+            3156.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3280.23095703125,
+            3162.318359375
+          ],
+          [
+            3300.199951171875,
+            3133.08740234375
+          ],
+          [
+            3280.23095703125,
+            3133.11572265625
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 84862,
+        "candidate_triangles": 4,
+        "minimum_distance_pixels": 11.731201171875,
+        "protected_face": 23774,
+        "protected_material": "Antique paper",
+        "target_triangle_pixels": [
+          [
+            3251.5,
+            3163.5
+          ],
+          [
+            3268.5,
+            3163.5
+          ],
+          [
+            3251.5,
+            3180.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3299.998779296875,
+            3191.769775390625
+          ],
+          [
+            3280.231201171875,
+            3162.392822265625
+          ],
+          [
+            3280.231201171875,
+            3191.843994140625
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 85171,
+        "candidate_triangles": 10,
+        "minimum_distance_pixels": 11.731201171875,
+        "protected_face": 23774,
+        "protected_material": "Antique paper",
+        "target_triangle_pixels": [
+          [
+            3251.5,
+            3187.5
+          ],
+          [
+            3268.5,
+            3187.5
+          ],
+          [
+            3251.5,
+            3204.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3299.998779296875,
+            3191.769775390625
+          ],
+          [
+            3280.231201171875,
+            3162.392822265625
+          ],
+          [
+            3280.231201171875,
+            3191.843994140625
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 85184,
+        "candidate_triangles": 4,
+        "minimum_distance_pixels": 11.97779924970855,
+        "protected_face": 56058,
+        "protected_material": "Oxidized bronze",
+        "target_triangle_pixels": [
+          [
+            1139.5,
+            3283.5
+          ],
+          [
+            1156.5,
+            3283.5
+          ],
+          [
+            1139.5,
+            3300.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            1168.4312744140625,
+            3282.4453125
+          ],
+          [
+            1181.2117919921875,
+            3248.795654296875
+          ],
+          [
+            1181.4908447265625,
+            3248.8408203125
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 85203,
+        "candidate_triangles": 4,
+        "minimum_distance_pixels": 15.04698320178963,
+        "protected_face": 56229,
+        "protected_material": "Oxidized bronze",
+        "target_triangle_pixels": [
+          [
+            1859.5,
+            3283.5
+          ],
+          [
+            1876.5,
+            3283.5
+          ],
+          [
+            1859.5,
+            3300.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            1843.919677734375,
+            3281.814208984375
+          ],
+          [
+            1855.6893310546875,
+            3247.666015625
+          ],
+          [
+            1844.1636962890625,
+            3281.893798828125
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 85223,
+        "candidate_triangles": 4,
+        "minimum_distance_pixels": 15.182935693170661,
+        "protected_face": 55967,
+        "protected_material": "Oxidized bronze",
+        "target_triangle_pixels": [
+          [
+            2243.5,
+            3283.5
+          ],
+          [
+            2260.5,
+            3283.5
+          ],
+          [
+            2243.5,
+            3300.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            2227.887939453125,
+            3281.50927734375
+          ],
+          [
+            2239.283203125,
+            3247.261962890625
+          ],
+          [
+            2228.157470703125,
+            3281.59375
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 85314,
+        "candidate_triangles": 4,
+        "minimum_distance_pixels": 11.731201171875,
+        "protected_face": 22742,
+        "protected_material": "Antique paper",
+        "target_triangle_pixels": [
+          [
+            3251.5,
+            3283.5
+          ],
+          [
+            3268.5,
+            3283.5
+          ],
+          [
+            3251.5,
+            3300.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3298.90771484375,
+            3284.364990234375
+          ],
+          [
+            3280.231201171875,
+            3253.138427734375
+          ],
+          [
+            3280.231201171875,
+            3284.283203125
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 85493,
+        "candidate_triangles": 4,
+        "minimum_distance_pixels": 11.7314453125,
+        "protected_face": 31137,
+        "protected_material": "Antique paper",
+        "target_triangle_pixels": [
+          [
+            3251.5,
+            3307.5
+          ],
+          [
+            3268.5,
+            3307.5
+          ],
+          [
+            3251.5,
+            3324.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3280.2314453125,
+            3312.46142578125
+          ],
+          [
+            3300.981201171875,
+            3284.36669921875
+          ],
+          [
+            3280.2314453125,
+            3284.365234375
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 85691,
+        "candidate_triangles": 4,
+        "minimum_distance_pixels": 11.731201171875,
+        "protected_face": 30728,
+        "protected_material": "Antique paper",
+        "target_triangle_pixels": [
+          [
+            3251.5,
+            3331.5
+          ],
+          [
+            3268.5,
+            3331.5
+          ],
+          [
+            3251.5,
+            3348.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3299.85595703125,
+            3342.154541015625
+          ],
+          [
+            3280.231201171875,
+            3312.462646484375
+          ],
+          [
+            3280.231201171875,
+            3341.89697265625
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 85905,
+        "candidate_triangles": 4,
+        "minimum_distance_pixels": 11.731201171875,
+        "protected_face": 23846,
+        "protected_material": "Antique paper",
+        "target_triangle_pixels": [
+          [
+            3251.5,
+            3355.5
+          ],
+          [
+            3268.5,
+            3355.5
+          ],
+          [
+            3251.5,
+            3372.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3298.5380859375,
+            3373.795654296875
+          ],
+          [
+            3280.231201171875,
+            3342.3173828125
+          ],
+          [
+            3280.231201171875,
+            3373.958251953125
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253242,
+        "candidate_triangles": 4,
+        "minimum_distance_pixels": 11.7314453125,
+        "protected_face": 24566,
+        "protected_material": "Antique paper",
+        "target_triangle_pixels": [
+          [
+            3251.5,
+            3379.5
+          ],
+          [
+            3268.5,
+            3379.5
+          ],
+          [
+            3251.5,
+            3396.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3301.844482421875,
+            3400.894775390625
+          ],
+          [
+            3280.2314453125,
+            3373.958740234375
+          ],
+          [
+            3280.2314453125,
+            3400.890869140625
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253249,
+        "candidate_triangles": 6,
+        "minimum_distance_pixels": 11.194107055664062,
+        "protected_face": 21034,
+        "protected_material": "Walnut • patina 00",
+        "target_triangle_pixels": [
+          [
+            155.5,
+            3475.5
+          ],
+          [
+            172.5,
+            3475.5
+          ],
+          [
+            155.5,
+            3492.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            184.11952209472656,
+            3420.78271484375
+          ],
+          [
+            183.69410705566406,
+            3601.774658203125
+          ],
+          [
+            183.69410705566406,
+            3420.78271484375
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253360,
+        "candidate_triangles": 6,
+        "minimum_distance_pixels": 11.194107055664062,
+        "protected_face": 21034,
+        "protected_material": "Walnut • patina 00",
+        "target_triangle_pixels": [
+          [
+            155.5,
+            3499.5
+          ],
+          [
+            172.5,
+            3499.5
+          ],
+          [
+            155.5,
+            3516.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            184.11952209472656,
+            3420.78271484375
+          ],
+          [
+            183.69410705566406,
+            3601.774658203125
+          ],
+          [
+            183.69410705566406,
+            3420.78271484375
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253501,
+        "candidate_triangles": 6,
+        "minimum_distance_pixels": 11.194107055664062,
+        "protected_face": 21034,
+        "protected_material": "Walnut • patina 00",
+        "target_triangle_pixels": [
+          [
+            155.5,
+            3523.5
+          ],
+          [
+            172.5,
+            3523.5
+          ],
+          [
+            155.5,
+            3540.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            184.11952209472656,
+            3420.78271484375
+          ],
+          [
+            183.69410705566406,
+            3601.774658203125
+          ],
+          [
+            183.69410705566406,
+            3420.78271484375
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253642,
+        "candidate_triangles": 6,
+        "minimum_distance_pixels": 11.194107055664062,
+        "protected_face": 21034,
+        "protected_material": "Walnut • patina 00",
+        "target_triangle_pixels": [
+          [
+            155.5,
+            3547.5
+          ],
+          [
+            172.5,
+            3547.5
+          ],
+          [
+            155.5,
+            3564.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            184.11952209472656,
+            3420.78271484375
+          ],
+          [
+            183.69410705566406,
+            3601.774658203125
+          ],
+          [
+            183.69410705566406,
+            3420.78271484375
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253783,
+        "candidate_triangles": 40,
+        "minimum_distance_pixels": 11.194107055664062,
+        "protected_face": 21034,
+        "protected_material": "Walnut • patina 00",
+        "target_triangle_pixels": [
+          [
+            155.5,
+            3571.5
+          ],
+          [
+            172.5,
+            3571.5
+          ],
+          [
+            155.5,
+            3588.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            184.11952209472656,
+            3420.78271484375
+          ],
+          [
+            183.69410705566406,
+            3601.774658203125
+          ],
+          [
+            183.69410705566406,
+            3420.78271484375
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253918,
+        "candidate_triangles": 49,
+        "minimum_distance_pixels": 11.91845703125,
+        "protected_face": 27618,
+        "protected_material": "Antique paper",
+        "target_triangle_pixels": [
+          [
+            491.5,
+            3811.5
+          ],
+          [
+            508.5,
+            3811.5
+          ],
+          [
+            491.5,
+            3828.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            499.62969970703125,
+            3799.330322265625
+          ],
+          [
+            506.1254577636719,
+            3799.58154296875
+          ],
+          [
+            506.1253662109375,
+            3776.7685546875
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253923,
+        "candidate_triangles": 20,
+        "minimum_distance_pixels": 11.6072998046875,
+        "protected_face": 89489,
+        "protected_material": "Walnut • patina 00",
+        "target_triangle_pixels": [
+          [
+            1427.5,
+            3811.5
+          ],
+          [
+            1444.5,
+            3811.5
+          ],
+          [
+            1427.5,
+            3828.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            1414.771240234375,
+            3824.024169921875
+          ],
+          [
+            1415.8927001953125,
+            3776.563232421875
+          ],
+          [
+            1415.8927001953125,
+            3824.0703125
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253935,
+        "candidate_triangles": 44,
+        "minimum_distance_pixels": 14.51220703125,
+        "protected_face": 177607,
+        "protected_material": "Old ebony joinery",
+        "target_triangle_pixels": [
+          [
+            3443.5,
+            3811.5
+          ],
+          [
+            3460.5,
+            3811.5
+          ],
+          [
+            3443.5,
+            3828.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3457.4326171875,
+            3796.9443359375
+          ],
+          [
+            3457.371337890625,
+            3796.972412109375
+          ],
+          [
+            3457.429443359375,
+            3796.98779296875
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253975,
+        "candidate_triangles": 264,
+        "minimum_distance_pixels": 12.27034856387053,
+        "protected_face": 124658,
+        "protected_material": "Oxidized bronze",
+        "target_triangle_pixels": [
+          [
+            3107.5,
+            3931.5
+          ],
+          [
+            3124.5,
+            3931.5
+          ],
+          [
+            3107.5,
+            3948.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3127.199462890625,
+            3919.5302734375
+          ],
+          [
+            3127.199462890625,
+            3894.6806640625
+          ],
+          [
+            3127.819091796875,
+            3894.693359375
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253976,
+        "candidate_triangles": 275,
+        "minimum_distance_pixels": 12.176624975016049,
+        "protected_face": 124660,
+        "protected_material": "Oxidized bronze",
+        "target_triangle_pixels": [
+          [
+            3131.5,
+            3931.5
+          ],
+          [
+            3148.5,
+            3931.5
+          ],
+          [
+            3131.5,
+            3948.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3128.56640625,
+            3919.54443359375
+          ],
+          [
+            3129.241455078125,
+            3894.68505859375
+          ],
+          [
+            3129.241455078125,
+            3919.53466796875
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253977,
+        "candidate_triangles": 231,
+        "minimum_distance_pixels": 12.191650390625,
+        "protected_face": 124662,
+        "protected_material": "Oxidized bronze",
+        "target_triangle_pixels": [
+          [
+            3155.5,
+            3931.5
+          ],
+          [
+            3172.5,
+            3931.5
+          ],
+          [
+            3155.5,
+            3948.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3163.589111328125,
+            3919.308349609375
+          ],
+          [
+            3163.589111328125,
+            3894.748779296875
+          ],
+          [
+            3164.218505859375,
+            3894.686767578125
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253979,
+        "candidate_triangles": 189,
+        "minimum_distance_pixels": 13.4054567506942,
+        "protected_face": 124652,
+        "protected_material": "Oxidized bronze",
+        "target_triangle_pixels": [
+          [
+            3203.5,
+            3931.5
+          ],
+          [
+            3220.5,
+            3931.5
+          ],
+          [
+            3203.5,
+            3948.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3226.55810546875,
+            3919.54150390625
+          ],
+          [
+            3226.55810546875,
+            3894.680419921875
+          ],
+          [
+            3227.08740234375,
+            3894.680419921875
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253980,
+        "candidate_triangles": 168,
+        "minimum_distance_pixels": 11.958251953125,
+        "protected_face": 124653,
+        "protected_material": "Oxidized bronze",
+        "target_triangle_pixels": [
+          [
+            3227.5,
+            3931.5
+          ],
+          [
+            3244.5,
+            3931.5
+          ],
+          [
+            3227.5,
+            3948.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3227.08740234375,
+            3919.541748046875
+          ],
+          [
+            3227.811279296875,
+            3894.6806640625
+          ],
+          [
+            3227.811279296875,
+            3919.541748046875
+          ]
+        ],
+        "safe": true
+      },
+      {
+        "face": 253981,
+        "candidate_triangles": 197,
+        "minimum_distance_pixels": 12.166015625,
+        "protected_face": 124656,
+        "protected_material": "Oxidized bronze",
+        "target_triangle_pixels": [
+          [
+            3251.5,
+            3931.5
+          ],
+          [
+            3268.5,
+            3931.5
+          ],
+          [
+            3251.5,
+            3948.5
+          ]
+        ],
+        "protected_triangle_pixels": [
+          [
+            3253.46533203125,
+            3919.30517578125
+          ],
+          [
+            3254.192138671875,
+            3894.791259765625
+          ],
+          [
+            3254.192138671875,
+            3919.333984375
+          ]
+        ],
+        "safe": true
+      }
+    ]
+  }
+}

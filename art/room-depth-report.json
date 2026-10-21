@@ -5592,5 +5592,21 @@
     "before_bytes": 26414411,
     "after_bytes": 23939052
   },
-  "native_checkpoint_sha256": "0be16932333212795c8c4f5fa86260119ab6d3861f1f3fbf6c622d53d5097e02"
+  "native_checkpoint_sha256": "0be16932333212795c8c4f5fa86260119ab6d3861f1f3fbf6c622d53d5097e02",
+  "final_edge_clearance": {
+    "safe": true,
+    "proof": "art/room-atlas-edge-clearance.json",
+    "allocated_faces_checked": 1562,
+    "mask_proven_tiles": 1537,
+    "exactly_refined_tiles": 25,
+    "minimum_refined_separation_pixels": 11.194107055664062,
+    "required_separation_pixels": 8
+  },
+  "final_delivered_asset_tests": {
+    "passed": 8,
+    "failed": 0,
+    "commands": [
+      "node --test scripts/room-lightmap.test.mjs scripts/room-lightmap-encoding.test.mjs"
+    ]
+  }
 }
