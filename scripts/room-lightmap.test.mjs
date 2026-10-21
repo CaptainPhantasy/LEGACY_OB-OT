@@ -13,7 +13,7 @@ const { GLTFLoader } = await import('../dist/vendor/loaders/GLTFLoader.js');
 const { applyRoomLightmap, updateRoomRevelation } = await import('../dist/room-lightmap.js');
 const { enhanceMaterials } = await import('../dist/room-materials.js');
 const manifestURL = new URL('../dist/assets/room-lightmap.json', import.meta.url);
-const roomURL = new URL('../dist/assets/bookstore-depth.glb', import.meta.url);
+const roomURL = new URL('../dist/assets/bookstore-depth.gltf', import.meta.url);
 
 async function withImageTransport(callback, resolution = 4096) {
   const originalLoad = THREE.TextureLoader.prototype.load, oldSelf = globalThis.self;
@@ -30,10 +30,39 @@ async function withImageTransport(callback, resolution = 4096) {
   }
 }
 
+async function withLocalBinaryTransport(callback) {
+  const oldFetch = globalThis.fetch, oldProgressEvent = globalThis.ProgressEvent;
+  const hadProgressEvent = Object.hasOwn(globalThis, 'ProgressEvent');
+  globalThis.fetch = async (input, options) => {
+    const url = new URL(input instanceof Request ? input.url : input);
+    // Node fetch has no file: transport. Supply actual buffer bytes only;
+    // other requests retain their normal behavior and images use the stub above.
+    if (url.protocol !== 'file:' || !url.pathname.endsWith('.bin')) return oldFetch(input, options);
+    const bytes = await readFile(url);
+    return new Response(bytes, { status: 200, headers: {
+      'Content-Type': 'application/octet-stream', 'Content-Length': String(bytes.byteLength),
+    } });
+  };
+  if (typeof oldProgressEvent === 'undefined') {
+    globalThis.ProgressEvent = class extends Event {
+      constructor(type, { lengthComputable = false, loaded = 0, total = 0 } = {}) {
+        super(type);
+        Object.assign(this, { lengthComputable, loaded, total });
+      }
+    };
+  }
+  try { return await callback(); }
+  finally {
+    globalThis.fetch = oldFetch;
+    if (hadProgressEvent) globalThis.ProgressEvent = oldProgressEvent;
+    else delete globalThis.ProgressEvent;
+  }
+}
+
 async function loadRoom({ syntheticUV = false } = {}) {
-  const bytes = await readFile(roomURL);
-  const gltf = await withImageTransport(() => new GLTFLoader().parseAsync(
-    bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength), ''));
+  const source = await readFile(roomURL, 'utf8');
+  const gltf = await withImageTransport(() => withLocalBinaryTransport(() => new GLTFLoader().parseAsync(
+    source, new URL('.', roomURL).href)));
   if (syntheticUV) gltf.scene.getObjectByName('OldCuriosityShop').traverse(mesh => {
     if (!mesh.isMesh) return;
     const count = mesh.geometry.getAttribute('position').count;
@@ -58,12 +87,24 @@ async function applyFixture(room, manifest = testManifest) {
 }
 
 async function exportedDocument() {
-  const bytes = await readFile(roomURL);
-  assert.equal(bytes.subarray(0, 4).toString(), 'glTF');
-  assert.equal(bytes.readUInt32LE(4), 2);
-  assert.equal(bytes.readUInt32LE(8), bytes.length);
-  assert.equal(bytes.readUInt32LE(16), 0x4e4f534a, 'The first GLB chunk must be JSON');
-  return JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString('utf8'));
+  const document = JSON.parse(await readFile(roomURL, 'utf8'));
+  assert.equal(document.asset.version, '2.0');
+  assert.ok(document.buffers.length > 0, 'The scene must retain its binary geometry and image data');
+  for (const buffer of document.buffers) {
+    assert.ok(typeof buffer.uri === 'string' && buffer.uri.endsWith('.bin') &&
+      !buffer.uri.startsWith('/') && !/^[a-z][a-z\d+.-]*:/i.test(buffer.uri),
+    'Binary scene chunks must use relative file paths');
+    const bytes = await readFile(new URL(buffer.uri, roomURL));
+    assert.equal(bytes.length, buffer.byteLength, `${buffer.uri}: binary chunk length mismatch`);
+    assert.ok(bytes.length <= 8 * 1024 * 1024, `${buffer.uri}: chunk exceeds the delivery size bound`);
+  }
+  for (const view of document.bufferViews) {
+    const buffer = document.buffers[view.buffer];
+    assert.ok(buffer && (view.byteOffset || 0) >= 0 && view.byteLength > 0 &&
+      (view.byteOffset || 0) + view.byteLength <= buffer.byteLength,
+    'Every material and geometry buffer view must remain within its declared chunk');
+  }
+  return document;
 }
 
 function assertLinearFactor(actual, expected, label) {
@@ -85,7 +126,7 @@ function snapshotUV(attribute) {
   return Buffer.from(values.buffer);
 }
 
-test('the actual GLB retains all linear material factors instead of exporting white defaults', async () => {
+test('the actual glTF retains valid binary chunks and all linear material factors instead of white defaults', async () => {
   const document = await exportedDocument();
   assert.equal(document.materials.length, 65, 'Keep every static and articulated material');
   for (const material of document.materials) {
@@ -111,7 +152,7 @@ test('the actual GLB retains all linear material factors instead of exporting wh
 });
 
 test('final exported extras replace only placeholder maps and preserve color, original UVs, lightmap UVs and dry timber', async () => {
-  // Decode the real GLB and exercise the real material enhancer. Only image
+  // Decode the real glTF and exercise the real material enhancer. Only image
   // transport is mocked; this checks asset integration, not GPU appearance.
   const room = await loadRoom();
   const staticMeshes = new Set();
