@@ -11,7 +11,9 @@ registerHooks({ resolve(specifier, context, nextResolve) {
 const THREE = await import(threeURL);
 const { GLTFLoader } = await import('../dist/vendor/loaders/GLTFLoader.js');
 const { applyRoomLightmap, updateRoomRevelation } = await import('../dist/room-lightmap.js');
+const { enhanceMaterials } = await import('../dist/room-materials.js');
 const manifestURL = new URL('../dist/assets/room-lightmap.json', import.meta.url);
+const roomURL = new URL('../dist/assets/bookstore-depth.glb', import.meta.url);
 
 async function withImageTransport(callback, resolution = 4096) {
   const originalLoad = THREE.TextureLoader.prototype.load, oldSelf = globalThis.self;
@@ -29,7 +31,7 @@ async function withImageTransport(callback, resolution = 4096) {
 }
 
 async function loadRoom({ syntheticUV = false } = {}) {
-  const bytes = await readFile(new URL('../dist/assets/bookstore-depth.glb', import.meta.url));
+  const bytes = await readFile(roomURL);
   const gltf = await withImageTransport(() => new GLTFLoader().parseAsync(
     bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength), ''));
   if (syntheticUV) gltf.scene.getObjectByName('OldCuriosityShop').traverse(mesh => {
@@ -54,6 +56,130 @@ async function applyFixture(room, manifest = testManifest) {
   try { return await withImageTransport(() => applyRoomLightmap(room, renderer()), manifest.resolution); }
   finally { globalThis.fetch = oldFetch; }
 }
+
+async function exportedDocument() {
+  const bytes = await readFile(roomURL);
+  assert.equal(bytes.subarray(0, 4).toString(), 'glTF');
+  assert.equal(bytes.readUInt32LE(4), 2);
+  assert.equal(bytes.readUInt32LE(8), bytes.length);
+  assert.equal(bytes.readUInt32LE(16), 0x4e4f534a, 'The first GLB chunk must be JSON');
+  return JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString('utf8'));
+}
+
+function assertLinearFactor(actual, expected, label) {
+  assert.equal(actual?.length, expected.length, `${label}: missing linear factor`);
+  for (let i = 0; i < expected.length; i++) {
+    assert.ok(Number.isFinite(actual[i]) && Math.abs(actual[i] - expected[i]) <= 1e-6,
+      `${label}: channel ${i} is ${actual[i]}, expected ${expected[i]}`);
+  }
+}
+
+function snapshotUV(attribute) {
+  assert.ok(attribute, 'Final export must retain the requested UV attribute');
+  assert.equal(attribute.itemSize, 2);
+  const values = new Float32Array(attribute.count * 2);
+  for (let i = 0; i < attribute.count; i++) {
+    values[i * 2] = attribute.getX(i);
+    values[i * 2 + 1] = attribute.getY(i);
+  }
+  return Buffer.from(values.buffer);
+}
+
+test('the actual GLB retains all linear material factors instead of exporting white defaults', async () => {
+  const document = await exportedDocument();
+  assert.equal(document.materials.length, 65, 'Keep every static and articulated material');
+  for (const material of document.materials) {
+    const pbr = material.pbrMetallicRoughness;
+    assert.ok(pbr && Object.hasOwn(pbr, 'baseColorFactor'),
+      `${material.name}: an explicit baseColorFactor is required, including authored white`);
+    assert.equal(pbr.baseColorFactor.length, 4);
+    assert.ok(pbr.baseColorFactor.every(value => Number.isFinite(value) && value >= 0 && value <= 1),
+      `${material.name}: baseColorFactor must contain finite linear RGBA values`);
+  }
+  for (const [name, expected] of [
+    ['Book cloth 05', [.22, .11, .055, 1]],
+    ['Antique paper', [.51, .4, .255, 1]],
+  ]) {
+    const materials = document.materials.filter(material => material.extras?.original_material_name === name);
+    assert.ok(materials.length > 0, `Missing exported ${name}`);
+    for (const material of materials) {
+      assertLinearFactor(material.pbrMetallicRoughness.baseColorFactor, expected, material.name);
+      assert.equal(material.extras.room_depth_placeholder_color, true,
+        `${material.name}: the neutral UV-retention image must be marked as a placeholder`);
+    }
+  }
+});
+
+test('final exported extras replace only placeholder maps and preserve color, original UVs, lightmap UVs and dry timber', async () => {
+  // Decode the real GLB and exercise the real material enhancer. Only image
+  // transport is mocked; this checks asset integration, not GPU appearance.
+  const room = await loadRoom();
+  const staticMeshes = new Set();
+  room.getObjectByName('OldCuriosityShop').traverse(mesh => { if (mesh.isMesh) staticMeshes.add(mesh); });
+  const meshes = [];
+  room.traverse(mesh => {
+    if (!mesh.isMesh) return;
+    const uv0 = mesh.geometry.getAttribute('uv');
+    const uv2 = mesh.geometry.getAttribute('uv2');
+    if (staticMeshes.has(mesh)) assert.ok(uv2, `${mesh.name}: static lightmap UV2 is missing`);
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    meshes.push({ mesh, uv0, uv2, uv0Bytes: snapshotUV(uv0), uv2Bytes: uv2 ? snapshotUV(uv2) : null,
+      materials: materials.map(material => ({
+        name: material.name, color: material.color.toArray(), map: material.map,
+        placeholder: material.userData.room_depth_placeholder_color,
+        sourceName: material.userData.original_material_name,
+      })) });
+  });
+  assert.ok(meshes.length > 0);
+  await withImageTransport(() => enhanceMaterials(room, renderer()), 512);
+  let replaced = 0, authored = 0, dryWood = 0, checkedCloth = 0, checkedPaper = 0;
+  for (const before of meshes) {
+    const { mesh } = before;
+    assert.equal(mesh.geometry.getAttribute('uv'), before.uv0, `${mesh.name}: UV0 attribute replaced`);
+    assert.equal(mesh.geometry.getAttribute('uv2'), before.uv2, `${mesh.name}: UV2 attribute replaced`);
+    assert.ok(snapshotUV(before.uv0).equals(before.uv0Bytes), `${mesh.name}: authored UV0 changed`);
+    if (before.uv2Bytes) assert.ok(snapshotUV(before.uv2).equals(before.uv2Bytes), `${mesh.name}: baked UV2 changed`);
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    assert.equal(materials.length, before.materials.length);
+    for (let i = 0; i < materials.length; i++) {
+      const material = materials[i], original = before.materials[i];
+      assert.deepEqual(material.color.toArray(), original.color, `${original.name}: linear factor changed`);
+      assert.equal(material.userData.original_material_name, original.sourceName);
+      assert.equal(material.userData.room_depth_placeholder_color, original.placeholder);
+      if (original.placeholder && material.userData.surfaceFamily) {
+        assert.ok(original.map, `${original.name}: the export must contain its neutral UV-retention image`);
+        assert.notEqual(material.map, original.map, `${original.name}: white placeholder suppressed surface color`);
+        assert.equal(material.map.channel, 1);
+        assert.equal(material.map.colorSpace, THREE.SRGBColorSpace);
+        replaced++;
+      } else if (original.map && !original.placeholder) {
+        assert.equal(material.map, original.map, `${original.name}: authored image replaced`);
+        authored++;
+      }
+      if (/walnut|ebony|joinery/i.test(original.sourceName || original.name)) {
+        assert.equal(material.userData.surfaceFinish, 'dry', `${original.name}: dry timber gained varnish`);
+        assert.equal(material.roughness, 1);
+        assert.equal(material.clearcoat || 0, 0);
+        assert.ok(material.roughnessMap, `${original.name}: dry timber lost roughness variation`);
+        assert.equal(material.roughnessMap.channel, 1);
+        assert.equal(material.roughnessMap.colorSpace, THREE.NoColorSpace);
+        dryWood++;
+      }
+      if (original.sourceName === 'Book cloth 05') {
+        assertLinearFactor(material.color.toArray(), [.22, .11, .055], original.name);
+        checkedCloth++;
+      }
+      if (original.sourceName === 'Antique paper') {
+        assertLinearFactor(material.color.toArray(), [.51, .4, .255], original.name);
+        checkedPaper++;
+      }
+    }
+  }
+  assert.ok(replaced > 0, 'Final asset did not exercise placeholder replacement');
+  assert.ok(authored > 0, 'Final asset did not exercise authored-map preservation');
+  assert.ok(dryWood >= 10, 'Final asset did not retain all walnut and ebony timber variants');
+  assert.ok(checkedCloth > 0 && checkedPaper > 0, 'Known linear color factors were not loaded');
+});
 
 test('full diffuse lightmap replaces live diffuse and leaves the moving cover independent', async () => {
   const room = await loadRoom({ syntheticUV: true });
