@@ -50,7 +50,7 @@ export class RoomRadiance {
       room.traverse(o=>{if(!o.isMesh)return;for(const m of Array.isArray(o.material)?o.material:[o.material]){
         if(!m.isMeshStandardMaterial)continue;
         m.envMap=this.environment.texture;
-        m.envMapIntensity=m.metalness>.3?.72:.22;
+        if(!m.userData.surfaceFamily)m.envMapIntensity=m.metalness>.3?.72:.22;
         m.needsUpdate=true;
       }});
     }finally{

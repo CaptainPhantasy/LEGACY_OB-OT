@@ -74,7 +74,7 @@ async function initScene(){
     const gltf=await new GLTFLoader().loadAsync('./assets/bookstore.glb');room=gltf.scene;scene.add(room);
     room.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
     await enhanceMaterials(room,renderer);
-    await applyBakedLighting(room);
+    try{await applyBakedLighting(room);}catch(error){console.warn('Baked room lighting unavailable; live lighting remains active.',error);}
     room.traverse(o=>{if(!o.isMesh)return;const mats=Array.isArray(o.material)?o.material:[o.material];if(mats.every(m=>m.emissiveIntensity>0&&m.emissive?.getHex()>0))o.castShadow=false;});
     radiance.capture(room,atmosphere);
     finish=new RoomFinish(renderer);finish.resize();

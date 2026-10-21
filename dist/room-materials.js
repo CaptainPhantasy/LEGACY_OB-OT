@@ -102,6 +102,7 @@ function addSurfaceUV(mesh, kind, tile) {
 function physicalGlass(source) {
   const material = new THREE.MeshPhysicalMaterial();
   THREE.MeshStandardMaterial.prototype.copy.call(material, source);
+  material.defines = { STANDARD: '', PHYSICAL: '' };
   material.clearcoat = .55;
   material.clearcoatRoughness = .23;
   material.ior = 1.48;
