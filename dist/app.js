@@ -4,7 +4,7 @@ import { ShopSound } from './sound.js';
 import { PhysicalPageTurn } from './page-physics.js';
 import { RoomAtmosphere } from './room-atmosphere.js';
 import { RoomLook } from './room-look.js';
-import { RoomRadiance } from './room-radiance.js';
+import { RoomRadiance } from './room-radiance.js?scene=rabbit-holes-1';
 import { enhanceMaterials } from './room-materials.js?scene=rabbit-holes-1';
 import { applyRoomLightmap, updateRoomRevelation } from './room-lightmap.js?scene=rabbit-holes-1';
 import { ROOM_POSES, planRoomPath, sampleRoomPath } from './room-path.js?scene=rabbit-holes-1';

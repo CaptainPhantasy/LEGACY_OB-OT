@@ -4,7 +4,7 @@ import * as THREE from 'three';
 // Indirect diffuse is baked separately by art/bake-room-light.py.
 export class RoomRadiance {
   constructor(scene, renderer) {
-    this.scene=scene;this.renderer=renderer;this.lamps=[];
+    this.scene=scene;this.renderer=renderer;this.lamps=[];this.shelfLights=[];
     this.compact=matchMedia('(pointer: coarse)').matches;
     scene.add(new THREE.HemisphereLight(0xb8c9d3,0x655039,.34));
     scene.add(new THREE.AmbientLight(0xbba17b,.055));
@@ -14,6 +14,17 @@ export class RoomRadiance {
     this.practical([1.46,2.485,-.63],20);
     this.practical([-1.3,2.403,-6.65],12);
     this.practical([-.86,1.31,-5.66],10);
+    // Soft display-face highlights accompany the baked area-light illumination.
+    // The lightmap replaces dynamic diffuse; these steady, unshadowed sources
+    // let handled brass and steel retain a live highlight as the visitor moves.
+    for(const side of [-1,1])for(const depth of [2.75,1.5,.25]){
+      const light=new THREE.SpotLight(0xffdfb6,4,3.2,.8,1,2);
+      light.name=`Shelf face light ${side<0?'west':'east'} ${depth}`;
+      light.position.set(side*1.6,1.95,depth);
+      light.target.position.set(side*.2,1,depth);
+      light.castShadow=false;
+      scene.add(light,light.target);this.shelfLights.push(light);
+    }
     // One controlled shadow source retains the book's grounding and movement.
     const tableLight=new THREE.SpotLight(0xffd8a7,15,7,.9,.8,1.5);
     tableLight.position.set(-1.3,2.4,-6.65);tableLight.target.position.set(0,0,-5);

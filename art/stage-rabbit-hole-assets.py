@@ -36,8 +36,11 @@ assert review['viewed_by_agent'] is True
 for item in layout['items']:
     assert 'art/room-depth-export-review-object-' + item['id'] + '.png' in review['images']
 paths += ['dist/assets/rabbit-hole-layout.json', 'dist/assets/poster-depth.png',
-          'art/rabbit-hole-geometry-report.json', 'art/room-depth-report.json']
-paths += review['images'] + ['art/room-depth-beauty-entrance.png']
+          'art/rabbit-hole-geometry-report.json', 'art/upper-book-grounding-report.json',
+          'art/room-depth-report.json']
+native_review = report['room-depth-preview']
+assert native_review['viewed_by_agent'] is True
+paths += review['images'] + native_review['images'] + ['art/room-depth-beauty-entrance.png']
 assert len(paths) == len(set(paths))
 batches, current, size = [], [], 0
 for rel in paths:
