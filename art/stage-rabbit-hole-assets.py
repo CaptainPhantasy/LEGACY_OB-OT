@@ -7,6 +7,7 @@ authoring device; only portable assets and inspected stills enter Sites Git.
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -76,6 +77,7 @@ else:
         assert hashlib.sha256(target.read_bytes()).digest() == hashlib.sha256((source / rel).read_bytes()).digest()
     subprocess.run(['git', '-C', str(dest), 'add', '--', *paths], check=True)
     subprocess.run(['git', '-C', str(dest), '-c', 'user.name=Codex', '-c', 'user.email=codex@openai.com',
-                    'commit', '-m', f'Deliver twenty shelf exhibits: {a.phase} batch {a.batch + 1}'], check=True)
+                    'commit', '-m', f'Deliver twenty shelf exhibits: {a.phase} batch {a.batch + 1}'],
+                   check=True, env={**os.environ, 'LC_ALL': 'C'})
     sha = subprocess.check_output(['git', '-C', str(dest), 'rev-parse', 'HEAD'], text=True).strip()
     print(json.dumps({'batch': a.batch, 'total_batches': len(batches), 'commit': sha, 'files': len(paths)}))
