@@ -1,7 +1,7 @@
 """Cycles lighting delivery for the existing shop; run with Blender 4.5.
 
 blender -b --python art/build-room-depth.py -- --root /absolute/project --stage prepare
-Stages: prepare, repair-atlas, repair-normals, preview, bake, export-only, reencode-only, review, beauty. Originals are never overwritten.
+Stages: prepare, atlas-shelf, repair-atlas, repair-normals, preview, bake, export-only, reencode-only, review, beauty. Originals are never overwritten.
 The exported bake review intentionally isolates diffuse lighting; it is not a
 claim that the browser's reflections, postprocessing or interaction were tested.
 """
@@ -25,7 +25,9 @@ from mathutils import Vector
 def arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', required=True, type=Path)
-    parser.add_argument('--stage', choices=['prepare', 'repair-atlas', 'repair-normals', 'preview', 'bake', 'export-only', 'reencode-only', 'review', 'beauty'], required=True)
+    parser.add_argument('--stage', choices=['prepare', 'atlas-shelf', 'repair-atlas', 'repair-normals', 'preview', 'bake', 'export-only', 'reencode-only', 'review', 'beauty'], required=True)
+    parser.add_argument('--native-file', type=Path, help='Native checkpoint relative to --root, or an absolute path')
+    parser.add_argument('--shelf-resolution', type=int, choices=[2048, 4096], default=2048)
     parser.add_argument('--samples', type=int)
     parser.add_argument('--resolution', type=int, default=4096)
     parser.add_argument('--width', type=int, default=1400)
@@ -39,7 +41,7 @@ ARGS = arguments()
 ROOT = ARGS.root.resolve()
 ART = ROOT / 'art'
 ASSETS = ROOT / 'dist' / 'assets'
-NATIVE = ART / 'room-depth.blend'
+NATIVE = (ROOT / ARGS.native_file).resolve() if ARGS.native_file else ART / 'room-depth.blend'
 EXPORT = ART / 'bookstore-depth.glb'
 LIGHTMAP = ASSETS / 'room-lightmap.png'
 MANIFEST = ASSETS / 'room-lightmap.json'
@@ -47,11 +49,18 @@ REPORT = ART / 'room-depth-report.json'
 BAKE_UV = 'RoomLightmapUV'
 DETAIL_UV = 'RoomSurfaceUV'
 SCALE = 8.0
+SHELF_NODE = 'CenterCuriosityShelf'
 VIEWS = {
     'entrance': ((0, -6.60, 1.60), (0, 5.4, 1.25), 36.9),
     'table': ((.35, 3.48, 1.82), (0, 4.92, 1.06), 34),
     'close': ((.55, 4.00, 1.68), (0, 4.92, 1.07), 40),
     'open': ((.35, 3.48, 1.82), (0, 4.92, 1.06), 34),
+    'shelf-west': ((-1.17, -2.50, 1.62), (-.12, -1.50, 1.08), 22),
+    'shelf-east': ((1.17, -2.50, 1.62), (.12, -1.50, 1.08), 22),
+    'bottles-west': ((-1.40, -1.25, 1.64), (-2.60, -.80, 1.33), 32),
+    'bottles-east': ((1.30, -2.05, 1.67), (2.55, -.85, 1.32), 32),
+    'maps': ((1.05, -3.25, 1.50), (1.64, -1.48, .95), 36),
+    'globe': ((1.05, -.70, 1.55), (2.05, .82, 1.18), 36),
 }
 
 
@@ -198,7 +207,8 @@ def bevel_shelf_books(shop):
             'width_metres': .0015, 'segments': 3, 'inward_cuboids_corrected_before_bevel': inward_corrected}
 
 
-def atlas(shop):
+def atlas(shop, resolution=None):
+    resolution = resolution or ARGS.resolution
     bpy.ops.object.select_all(action='DESELECT')
     shop.hide_set(False)
     shop.select_set(True)
@@ -209,7 +219,7 @@ def atlas(shop):
     bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0,
                              area_weight=0, correct_aspect=True, scale_to_bounds=True)
     bpy.ops.object.mode_set(mode='OBJECT')
-    pack_all_lightmap_uvs(shop)
+    pack_all_lightmap_uvs(shop, resolution)
     bounds = atlas_uv_bounds(shop)
     if bounds['nonfinite_uv_loops'] or bounds['out_of_bounds_uv_loops']:
         raise RuntimeError('The unique lightmap UVs are not finite and bounded: ' + json.dumps(bounds))
@@ -217,8 +227,9 @@ def atlas(shop):
     note('Unique lightmap atlas prepared', loops=len(shop.data.loops), padding_pixels=8)
 
 
-def pack_all_lightmap_uvs(shop):
+def pack_all_lightmap_uvs(shop, resolution=None):
     """Pack every unpinned UV2 loop into tile 1001, independent of saved UI selection."""
+    resolution = resolution or ARGS.resolution
     if bpy.context.object and bpy.context.object.mode != 'OBJECT':
         bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
@@ -260,7 +271,7 @@ def pack_all_lightmap_uvs(shop):
         bpy.ops.uv.average_islands_scale()
         bpy.ops.uv.pack_islands(udim_source='ACTIVE_UDIM', rotate=True, scale=True,
                                merge_overlap=False, pin=False,
-                               margin_method='FRACTION', margin=8 / ARGS.resolution)
+                               margin_method='FRACTION', margin=8 / resolution)
     finally:
         if shop.mode != 'OBJECT':
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -560,6 +571,94 @@ def atlas_coverage(shop, resolution, strict=True):
     if strict and not stats['occupied_texels']:
         raise RuntimeError('UV atlas has no measurable texel coverage')
     return occupied, stats
+
+
+def layer_bytes(mesh, index):
+    values = np.empty(len(mesh.loops) * 2, dtype=np.float32)
+    mesh.uv_layers[index].data.foreach_get('uv', values)
+    return values.tobytes()
+
+
+def shelf_texel_density(shelf, resolution):
+    """Measure the visible-size wood surfaces independently of microscopic bevels."""
+    mesh = shelf.data
+    mesh.calc_loop_triangles()
+    uv = mesh.uv_layers[2].data
+    densities, areas = [], []
+    for tri in mesh.loop_triangles:
+        if family(mesh.materials[tri.material_index].name) != 'wood':
+            continue
+        points = [shelf.matrix_world @ mesh.vertices[index].co for index in tri.vertices]
+        area = (points[1] - points[0]).cross(points[2] - points[0]).length * .5
+        longest = max((points[(i + 1) % 3] - points[i]).length for i in range(3))
+        if area < .02 or longest == 0 or 2 * area / longest < .03:
+            continue
+        a, b, c = [uv[index].uv for index in tri.loops]
+        uv_area = abs((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)) * .5
+        densities.append(math.sqrt(uv_area * resolution * resolution / area))
+        areas.append(area)
+    if not densities:
+        raise RuntimeError('No major wood surface was available for shelf texel-density validation')
+    return {'major_wood_triangles': len(densities), 'major_wood_area_m2': sum(areas),
+            'texels_per_metre_min': min(densities), 'texels_per_metre_p10': float(np.percentile(densities, 10)),
+            'texels_per_metre_median': float(np.median(densities)), 'required_p10': 256,
+            'measurement': 'Wood triangles >=0.02m2 with minimum altitude >=0.03m; UV area / world area'}
+
+
+def atlas_shelf():
+    import shutil
+    backup = NATIVE.with_name(NATIVE.stem + '-before-shelf-atlas.blend')
+    if not backup.exists():
+        shutil.copy2(NATIVE, backup)
+    bpy.ops.wm.open_mainfile(filepath=str(NATIVE), load_ui=False)
+    room = bpy.data.objects['OldCuriosityShop']
+    shelf = bpy.data.objects[SHELF_NODE]
+    old_uv = {index: layer_bytes(room.data, index) for index in (0, 2)}
+    old_positions = mesh_positions(room.data)
+    shelf_positions = mesh_positions(shelf.data)
+    ensure_uvs(shelf)
+    shelf_correspondence = face_uv_material_fingerprint(shelf.data)
+    orientation = repair_closed_component_normals(shelf)
+    if face_uv_material_fingerprint(shelf.data) != shelf_correspondence:
+        raise RuntimeError('New shelf normal repair changed material/UV corner correspondence')
+    shelf_uv0 = layer_bytes(shelf.data, 0)
+    attempts = []
+    for resolution in ([2048, 4096] if ARGS.shelf_resolution == 2048 else [4096]):
+        atlas(shelf, resolution)
+        for repair_attempt in range(3):
+            occupied, stats = atlas_coverage(shelf, resolution, strict=False)
+            targets = (set(stats['conflicting_faces']) | set(stats['positive_area_degenerate_uv_faces'])
+                       | set(stats['invalid_uv_faces']))
+            if not targets:
+                break
+            if repair_attempt == 2:
+                raise RuntimeError('New shelf atlas needs further repair: ' + json.dumps(stats))
+            allocate_repaired_uv_triangles(shelf, targets, occupied, resolution)
+        _, stats = atlas_coverage(shelf, resolution)
+        density = shelf_texel_density(shelf, resolution)
+        attempts.append({'resolution': resolution, 'atlas': stats, 'density': density})
+        note('Shelf atlas measured', resolution=resolution, coverage=stats['atlas_coverage_fraction'], density=density)
+        if density['texels_per_metre_p10'] >= 256:
+            break
+    if density['texels_per_metre_p10'] < 256:
+        raise RuntimeError('Shelf atlas cannot meet the visible wood density gate: ' + json.dumps(density))
+    if any(layer_bytes(room.data, index) != value for index, value in old_uv.items()) or mesh_positions(room.data) != old_positions:
+        raise RuntimeError('Shelf atlas preparation changed the existing room')
+    if layer_bytes(shelf.data, 0) != shelf_uv0 or mesh_positions(shelf.data) != shelf_positions:
+        raise RuntimeError('Shelf atlas preparation changed shelf geometry or UV0')
+    shelf.data.uv_layers.active_index = 0
+    shelf.data.uv_layers[0].active_render = True
+    bpy.context.scene['room_depth_shelf_resolution'] = resolution
+    bpy.context.scene['room_depth_lightmap_needs_rebake'] = True
+    shelf['lightmap_atlas_pending'] = False
+    bpy.ops.wm.save_as_mainfile(filepath=str(NATIVE), compress=True)
+    report_update(shelf_atlas={'attempts': attempts, 'resolution': resolution, 'density': density,
+                               'orientation': orientation,
+                               'existing_room_uv0_uv2_unchanged': True, 'existing_room_positions_unchanged': True,
+                               'existing_room_uv_sha256': {str(index): hashlib.sha256(value).hexdigest()
+                                                          for index, value in old_uv.items()},
+                               'shelf_uv0_and_positions_unchanged': True, 'requires_rebake': True,
+                               'backup': str(backup)})
 
 
 def uv0_signature(mesh):
@@ -1140,9 +1239,11 @@ def enforce_export_color_factors(path):
 def export_delivery():
     if bpy.context.scene.get('room_depth_lightmap_needs_rebake', False):
         raise RuntimeError('Room geometry or UVs changed; rebake illumination before exporting')
-    bounds = atlas_uv_bounds(bpy.data.objects['OldCuriosityShop'])
-    if bounds['nonfinite_uv_loops'] or bounds['out_of_bounds_uv_loops']:
-        raise RuntimeError('Refusing to export invalid lightmap UVs: ' + json.dumps(bounds))
+    static_names = ['OldCuriosityShop'] + ([SHELF_NODE] if bpy.data.objects.get(SHELF_NODE) else [])
+    for name in static_names:
+        bounds = atlas_uv_bounds(bpy.data.objects[name])
+        if bounds['nonfinite_uv_loops'] or bounds['out_of_bounds_uv_loops']:
+            raise RuntimeError('Refusing to export invalid lightmap UVs for ' + name + ': ' + json.dumps(bounds))
     originals, export_cache = {}, {}
     excluded = set(volume_objects())
     bpy.ops.object.select_all(action='DESELECT')
@@ -1152,7 +1253,7 @@ def export_delivery():
             project_delivery_detail_uv(obj)
             originals[obj.name] = list(obj.data.materials)
             for i, material in enumerate(list(obj.data.materials)):
-                key = (material.name, obj.name == 'OldCuriosityShop')
+                key = (material.name, obj.name in static_names)
                 if key not in export_cache:
                     export_cache[key] = export_material(material, key[1])
                 obj.data.materials[i] = export_cache[key]
@@ -1170,23 +1271,26 @@ def export_delivery():
                 bpy.data.objects[name].data.materials[i] = material
     color_factors = enforce_export_color_factors(EXPORT)
     doc = glb_document(EXPORT)
-    static_nodes = [node for node in doc['nodes'] if node.get('name') == 'OldCuriosityShop']
-    if len(static_nodes) != 1 or 'mesh' not in static_nodes[0]:
-        raise RuntimeError('Expected one intact exported static room node')
-    primitives = doc['meshes'][static_nodes[0]['mesh']]['primitives']
-    for primitive in primitives:
-        if not all('TEXCOORD_' + str(i) in primitive['attributes'] for i in range(3)):
-            raise RuntimeError('Exporter omitted a required UV channel: ' + str(primitive['attributes']))
+    static_counts = {}
+    for name in static_names:
+        static_nodes = [node for node in doc['nodes'] if node.get('name') == name]
+        if len(static_nodes) != 1 or 'mesh' not in static_nodes[0]:
+            raise RuntimeError('Expected one intact exported static node: ' + name)
+        primitives = doc['meshes'][static_nodes[0]['mesh']]['primitives']
+        for primitive in primitives:
+            if not all('TEXCOORD_' + str(i) in primitive['attributes'] for i in range(3)):
+                raise RuntimeError('Exporter omitted a required UV channel on ' + name + ': ' + str(primitive['attributes']))
+        static_counts[name] = len(primitives)
     if not any(node.get('name') == 'BookCoverHinge' for node in doc['nodes']):
         raise RuntimeError('The export lost the book hinge')
-    note('Portable GLB verified', primitives=len(primitives), texcoords=[0, 1, 2])
+    note('Portable GLB verified', primitives_by_static_node=static_counts, texcoords=[0, 1, 2])
     splitter = runpy.run_path(str(ROOT / 'scripts' / 'split-room-glb.py'))['split_glb']
     delivery = splitter(EXPORT, ASSETS / 'bookstore-depth.gltf')
     delivery['path'] = str((ASSETS / delivery['path']).relative_to(ROOT))
     for item in delivery['files']:
         item['path'] = str((ASSETS / item['path']).relative_to(ROOT))
     delivery['source_glb']['path'] = str(EXPORT.relative_to(ROOT))
-    delivery.update(static_primitives=len(primitives), required_texcoords=[0, 1, 2],
+    delivery.update(static_primitives=static_counts['OldCuriosityShop'], static_nodes=static_counts, required_texcoords=[0, 1, 2],
                     hinge_preserved=True, explicit_base_color_factors=color_factors)
     note('Portable glTF verified', parts=delivery['buffer_parts'],
          bytes=delivery['total_bytes'], source_glb_sha256=delivery['source_glb']['sha256'])
@@ -1198,7 +1302,8 @@ def export_only():
     import shutil
     if not MANIFEST.exists() or not LIGHTMAP.exists():
         raise RuntimeError('A completed lightmap and manifest are required for export-only')
-    before_lightmap = hashlib.sha256(LIGHTMAP.read_bytes()).hexdigest()
+    manifests = saved_lightmap_manifests()
+    before_lightmaps = {item['file']: hashlib.sha256((ASSETS / item['file']).read_bytes()).hexdigest() for item in manifests}
     if EXPORT.exists():
         quarantine = ART / 'rendering.quarantine' / 'bookstore-depth-before-color-factor-fix.glb'
         quarantine.parent.mkdir(parents=True, exist_ok=True)
@@ -1227,14 +1332,15 @@ def export_only():
         note('Recovered and retained the native float illumination image', image=retained_image.name)
     before_native = hashlib.sha256(NATIVE.read_bytes()).hexdigest()
     exported = export_delivery()
-    if hashlib.sha256(LIGHTMAP.read_bytes()).hexdigest() != before_lightmap:
-        raise RuntimeError('Export-only changed the completed illumination map')
+    if any(hashlib.sha256((ASSETS / name).read_bytes()).hexdigest() != value for name, value in before_lightmaps.items()):
+        raise RuntimeError('Export-only changed a completed illumination map')
     if hashlib.sha256(NATIVE.read_bytes()).hexdigest() != before_native:
         raise RuntimeError('Export-only changed the native checkpoint')
-    manifest = json.loads(MANIFEST.read_text())
-    manifest['export'] = exported
-    MANIFEST.write_text(json.dumps(manifest, indent=2) + '\n')
-    report_update(bake=manifest, export_only={'lightmap_unchanged': True, 'native_unchanged_during_export': True,
+    for manifest in manifests:
+        manifest['export'] = exported
+        (ASSETS / (Path(manifest['file']).stem + '.json')).write_text(json.dumps(manifest, indent=2) + '\n')
+    report_update(bake=manifests[0], additional_bakes=manifests[1:],
+                  export_only={'lightmap_unchanged': True, 'native_unchanged_during_export': True,
                                            'native_lightmap_retention_repaired': retention_repaired, 'export': exported})
     note('Delivery export refreshed without rebaking', path=str(EXPORT), sha256=exported['sha256'])
 
@@ -1242,53 +1348,71 @@ def export_only():
 def reencode_only():
     """Improve PNG precision from the existing float bake; leave geometry and lighting untouched."""
     import shutil
-    exr = ART / 'room-lightmap-linear.exr'
-    if not MANIFEST.exists() or not exr.exists():
+    if not MANIFEST.exists():
         raise RuntimeError('An existing float lightmap and manifest are required for reencoding')
-    manifest = json.loads(MANIFEST.read_text())
+    manifests = saved_lightmap_manifests()
     native_hash = hashlib.sha256(NATIVE.read_bytes()).hexdigest()
     export_hash = hashlib.sha256(EXPORT.read_bytes()).hexdigest()
-    for source in [LIGHTMAP, MANIFEST]:
-        if source.exists():
-            backup = ART / 'rendering.quarantine' / ('room-lightmap-before-rgbm-square' + source.suffix)
-            backup.parent.mkdir(parents=True, exist_ok=True)
-            if not backup.exists():
-                shutil.copy2(source, backup)
     bpy.ops.wm.open_mainfile(filepath=str(NATIVE), load_ui=False)
     if bpy.context.scene.get('room_depth_lightmap_needs_rebake', False):
         raise RuntimeError('Geometry has changed; reencoding cannot replace the required lighting bake')
-    image = bpy.data.images.load(str(exr), check_existing=False)
-    image.colorspace_settings.name = 'Linear Rec.709'
-    width, height = image.size
-    if width != height or width != manifest['resolution']:
-        raise RuntimeError('Float lightmap dimensions disagree with the saved manifest')
-    occupied, uv_stats = atlas_coverage(bpy.data.objects['OldCuriosityShop'], width)
-    stats, scale = save_lightmap(image, LIGHTMAP, occupied)
-    stats.update(uv_stats)
-    manifest.update({'encoding': 'RGBM_SQRT', 'scale': scale, 'illuminationScale': scale,
-                     'decode': '(rgb * alpha)^2 * illuminationScale; all channels are non-color data',
-                     'statistics': stats, 'sha256': hashlib.sha256(LIGHTMAP.read_bytes()).hexdigest()})
+    for manifest in manifests:
+        png = ASSETS / manifest['file']
+        stem = png.stem
+        manifest_path = ASSETS / (stem + '.json')
+        exr = ART / (stem + '-linear.exr')
+        if not exr.exists():
+            raise RuntimeError('Missing source illumination image: ' + str(exr))
+        for source in [png, manifest_path]:
+            if source.exists():
+                backup = ART / 'rendering.quarantine' / (stem + '-before-rgbm-square' + source.suffix)
+                backup.parent.mkdir(parents=True, exist_ok=True)
+                if not backup.exists():
+                    shutil.copy2(source, backup)
+        image = bpy.data.images.load(str(exr), check_existing=False)
+        image.colorspace_settings.name = 'Linear Rec.709'
+        width, height = image.size
+        if width != height or width != manifest['resolution']:
+            raise RuntimeError('Float lightmap dimensions disagree with the saved manifest')
+        occupied, uv_stats = atlas_coverage(bpy.data.objects[manifest['node']], width)
+        stats, scale = save_lightmap(image, png, occupied)
+        stats.update(uv_stats)
+        manifest.update({'encoding': 'RGBM_SQRT', 'scale': scale, 'illuminationScale': scale,
+                         'decode': '(rgb * alpha)^2 * illuminationScale; all channels are non-color data',
+                         'statistics': stats, 'sha256': hashlib.sha256(png.read_bytes()).hexdigest()})
+        manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
+        note('Lightmap reencoded without rebaking', node=manifest['node'], illumination_scale=scale, statistics=stats)
     if hashlib.sha256(NATIVE.read_bytes()).hexdigest() != native_hash or hashlib.sha256(EXPORT.read_bytes()).hexdigest() != export_hash:
         raise RuntimeError('Reencoding changed the native checkpoint or exported geometry')
-    MANIFEST.write_text(json.dumps(manifest, indent=2) + '\n')
-    report_update(bake=manifest, reencode_only={'native_unchanged': True, 'export_unchanged': True,
-                                               'encoding': 'RGBM_SQRT', 'statistics': stats})
-    note('Lightmap reencoded without rebaking', encoding='RGBM_SQRT', illumination_scale=scale, statistics=stats)
+    report_update(bake=manifests[0], additional_bakes=manifests[1:],
+                  reencode_only={'native_unchanged': True, 'export_unchanged': True,
+                                 'encoding': 'RGBM_SQRT', 'nodes': [manifest['node'] for manifest in manifests]})
 
 
-def bake():
-    bpy.ops.wm.open_mainfile(filepath=str(NATIVE), load_ui=False)
-    scene = configure(ARGS.samples or 256)
-    shop = bpy.data.objects['OldCuriosityShop']
-    occupied, uv_stats = atlas_coverage(shop, ARGS.resolution)
-    note('UV atlas measured before baking', **uv_stats)
-    image = bpy.data.images.get('Room diffuse irradiance linear')
+def lightmap_specifications():
+    specs = [{'node': 'OldCuriosityShop', 'stem': 'room-lightmap', 'resolution': ARGS.resolution,
+              'image_name': 'Room diffuse irradiance linear'}]
+    if bpy.data.objects.get(SHELF_NODE):
+        specs.append({'node': SHELF_NODE, 'stem': 'curiosity-lightmap',
+                      'resolution': int(bpy.context.scene.get('room_depth_shelf_resolution', ARGS.shelf_resolution)),
+                      'image_name': 'Curiosity diffuse irradiance linear'})
+    return specs
+
+
+def bake_atlas(spec):
+    scene = bpy.context.scene
+    shop = bpy.data.objects[spec['node']]
+    resolution, stem = spec['resolution'], spec['stem']
+    png = ASSETS / (stem + '.png')
+    occupied, uv_stats = atlas_coverage(shop, resolution)
+    note('UV atlas measured before baking', node=shop.name, **uv_stats)
+    image = bpy.data.images.get(spec['image_name'])
     previous_image = None
-    if image is None or tuple(image.size) != (ARGS.resolution, ARGS.resolution) or not image.is_float:
+    if image is None or tuple(image.size) != (resolution, resolution) or not image.is_float:
         if image is not None:
             previous_image = image
-            previous_image.name = 'Room diffuse irradiance linear / prior resolution'
-        image = bpy.data.images.new('Room diffuse irradiance linear', width=ARGS.resolution, height=ARGS.resolution,
+            previous_image.name = spec['image_name'] + ' / prior resolution'
+        image = bpy.data.images.new(spec['image_name'], width=resolution, height=resolution,
                                    alpha=False, float_buffer=True)
     # Temporary bake-target nodes are removed after baking. Keep the packed
     # source image alive when this native checkpoint is reopened later.
@@ -1323,10 +1447,11 @@ def bake():
     scene.render.bake.use_clear = True
     scene.render.bake.use_selected_to_active = False
     scene.render.bake.target = 'IMAGE_TEXTURES'
-    note('Starting texture-space Cycles bake', resolution=ARGS.resolution, samples=scene.cycles.samples)
+    note('Starting texture-space Cycles bake', node=shop.name, resolution=resolution, samples=scene.cycles.samples,
+         complete_static_scene_visible=True)
     try:
         bpy.ops.object.bake(type='DIFFUSE', pass_filter={'DIRECT', 'INDIRECT'}, uv_layer=BAKE_UV)
-        stats, scale = save_lightmap(image, LIGHTMAP, occupied)
+        stats, scale = save_lightmap(image, png, occupied)
         stats.update(uv_stats)
     finally:
         for name, visible in hidden.items():
@@ -1337,8 +1462,7 @@ def bake():
             material.node_tree.nodes.remove(node)
         shop.data.uv_layers.active_index = 0
         shop.data.uv_layers[0].active_render = True
-    scene.cycles.samples = 1024
-    image.filepath_raw = str(ART / 'room-lightmap-linear.exr')
+    image.filepath_raw = str(ART / (stem + '-linear.exr'))
     image.file_format = 'OPEN_EXR'
     image.save()
     image.pack()
@@ -1346,20 +1470,39 @@ def bake():
         # Prior native checkpoints already retain the old image; keep only the
         # current packed lightmap alive in this next saved source revision.
         previous_image.use_fake_user = False
-    scene['room_depth_lightmap_needs_rebake'] = False
-    bpy.ops.wm.save_as_mainfile(filepath=str(NATIVE), compress=True)
-    export = export_delivery()
-    manifest = {'version': 1, 'node': 'OldCuriosityShop', 'uv_channel': 2, 'scale': scale, 'illuminationScale': scale,
-                'resolution': ARGS.resolution, 'encoding': 'RGBM_SQRT',
+    manifest = {'version': 1, 'node': shop.name, 'uv_channel': 2, 'scale': scale, 'illuminationScale': scale,
+                'resolution': resolution, 'encoding': 'RGBM_SQRT',
                 'decode': '(rgb * alpha)^2 * illuminationScale; all channels are non-color data',
-                'file': 'room-lightmap.png', 'source': 'Cycles diffuse direct + indirect, color disabled',
-                'samples': ARGS.samples or 256, 'dynamic_cover_excluded': True, 'volume_excluded': True,
+                'file': png.name, 'source': 'Cycles diffuse direct + indirect, color disabled',
+                'samples': scene.cycles.samples, 'dynamic_cover_excluded': True, 'volume_excluded': True,
+                'complete_static_scene_visible': True,
                 'atlas_inter_island_gap_pixels': 8, 'bake_extension_pixels': 3,
                 'static_runtime_diffuse_lights_must_be_disabled': True, 'statistics': stats,
-                'sha256': hashlib.sha256(LIGHTMAP.read_bytes()).hexdigest(), 'export': export}
-    MANIFEST.write_text(json.dumps(manifest, indent=2) + '\n')
-    report_update(bake=manifest)
-    note('Baked illumination and portable asset saved', statistics=stats, export=export)
+                'sha256': hashlib.sha256(png.read_bytes()).hexdigest()}
+    if shop.name == SHELF_NODE:
+        manifest['texel_density'] = shelf_texel_density(shop, resolution)
+    note('Static atlas baked', node=shop.name, statistics=stats, image=str(png))
+    return manifest
+
+
+def bake():
+    bpy.ops.wm.open_mainfile(filepath=str(NATIVE), load_ui=False)
+    scene = configure(ARGS.samples or 1024)
+    specs = lightmap_specifications()
+    if len(specs) > 1 and (not scene.get('room_depth_shelf_resolution') or bpy.data.objects[SHELF_NODE].get('lightmap_atlas_pending', False)):
+        raise RuntimeError('Prepare the separate shelf atlas before baking the complete scene')
+    manifests = [bake_atlas(spec) for spec in specs]
+    scene.cycles.samples = 1024
+    scene['room_depth_lightmap_needs_rebake'] = False
+    bpy.ops.wm.save_as_mainfile(filepath=str(NATIVE), compress=True)
+    exported = export_delivery()
+    if len(manifests) > 1:
+        manifests[0]['additionalLightmaps'] = [spec['stem'] + '.json' for spec in specs[1:]]
+    for spec, manifest in zip(specs, manifests):
+        manifest['export'] = exported
+        (ASSETS / (spec['stem'] + '.json')).write_text(json.dumps(manifest, indent=2) + '\n')
+    report_update(bake=manifests[0], additional_bakes=manifests[1:])
+    note('All baked atlases and portable asset saved', nodes=[spec['node'] for spec in specs], export=exported)
 
 
 def camera_view(name, dof=False):
@@ -1412,32 +1555,32 @@ def render_views(prefix, dof=False):
                              'depth_of_field': dof, 'viewed_by_agent': False}})
 
 
-def review():
-    if not MANIFEST.exists():
-        raise RuntimeError('Bake and export must complete before exported review')
-    manifest = json.loads(MANIFEST.read_text())
+def apply_review_lightmap(manifest):
     scale = manifest['illuminationScale']
-    bpy.ops.wm.read_factory_settings(use_empty=True)
-    configure(ARGS.samples or 64)
-    bpy.ops.import_scene.gltf(filepath=str(EXPORT))
-    lightmap = bpy.data.images.load(str(LIGHTMAP), check_existing=True)
+    lightmap = bpy.data.images.load(str(ASSETS / manifest['file']), check_existing=True)
     rgbm_sqrt = manifest.get('encoding') == 'RGBM_SQRT'
     lightmap.colorspace_settings.name = 'Non-Color' if rgbm_sqrt else 'sRGB'
     if rgbm_sqrt:
         lightmap.alpha_mode = 'CHANNEL_PACKED'
     # glTF import reconstructs Blender coordinates; the same native cameras apply.
-    static = bpy.data.objects.get('OldCuriosityShop')
+    static = bpy.data.objects.get(manifest['node'])
     if static is None:
-        raise RuntimeError('Static room missing after clean reimport')
+        raise RuntimeError('Static node missing after clean reimport: ' + manifest['node'])
     meshes = ([static] if static.type == 'MESH' else []) + [obj for obj in static.children_recursive if obj.type == 'MESH']
-    seen = set()
+    copies = {}
     for obj in meshes:
         if len(obj.data.uv_layers) < 3:
             raise RuntimeError('Clean import did not preserve three UV sets')
-        for source in obj.data.materials:
-            if source.name in seen:
+        for slot_index, original in enumerate(list(obj.data.materials)):
+            if original in copies:
+                obj.data.materials[slot_index] = copies[original]
                 continue
-            seen.add(source.name)
+            # glTF intentionally shares the original materials across atlas nodes.
+            # Isolate each node's review graph so its lighting texture cannot leak.
+            source = original.copy()
+            source.name = original.name + ' / review ' + manifest['node']
+            copies[original] = source
+            obj.data.materials[slot_index] = source
             p = principal(source)
             nodes, links = source.node_tree.nodes, source.node_tree.links
             output = next(n for n in nodes if n.type == 'OUTPUT_MATERIAL')
@@ -1512,6 +1655,30 @@ def review():
             links.new(emission.outputs[0], add.inputs[0])
             links.new(original_emission.outputs[0], add.inputs[1])
             links.new(add.outputs[0], output.inputs['Surface'])
+    note('Clean export review atlas assigned', node=manifest['node'], materials=len(copies), resolution=manifest['resolution'])
+
+
+def saved_lightmap_manifests():
+    primary = json.loads(MANIFEST.read_text())
+    result = [primary]
+    for name in primary.get('additionalLightmaps', []):
+        if name != 'curiosity-lightmap.json':
+            raise RuntimeError('Unknown additional atlas manifest: ' + name)
+        result.append(json.loads((ASSETS / name).read_text()))
+    return result
+
+
+def review():
+    if not MANIFEST.exists():
+        raise RuntimeError('Bake and export must complete before exported review')
+    manifests = saved_lightmap_manifests()
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    configure(ARGS.samples or 64)
+    bpy.ops.import_scene.gltf(filepath=str(EXPORT))
+    if bpy.data.objects.get(SHELF_NODE) and not any(item['node'] == SHELF_NODE for item in manifests):
+        raise RuntimeError('The exported shelf is missing its baked-lighting manifest')
+    for manifest in manifests:
+        apply_review_lightmap(manifest)
     new_lighting(quarantine_existing=False)
     render_views('room-depth-export-review', dof=False)
     report_update(export_review_mode='Clean GLB reimport; static base color multiplied by decoded baked illumination. Moving cover uses native direct lights. Runtime specular/reflections and browser shaders are not tested by this image.')
@@ -1522,6 +1689,8 @@ if __name__ == '__main__':
     ASSETS.mkdir(parents=True, exist_ok=True)
     if ARGS.stage == 'prepare':
         prepare()
+    elif ARGS.stage == 'atlas-shelf':
+        atlas_shelf()
     elif ARGS.stage == 'repair-atlas':
         repair_atlas()
     elif ARGS.stage == 'repair-normals':
