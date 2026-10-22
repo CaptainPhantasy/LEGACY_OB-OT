@@ -15,17 +15,17 @@ function classes(initial=[]){
   const set=new Set(initial);
   return {add(...v){v.forEach(x=>set.add(x));},remove(...v){v.forEach(x=>set.delete(x));},contains(v){return set.has(v);},toggle(v,on){if(on??!set.has(v))set.add(v);else set.delete(v);}};
 }
-function element(id){
+function element(id,stickSize=180,thumbSize=50){
   const events={},captures=new Set(),styles={};
   return {id,events,hidden:false,open:false,dataset:{},classList:classes(),attributes:{},
     style:{setProperty(name,value){styles[name]=value;},getPropertyValue(name){return styles[name]??'';}},
     addEventListener(name,fn){(events[name]??=[]).push(fn);},setAttribute(name,value){this.attributes[name]=value;},
-    getBoundingClientRect(){return id==='#walk-stick-thumb'?{left:0,top:0,width:52,height:52}:{left:16,top:640,width:144,height:144};},
+    getBoundingClientRect(){return id==='#walk-stick-thumb'?{left:0,top:0,width:thumbSize,height:thumbSize}:{left:16,top:620,width:stickSize,height:stickSize};},
     setPointerCapture(id){captures.add(id);},hasPointerCapture(id){return captures.has(id);},releasePointerCapture(id){captures.delete(id);},
     focus(){},closest(){return null;}};
 }
-function harness(){
-  const elements=new Map(),el=id=>{if(!elements.has(id))elements.set(id,element(id));return elements.get(id);};
+function harness({stickSize=180,thumbSize=50}={}){
+  const elements=new Map(),el=id=>{if(!elements.has(id))elements.set(id,element(id,stickSize,thumbSize));return elements.get(id);};
   const windowEvents={},documentEvents={};
   const pose=new THREE.Vector3(-1.1,1.48,1.5),focus=new THREE.Vector3(-.205,1.34,1.5);
   const camera=new THREE.PerspectiveCamera(68,390/844,.04,60);
@@ -126,10 +126,41 @@ test('two thumbs move and look together, with gentler look applied smoothly over
   assert.equal(c.roomLook.yaw,0,'touch events queue movement instead of snapping the camera');
   c.updateManualMovement(1/60);c.roomLook.update(1/60);
   assert.ok(planarDelta(before,c.pose).length()>.005,'walking continues while looking');
-  assert.ok(c.roomLook.yaw<0&&c.roomLook.yaw>-.06,'first frame eases toward the requested angle');
+  assert.ok(c.roomLook.yaw<0&&c.roomLook.yaw>-.03,'first frame eases toward the requested angle');
   const first=c.roomLook.yaw;c.roomLook.update(1/60);
-  assert.ok(c.roomLook.yaw<first&&c.roomLook.yaw>-.06,'later frames approach without overshooting');
+  assert.ok(c.roomLook.yaw<first&&c.roomLook.yaw>-.03,'later frames approach without overshooting');
   assert.ok(Math.abs(c.roomLook.yaw)<30*.0045,'touch sensitivity is below desktop sensitivity');
+});
+
+test('the larger stick doubles usable pointer travel and gives smaller speed changes per pixel',async()=>{
+  const css=await readFile(new URL('../dist/style.css',import.meta.url),'utf8');
+  const pixels=pattern=>{const match=css.match(pattern);assert.ok(match,'the shipped control must expose its layout dimensions');return Number(match[1]);};
+  const thumb=pixels(/\.walk-stick-thumb\{[^}]*?width:(\d+)px/);
+  const layouts=[
+    [120,pixels(/@media\(any-pointer:coarse\) and \(max-width:600px\)\{[^}]*?--stick-size:(\d+)px/),thumb],
+    [132,pixels(/:root\{--stick-size:(\d+)px;--footer-height:/),thumb],
+    [104,pixels(/@media\(any-pointer:coarse\) and \(max-height:450px\)\{[^}]*?--stick-size:(\d+)px/),
+      pixels(/@media\(any-pointer:coarse\) and \(max-height:450px\)\{[\s\S]*?\.walk-stick-thumb\{width:(\d+)px/)],
+  ];
+  for(const [previousSize,stickSize,thumbSize] of layouts){
+    const h=harness({stickSize,thumbSize}),c=h.context;
+    dispatch(h.el('#walk-stick'),'pointerdown',stickEvent(h,10));
+    const previousRadius=(previousSize-thumbSize)/2-5;
+    near(c.stickRadius,previousRadius*2,'each layout provides twice the previous center-to-rim travel');
+    const center=stickEvent(h,10),travel=c.stickRadius*.5;
+    dispatch(h.el('#walk-stick'),'pointermove',pointerEvent(10,center.clientX,center.clientY-travel));
+    const first=c.touchStick.forward;
+    dispatch(h.el('#walk-stick'),'pointermove',pointerEvent(10,center.clientX,center.clientY-travel-1));
+    const previousPerPixel=1/(.88*previousRadius);
+    near(c.touchStick.forward-first,previousPerPixel*.25,
+      'twice the physical range plus half speed makes a pixel adjustment one quarter as large');
+    dispatch(h.el('#walk-stick'),'pointermove',stickEvent(h,10,0,-1));
+    const before=c.pose.clone();c.updateManualMovement(.1);
+    near(planarDelta(before,c.pose).length(),.0675,'the full rim walks at half the previous 1.35 units per second');
+    dispatch(h.el('#walk-stick'),'pointerup',stickEvent(h,10));
+    const stopped=c.pose.clone();c.updateManualMovement(.1);
+    near(planarDelta(stopped,c.pose).length(),0,'the larger pad still stops on release');
+  }
 });
 
 test('lifting either thumb first leaves the other working, and released looking never drifts',()=>{
@@ -238,7 +269,7 @@ test('a lower-half stick crossing turns once while walking remains on the origin
   near(Math.cos(heading-anchor),-1,'the view finishes facing the opposite direction');
   const yaw=c.roomLook.yaw;c.roomLook.update(2);near(c.roomLook.yaw,yaw);assert.equal(turns,1);
   dispatch(h.el('#walk-stick'),'pointermove',stickEvent(h,10,.4,-.8));
-  assert.equal(turns,2);c.roomLook.update(2);near(Math.cos(c.roomLook.heading(c.pose,c.focus)-anchor),1);
+  assert.equal(turns,2);c.roomLook.update(2.4);near(Math.cos(c.roomLook.heading(c.pose,c.focus)-anchor),1);
 });
 
 test('explicit looking cancels an automatic turn and wins over later stick crossings',()=>{

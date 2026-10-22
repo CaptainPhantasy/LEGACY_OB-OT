@@ -5,17 +5,19 @@ import { setupImmersive } from './immersive.js';
 import { shopTime, solarLight } from './shop-time.js';
 import { ShopClosing, OWNER_LINE } from './shop-closing.js';
 import { setupClosingUI } from './shop-closing-ui.js';
-import { ShopStorefront, ENTRANCE_THRESHOLD, EXIT_POSITION } from './shop-storefront.js?scene=render-review-1';
+import { ShopStorefront, ENTRANCE_THRESHOLD, EXIT_POSITION } from './shop-storefront.js?scene=realism-1';
+import { applyStreetSurfaces, applyStreetGroundAO } from './street-surfaces.js?scene=realism-1';
+import { RoomRenderer } from './room-renderer.js?scene=realism-1';
 import { RoomVisibility } from './room-visibility.js';
 import { appendPath, SHOP_HIDE_POSITION } from './shop-navigation.js';
 import { PhysicalPageTurn } from './page-physics.js';
 import { RoomAtmosphere } from './room-atmosphere.js?scene=render-review-1';
-import { RoomLook } from './room-look.js?scene=smooth-touch-1';
-import { RoomTouchStick } from './room-touch.js?scene=smooth-touch-1';
+import { RoomLook } from './room-look.js?scene=gentler-stick-2';
+import { RoomTouchStick } from './room-touch.js?scene=gentler-stick-2';
 import { RoomMovement, createRoomCollision } from './room-movement.js?scene=natural-motion-1';
-import { RoomRadiance } from './room-radiance.js?scene=render-review-1';
-import { enhanceMaterials } from './room-materials.js?scene=rabbit-holes-1';
-import { applyRoomLightmap, updateRoomRevelation } from './room-lightmap.js?scene=rabbit-holes-1';
+import { RoomRadiance } from './room-radiance.js?scene=realism-1';
+import { enhanceMaterials } from './room-materials.js?scene=realism-1';
+import { applyRoomLightmap, updateRoomRevelation, updateRoomDaylight } from './room-lightmap.js?scene=realism-1';
 import { ROOM_POSES, sampleRoomPath } from './room-path.js?scene=rabbit-holes-1';
 import { curiosities } from './curiosities.js?scene=rabbit-holes-1';
 import { shelfNavigation, shelfItemAtHit, shelfFraming } from './shelf-navigation.js?scene=rabbit-holes-1';
@@ -29,7 +31,7 @@ const persist=()=>{try{localStorage.setItem(key,JSON.stringify(saved));}catch{ca
 const announce=t=>{$('#announcement').textContent=t;};
 let gentle=saved.gentle??matchMedia('(prefers-reduced-motion: reduce)').matches;
 let bright=!!saved.bright, simple=false, place='entrance', busy=false, hasOpened=!!saved.opened;
-let scene,renderer,camera,room,hinge,hingeStart,mixer,openAction,magicLight,atmosphere,radiance,storefront,roomVisibility;
+let scene,renderer,roomRenderer,camera,room,hinge,hingeStart,mixer,openAction,magicLight,atmosphere,radiance,storefront,roomVisibility;
 let revealAt=0,renderReady=false,move=null,closing=null,lastFrame=performance.now(),time=0,dragging=false,dragPointer=null,dragX=0,dragY=0,openingToken=0,pointerTravel=0;
 let pose=new THREE.Vector3(0,1.6,6.6),focus=new THREE.Vector3(0,1.25,-5.4);
 const roomLook=new RoomLook(),lookTarget=new THREE.Vector3(),walkPoint=[0,0,0];
@@ -139,12 +141,17 @@ async function initScene(){
     try{await applyRoomLightmap(room,renderer);}catch(error){console.warn('Baked room lighting unavailable; live lighting remains active.',error);}
     room.traverse(o=>{if(!o.isMesh)return;const mats=Array.isArray(o.material)?o.material:[o.material];if(mats.every(m=>m.emissiveIntensity>0&&m.emissive?.getHex()>0))o.castShadow=false;});
     storefront=new ShopStorefront(scene,room);
-    storefront.update({nowMs:Date.now(),dt:0,daylight:solarState.daylight,night:solarState.night,visible:true,gentle:true});
-    radiance.setDaylight(solarState.daylight);
-    try{radiance.capture(room,atmosphere);}catch(error){console.warn('Room reflections unavailable; direct lighting remains active.',error);}
+    await applyStreetSurfaces(storefront.root,renderer);
+    try{await applyStreetGroundAO(storefront.root,renderer);}catch(error){console.warn('Street contact bake unavailable; live shading remains active.',error);}
+    storefront.update({nowMs:Date.now(),dt:0,daylight:solarState.daylight,night:solarState.night,sunDirection:solarState.sunDirection,visible:true,gentle:true});
     roomVisibility=new RoomVisibility(room);
-    radiance.setShopLight(shopLightLevel,room).setDaylight(solarState.daylight);atmosphere.setShopLight(shopLightLevel);
+    updateRoomDaylight(room,solarState.daylight);
+    radiance.setShopLight(shopLightLevel,room,solarState.daylight).setDaylight(solarState.daylight);atmosphere.setShopLight(shopLightLevel);
+    radiance.setEnvironmentContext({storefront,roomVisibility});
+    try{radiance.capture(room,atmosphere);}catch(error){console.warn('Room reflections unavailable; direct lighting remains active.',error);}
     storefront.setClosed(shopStatus.closed);
+    roomRenderer=new RoomRenderer(renderer,{compact:matchMedia('(pointer: coarse)').matches});
+    roomRenderer.refreshMaterials(scene);
     renderer.shadowMap.needsUpdate=true;
     hinge=room.getObjectByName('BookCoverHinge');if(hinge)hingeStart=hinge.quaternion.clone();
     if(gltf.animations.length){mixer=new THREE.AnimationMixer(room);const clip=gltf.animations.find(a=>/open/i.test(a.name))||gltf.animations[0];openAction=mixer.clipAction(clip);openAction.setLoop(THREE.LoopOnce,1);openAction.clampWhenFinished=true;}
@@ -184,7 +191,8 @@ function frame(now){
     if(Math.abs(shopLightLevel-targetLight)<.001)shopLightLevel=targetLight;
     radiance.setShopLight(shopLightLevel,room);atmosphere.setShopLight(shopLightLevel);
     roomVisibility?.update(camera);
-    storefront?.update({nowMs:Date.now(),dt,camera,daylight:solarState.daylight,night:solarState.night,gentle});
+    storefront?.update({nowMs:Date.now(),dt,camera,daylight:solarState.daylight,night:solarState.night,sunDirection:solarState.sunDirection,gentle});
+    if(storefront?.shadowDirty)renderer.shadowMap.needsUpdate=true;
     atmosphere.update(dt,time,camera.position,gentle,camera);
     radiance.update(time,gentle,!!closing||!!(revealAt&&now-revealAt<5000));
     if(mixer)mixer.update(dt);
@@ -193,10 +201,10 @@ function frame(now){
       if(hinge&&!openAction){const p=Math.min(elapsed/4.8,1),angle=p*p*(3-2*p)*2.75;hinge.quaternion.copy(hingeStart).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),angle));}
     }
     updateRoomRevelation(room,magicLight.intensity);
-    renderer.render(scene,camera);updateWaypoints();
+    roomRenderer.render(scene,camera);updateWaypoints();
     // Count whole active frames, including GPU waits, and ignore tab-resume gaps.
     if(!qualitySettled&&time>3&&!move&&elapsedFrame<1000){frameCost+=Math.min(elapsedFrame,100);frameSamples++;
-      if(frameSamples===90){qualitySettled=true;if(frameCost/frameSamples>24){renderer.setPixelRatio(Math.min(devicePixelRatio,1.15));renderer.setSize(innerWidth,innerHeight);}}
+      if(frameSamples===90){qualitySettled=true;if(frameCost/frameSamples>24){renderer.setPixelRatio(Math.min(devicePixelRatio,1.15));renderer.setSize(innerWidth,innerHeight);roomRenderer.setQuality(matchMedia('(pointer: coarse)').matches?'low':'balanced');roomRenderer.resize();}}
     }
   }
   requestAnimationFrame(frame);
@@ -242,7 +250,7 @@ function tickShop(){
   const hands=$('.clock svg path'),minuteAngle=(clock.minute+clock.second/60)*Math.PI/30,hourAngle=(clock.hour%12+clock.minute/60)*Math.PI/6;
   hands.setAttribute('d',`M18 18 L${18+Math.sin(minuteAngle)*12} ${18-Math.cos(minuteAngle)*12} M18 18 L${18+Math.sin(hourAngle)*8} ${18-Math.cos(hourAngle)*8}`);
   $('#footer-note').textContent=clock.isClosingSoon?'Closing at 8 PM':shopStatus.closed?'Closed · Opens 9 AM':'Closes at 8 PM';
-  if(now-solarUpdated>15000||now<solarUpdated){solarState=solarLight(now);solarUpdated=now;radiance?.setDaylight(solarState.daylight);}
+  if(now-solarUpdated>15000||now<solarUpdated){solarState=solarLight(now);solarUpdated=now;radiance?.setDaylight(solarState.daylight);if(room)updateRoomDaylight(room,solarState.daylight);}
   storefront?.setClosed(shopStatus.closed);document.body.classList.toggle('after-hours',shopStatus.closed);
   const blocked=shopStatus.closed&&!shopStatus.resumeHidden;
   for(const selector of ['#enter','#enter-quietly','#return-shop','#resume'])$(selector).disabled=blocked;
@@ -547,7 +555,7 @@ for(const name of ['pointerup','pointercancel','lostpointercapture'])$('#walk-st
 $('#walk-stick').addEventListener('contextmenu',e=>e.preventDefault());
 $('#walk-stick').addEventListener('blur',()=>{walkingKeys.clear();if(dragPointer===null)stopStick();});
 $('#world').addEventListener('webglcontextlost',e=>{e.preventDefault();useSimpleView('The moving room paused. The simple shop keeps every place available.');});
-addEventListener('resize',()=>{resetManualInput();stopPageTurn();if(renderer){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;updateShelfFraming();}renderPages();});
+addEventListener('resize',()=>{resetManualInput();stopPageTurn();if(renderer){renderer.setSize(innerWidth,innerHeight);roomRenderer?.resize();camera.aspect=innerWidth/innerHeight;updateShelfFraming();}renderPages();});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#book-reader').open){const guideOpen=['shelf-panel','chair-panel'].some(id=>!$('#'+id).hidden);if(canExplore())releaseExploration();closePanels();if(guideOpen)$('#waypoints').hidden=false;(canExplore()?$('#world'):$('#explore-toggle')).focus({preventScroll:true});}if($('#book-reader').open&&!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)){if(e.key==='ArrowRight'){e.preventDefault();turnPage(1);}if(e.key==='ArrowLeft'){e.preventDefault();turnPage(-1);}}});
 
 let pages=[],basePages=[],chapters=[],pageIndex=Math.max(0,Number(saved.page)||0),plain=false,contentReady;

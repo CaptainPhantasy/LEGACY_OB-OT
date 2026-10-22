@@ -139,6 +139,17 @@ test('light weights are smooth, bounded and track day, twilight and night', () =
   assert.ok(twilight.twilight > 0.1);
 });
 
+test('the real solar direction stays normalized and travels east to west across the street', () => {
+  const {sunrise, sunset} = solarDay(at('2026-06-21T16:00:00Z'));
+  assert.ok(solarLight(sunrise).sunDirection[0] > 0, 'sunrise is east of the street');
+  assert.ok(solarLight(sunset).sunDirection[0] < 0, 'sunset is west of the street');
+  for (const month of [0, 2, 5, 8, 11]) for (let hour = 0; hour < 24; hour++) {
+    const light = solarLight(Date.UTC(2026, month, 21, hour));
+    assert.ok(Math.abs(Math.hypot(...light.sunDirection) - 1) < 1e-12);
+    assert.ok(Math.abs(light.sunDirection[1] - Math.sin(light.altitude)) < 1e-12);
+  }
+});
+
 test('results do not depend on the host timezone', () => {
   const moduleUrl = new URL('../dist/shop-time.js', import.meta.url).href;
   const script = `import {shopTime,solarDay} from ${JSON.stringify(moduleUrl)};

@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
+import { buildStreetEnvironment } from './street-environment.js?scene=realism-2';
+import { buildStreetVehicle, buildStreetPerson, animateStreetActor } from './street-actors.js?scene=realism-2';
 
 export const ENTRANCE_THRESHOLD = Object.freeze([0, 1.6, 6.65]);
 export const EXIT_POSITION = Object.freeze([0, 1.6, 9.4]);
@@ -63,31 +65,37 @@ export function streetActorPose(kind,index,nowMs,seed=37) {
 
 class Builder {
   constructor(){
-    this.geometry={box:new THREE.BoxGeometry(1,1,1),sphere:new THREE.SphereGeometry(1,12,8),cylinder:new THREE.CylinderGeometry(1,1,1,12),cone:new THREE.ConeGeometry(1,1,10)};
+    this.geometry={box:new THREE.BoxGeometry(1,1,1),sphere:new THREE.SphereGeometry(1,20,14),cylinder:new THREE.CylinderGeometry(1,1,1,20),cone:new THREE.ConeGeometry(1,1,16)};
     this.materials=new Map();this.daylight={value:1};
   }
   material(name,color,roughness=.75,metalness=0,extra={}){
-    if(!this.materials.has(name))this.materials.set(name,this.exteriorMaterial(new THREE.MeshStandardMaterial({name,color,roughness,metalness,...extra})));
+    const physical=extra.clearcoat!==undefined||extra.transmission!==undefined||extra.ior!==undefined;
+    if(!this.materials.has(name))this.materials.set(name,this.exteriorMaterial(new (physical?THREE.MeshPhysicalMaterial:THREE.MeshStandardMaterial)({name,color,roughness,metalness,...extra})));
     return this.materials.get(name);
   }
   exteriorMaterial(material){
     // Keep the indoor sepia haze inside. This shared daylight uniform gives
     // the street a softer blue distance haze without changing room materials.
     material.fog=false;
+    const previous=material.onBeforeCompile;
     material.onBeforeCompile=shader=>{
+      previous.call(material,shader);
       shader.uniforms.streetDaylight=this.daylight;
-      shader.fragmentShader='uniform float streetDaylight;\n'+shader.fragmentShader.replace('#include <fog_fragment>',`
-        float streetHaze=1.0-exp(-dot(vViewPosition,vViewPosition)*0.00022);
-        vec3 streetHazeColor=mix(vec3(.025,.035,.065),vec3(.62,.69,.73),streetDaylight);
+      shader.uniforms.streetDayFog={value:new THREE.Color(0xa4b5be)};
+      shader.uniforms.streetNightFog={value:new THREE.Color(0x26334c)};
+      shader.fragmentShader='uniform float streetDaylight; uniform vec3 streetDayFog; uniform vec3 streetNightFog;\n'+shader.fragmentShader.replace('#include <tonemapping_fragment>',`
+        float streetHaze=1.0-exp(-dot(vViewPosition,vViewPosition)*0.00012);
+        vec3 streetHazeColor=mix(streetNightFog,streetDayFog,streetDaylight);
         gl_FragColor.rgb=mix(gl_FragColor.rgb,streetHazeColor,streetHaze);
+        #include <tonemapping_fragment>
       `);
     };
-    material.customProgramCacheKey=()=> 'storefront-local-haze-v1';
+    material.customProgramCacheKey=()=> 'storefront-linear-haze-v2';
     return material;
   }
   mesh(parent,shape,material,position,scale,rotation){
     const mesh=new THREE.Mesh(this.geometry[shape],material);mesh.position.fromArray(position);mesh.scale.fromArray(scale);
-    if(rotation)mesh.rotation.set(...rotation);mesh.receiveShadow=false;mesh.castShadow=false;parent.add(mesh);return mesh;
+    if(rotation)mesh.rotation.set(...rotation);mesh.receiveShadow=true;mesh.castShadow=!material.transparent;parent.add(mesh);return mesh;
   }
   box(p,m,pos,size,r){return this.mesh(p,'box',m,pos,size,r);}
   sphere(p,m,pos,size){return this.mesh(p,'sphere',m,pos,size);}
@@ -96,7 +104,7 @@ class Builder {
   batch(parent){
     const groups=new Map();
     for(const child of [...parent.children]){
-      if(!child.isMesh||child.userData.keepSeparate)continue;
+      if(!child.isMesh||child.isInstancedMesh||child.userData.keepSeparate)continue;
       child.updateMatrix();let geometry=child.geometry.clone().applyMatrix4(child.matrix);
       if(geometry.index){const nonIndexed=geometry.toNonIndexed();geometry.dispose();geometry=nonIndexed;}
       if(!groups.has(child.material))groups.set(child.material,[]);groups.get(child.material).push(geometry);parent.remove(child);
@@ -104,7 +112,7 @@ class Builder {
     for(const [material,parts]of groups){
       const geometry=mergeGeometries(parts,false);parts.forEach(part=>part.dispose());
       geometry.computeBoundingSphere();geometry.computeBoundingBox();
-      const mesh=new THREE.Mesh(geometry,material);mesh.name=material.name+' / batched';parent.add(mesh);
+      const mesh=new THREE.Mesh(geometry,material);mesh.name=material.name+' / batched';mesh.receiveShadow=true;mesh.castShadow=!material.transparent;parent.add(mesh);
     }
   }
 }
@@ -114,11 +122,17 @@ export class ShopStorefront {
     this.scene=scene;this.seed=seed;this.builder=new Builder();this.root=new THREE.Group();this.root.name='Living Indiana storefront';this.group=this.root;
     this.bounds=new THREE.Box3(new THREE.Vector3(-100,-42,-34.5),new THREE.Vector3(100,42,49.5));
     this.portalBounds=new THREE.Box3(new THREE.Vector3(-3.55,-.25,6.75),new THREE.Vector3(3.55,3.75,8.5));
-    this.frustum=new THREE.Frustum();this.projection=new THREE.Matrix4();
+    this.frustum=new THREE.Frustum();this.projection=new THREE.Matrix4();this.shadowActorBounds=new THREE.Sphere();this.viewPosition=new THREE.Vector3();
     this.stats={...openOriginalEntrance(room),actorCount:0,animatedActors:0,updates:0,skippedUpdates:0,drawMeshes:0};
-    this.actors=[];this.nightMaterials=[];this.doorAmount=0;this.doorTarget=0;this.closed=false;
+    this.actors=[];this.nightMaterials=[];this.doorAmount=0;this.doorTarget=0;this.doorVelocity=0;this.closed=false;
     this.palette();this.makeEntrance();this.makeSky();this.makeStreet();this.makeActors();scene.add(this.root);
     this.sun=new THREE.DirectionalLight(0xffedd4,1.8);this.sun.position.set(-9,18,17);this.sun.target.position.set(0,0,17);this.sun.userData.exteriorLight=true;
+    const compact=typeof matchMedia==='function'&&matchMedia('(pointer: coarse)').matches;
+    this.sun.castShadow=true;this.sun.shadow.mapSize.set(compact?1024:2048,compact?1024:2048);
+    Object.assign(this.sun.shadow.camera,{left:-29,right:29,top:19,bottom:-19,near:.5,far:85});
+    this.sun.shadow.bias=-.00015;this.sun.shadow.normalBias=.035;this.sun.shadow.radius=2;this.sun.shadow.intensity=.8;
+    this.sun.shadow.autoUpdate=false;this.sun.shadow.needsUpdate=true;
+    this.shadowDirty=true;this.shadowAt=-Infinity;this.sunVector=new THREE.Vector3(-.45,.7,.35).normalize();
     this.skyLight=new THREE.HemisphereLight(0xbcd6ef,0x635747,.75);this.skyLight.userData.exteriorLight=true;
     scene.add(this.sun,this.sun.target,this.skyLight);
     this.root.traverse(o=>{if(o.isMesh){o.frustumCulled=true;this.stats.drawMeshes++;}});
@@ -132,9 +146,9 @@ export class ShopStorefront {
     this.black=m('Street / charcoal rubber',0x141719,.96);
     this.iron=m('Street / painted iron',0x263335,.72,.4);
     this.chrome=m('Street / aged aluminium',0xa6aaa8,.35,.6);
-    this.glass=b.material('Storefront / clear glass',0xbcd2cf,.12,.08,{transparent:true,opacity:.095,depthWrite:false,side:THREE.DoubleSide});
-    this.vehicleGlass=m('Street / tinted vehicle glass',0x2d4b55,.25,.25);
-    this.asphalt=m('Street / asphalt',0x44484a,.97);
+    this.glass=b.material('Storefront / clear glass',0xd5e2df,.07,0,{clearcoat:1,clearcoatRoughness:.045,ior:1.5,transparent:true,opacity:.105,depthWrite:false,side:THREE.DoubleSide,envMapIntensity:1.1});
+    this.vehicleGlass=m('Street / tinted vehicle glass',0x32434c,.1,.05,{clearcoat:1,clearcoatRoughness:.04,envMapIntensity:1});
+    this.asphalt=m('Street / asphalt',0x646769,.97);this.asphalt.userData.streetSurface='asphalt';
     this.concrete=m('Street / limestone sidewalk',0xa49e8c,.95);
     this.mortar=m('Street / mortar',0x7d786b,.98);
     this.cream=m('Street / warm limestone trim',0xbbae8c,.88);
@@ -142,6 +156,7 @@ export class ShopStorefront {
     this.yellow=m('Street / road yellow',0xc6a24e,.9);
     this.green=m('Street / leaves',0x4b6242,.95);
     this.trunk=m('Street / bark',0x514a3b,.98);
+    this.windowMat=m('Street / building windows',0x899a9c,.13,0,{clearcoat:1,clearcoatRoughness:.06,transparent:true,opacity:.24,depthWrite:false,emissive:0xceb184,emissiveIntensity:.025,envMapIntensity:.9});
     this.headlight=m('Street / headlamps',0xffe9b7,.3,.1,{emissive:0xffd992,emissiveIntensity:.3});
     this.tailLight=m('Street / brake lenses',0x6d1e16,.3,.1,{emissive:0xc12f1b,emissiveIntensity:.25});
     this.lampGlass=m('Street / lamp glass',0xf0ddac,.5,0,{emissive:0xffd399,emissiveIntensity:.1});
@@ -206,201 +221,48 @@ export class ShopStorefront {
     b.batch(door);b.batch(facade);
   }
   makeSky(){
-    // A local sky backdrop prevents the room's warm fog/background from
-    // turning the world beyond the clear glass into an opaque brown void.
     this.skyMaterial=new THREE.ShaderMaterial({name:'Street / daylight sky',depthWrite:false,depthTest:false,side:THREE.BackSide,
-      uniforms:{daylight:{value:1}},
-      vertexShader:'varying vec2 skyUv; void main(){ skyUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-      fragmentShader:`varying vec2 skyUv; uniform float daylight;
+      uniforms:{daylight:{value:1},sunDirection:{value:new THREE.Vector3(-.45,.7,.35).normalize()},cloudTime:{value:0}},
+      vertexShader:'varying vec3 skyDirection; void main(){ skyDirection=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+      fragmentShader:`varying vec3 skyDirection; uniform float daylight; uniform vec3 sunDirection; uniform float cloudTime;
+        float hashSky(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+        float skyNoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(hashSky(i),hashSky(i+vec2(1.,0.)),f.x),mix(hashSky(i+vec2(0.,1.)),hashSky(i+1.),f.x),f.y);}
+        float cloudField(vec2 p){float f=0.,a=.54;for(int i=0;i<4;i++){f+=skyNoise(p)*a;p=mat2(1.6,-1.2,1.2,1.6)*p;a*=.5;}return f;}
         void main(){
-          float altitude=smoothstep(0.48,0.98,skyUv.y);
-          vec3 day=mix(vec3(.76,.79,.73),vec3(.26,.48,.66),altitude);
-          vec3 dark=mix(vec3(.065,.08,.13),vec3(.015,.025,.065),altitude);
-          float dusk=4.0*daylight*(1.0-daylight)*(1.0-altitude);
-          vec3 sky=mix(dark,day,daylight)+vec3(.13,.035,.005)*dusk;
+          vec3 ray=normalize(skyDirection);float altitude=smoothstep(-.025,.94,ray.y);
+          vec3 day=mix(vec3(.65,.70,.72),vec3(.13,.31,.52),pow(altitude,.42));
+          vec3 dark=mix(vec3(.027,.037,.065),vec3(.004,.009,.025),altitude);
+          float warm=pow(1.0-clamp(abs(sunDirection.y)*3.0,0.0,1.0),2.0)*daylight;
+          float glow=pow(max(0.0,dot(ray,sunDirection)),14.0);
+          vec3 sky=mix(dark,day,daylight)+vec3(.33,.095,.015)*warm*(1.0-altitude)*(.5+glow);
+          float sunDot=dot(ray,sunDirection);
+          sky+=vec3(1.0,.84,.61)*pow(max(0.0,sunDot),160.0)*daylight*.27;
+          sky+=vec3(6.0,5.5,4.1)*smoothstep(.99985,.99997,sunDot)*daylight;
+          if(ray.y>.012){
+            vec2 uv=ray.xz/(ray.y+.17)*.72+vec2(cloudTime*.0011,cloudTime*.00032);
+            float cloud=cloudField(uv),mask=smoothstep(.47,.72,cloud)*smoothstep(.012,.18,ray.y);
+            float edge=cloudField(uv+sunDirection.xz*.1);
+            vec3 white=mix(vec3(.24,.29,.35),vec3(.88,.89,.86),smoothstep(.38,.7,edge));
+            vec3 cloudColor=mix(vec3(.022,.031,.052),white,daylight);
+            cloudColor+=vec3(.24,.07,.012)*warm;
+            sky=mix(sky,cloudColor,mask*.86);
+          }
           gl_FragColor=vec4(sky,1.0);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
         }`});
-    const sky=new THREE.Mesh(new THREE.SphereGeometry(42,24,12),this.skyMaterial);sky.name='Sky beyond Indiana street';sky.position.set(0,0,7.5);sky.renderOrder=-1000;this.root.add(sky);
+    const sky=new THREE.Mesh(new THREE.SphereGeometry(42,32,20),this.skyMaterial);sky.name='Sky beyond Indiana street';sky.position.set(0,0,7.5);sky.renderOrder=-1000;this.root.add(sky);
   }
-  makeStreet(){
-    const b=this.builder,staticStreet=new THREE.Group();staticStreet.name='Indiana city block';this.root.add(staticStreet);this.street=staticStreet;
-    b.box(staticStreet,this.cream,[0,-.04,7.7],[6.6,.14,1]);
-    b.box(staticStreet,this.asphalt,[0,-.12,15.6],[200,.16,8.5]);
-    for(const z of [9.7,20.8]){
-      b.box(staticStreet,this.concrete,[0,-.02,z],[200,.18,3.4]);
-      for(let x=-99;x<100;x+=2)b.box(staticStreet,this.mortar,[x,.073,z],[.017,.003,3.38]);
-      b.box(staticStreet,this.mortar,[0,.075,z],[200,.003,.015]);
-    }
-    for(const z of [11.43,19.12])b.box(staticStreet,this.cream,[0,.005,z],[200,.24,.18]);
-    for(const z of [15.38,15.57])for(let x=-97;x<98;x+=6)b.box(staticStreet,this.yellow,[x,-.032,z],[3,.008,.07]);
-    for(const z of [12.1,18.5])b.box(staticStreet,this.paintWhite,[0,-.031,z],[200,.008,.08]);
-    for(let x=12;x<17;x+=.65)b.box(staticStreet,this.paintWhite,[x,-.027,15.6],[.34,.008,6.8]);
-    // City facades have recessed shop fronts, cornices, sills and varied windows.
-    const bricks=[0x7b5142,0x796956,0x8b7153,0x5b625d,0x955e46,0x766253,0x545e61];
-    const names=['CAFÉ & BAKERY','CENTRAL HARDWARE','FLOWERS','CITY BOOKBINDERS','CORNER MARKET','STUDIO 14','TAILOR & ALTERATIONS'];
-    const windowMat=b.material('Street / building windows',0x455b60,.22,.25,{emissive:0xefd49f,emissiveIntensity:.05});this.windowMat=windowMat;
-    for(let i=-5;i<=5;i++){
-      const x=i*7.4, height=8.8+noise(i+this.seed)*5.3,width=7.1;
-      const brick=b.material(`Street / masonry ${i}`,bricks[(i+7)%bricks.length],.95);
-      b.box(staticStreet,brick,[x,height/2,26],[width,height,6.8]);
-      for(const y of [.25,3.3,height-.18,height+.12])b.box(staticStreet,this.cream,[x,y,22.52],[width+.2,.22,.24]);
-      b.box(staticStreet,this.iron,[x,1.68,22.51],[width-.45,2.7,.15]);
-      for(const wx of [-2.35,0,2.35]){
-        b.box(staticStreet,windowMat,[x+wx,1.75,22.4],[2.0,2.25,.05]);
-        b.box(staticStreet,this.cream,[x+wx,1.72,22.35],[.07,2.35,.08]);
-      }
-      for(let floor=0;floor<Math.floor((height-3.6)/2.45);floor++)for(const wx of [-2.3,0,2.3]){
-        const y=4.7+floor*2.45;
-        b.box(staticStreet,this.iron,[x+wx,y,22.49],[1.44,1.8,.15]);
-        b.box(staticStreet,windowMat,[x+wx,y,22.38],[1.25,1.62,.06]);
-        for(const sy of [-.84,.84])b.box(staticStreet,this.cream,[x+wx,y+sy,22.32],[1.55,.1,.28]);
-        b.box(staticStreet,this.cream,[x+wx,y,22.3],[.065,1.6,.08]);
-        b.box(staticStreet,this.cream,[x+wx,y,22.3],[1.3,.055,.08]);
-      }
-      const awning=b.material(`Street / canvas canopy ${i}`,[0x4c5a45,0x6b3d35,0x465b66][(i+6)%3],.9);
-      b.box(staticStreet,awning,[x,3.04,22.1],[width-.4,.12,.86],[.13,0,0]);
-      b.box(staticStreet,awning,[x,2.88,21.7],[width-.4,.24,.08]);
-      if(Math.abs(i)<4)this.sign(staticStreet,names[(i+7)%names.length],[x,3.57,22.35],[width-.9,.36]);
-      // Brick joints are restrained near the street rather than thousands of meshes.
-      for(let y=.5;y<height;y+=.5)b.box(staticStreet,this.mortar,[x,y,22.595],[width,.012,.008]);
-    }
-    // Neighbouring premises continue this side of the block, so looking back
-    // after leaving still reveals a city around the shop rather than an edge.
-    for(const i of [-2,-1,1,2]){
-      const x=i*7.4,height=8.7+noise(i+this.seed+80)*3.8;
-      const brick=b.material(`Street / masonry ${i}`,bricks[(i+7)%bricks.length],.95);
-      b.box(staticStreet,brick,[x,height/2,3.9],[7.2,height,6.8]);
-      for(const y of [.24,3.3,height-.12])b.box(staticStreet,this.cream,[x,y,7.39],[7.35,.2,.22]);
-      b.box(staticStreet,this.iron,[x,1.66,7.37],[6.65,2.7,.15]);
-      for(const wx of [-2.2,0,2.2])b.box(staticStreet,windowMat,[x+wx,1.66,7.47],[1.95,2.35,.05]);
-      for(let y=4.8;y<height-.7;y+=2.4)for(const wx of [-2.25,0,2.25]){
-        b.box(staticStreet,this.cream,[x+wx,y,7.38],[1.5,1.85,.18]);
-        b.box(staticStreet,windowMat,[x+wx,y,7.49],[1.27,1.6,.05]);
-        b.box(staticStreet,this.cream,[x+wx,y,7.53],[.06,1.6,.06]);
-        b.box(staticStreet,this.cream,[x+wx,y,7.53],[1.3,.055,.06]);
-      }
-      this.sign(staticStreet,i<0?'ANTIQUES & RESTORATION':'THE CORNER CAFÉ',[x,3.55,7.46],[5.5,.36],{facing:1});
-    }
-    for(const x of [-21,-10,10,23]){
-      const z=19.65;
-      b.cylinder(staticStreet,this.iron,[x,2.15,z],[.055,4.3,.055]);
-      b.box(staticStreet,this.iron,[x,4.18,z-.38],[.07,.07,.8]);
-      b.box(staticStreet,this.iron,[x,4.02,z-.78],[.37,.1,.5]);
-      b.box(staticStreet,this.lampGlass,[x,3.95,z-.78],[.28,.035,.38]);
-      b.cylinder(staticStreet,this.iron,[x,.13,z],[.18,.26,.18]);
-    }
-    for(const x of [-16,6,28]){
-      b.cylinder(staticStreet,this.trunk,[x,1.75,20.9],[.17,3.5,.17]);
-      for(let k=0;k<5;k++)b.sphere(staticStreet,this.green,[x+Math.cos(k*2.4)*.9,3.8+noise(k+x)*.5,20.9+Math.sin(k*2.4)*.65],[1.3,1.4,1.15]);
-      b.box(staticStreet,this.iron,[x,.1,20.9],[1.65,.08,1.65]);
-    }
-    for(const x of [-5,18]){
-      b.box(staticStreet,this.woodEdge,[x,.55,21.2],[1.7,.1,.45]);b.box(staticStreet,this.woodEdge,[x,.93,21.39],[1.7,.55,.08]);
-      for(const dx of [-.65,.65])b.box(staticStreet,this.iron,[x+dx,.28,21.2],[.06,.5,.38]);
-    }
-    b.cylinder(staticStreet,this.iron,[-7,.5,20.5],[.29,1,.29]);b.cylinder(staticStreet,this.iron,[-7,1.04,20.5],[.32,.09,.32]);
-    b.box(staticStreet,b.material('Street / bus stop blue',0x3b6171),[11,2.7,20.3],[.55,.5,.04]);b.cylinder(staticStreet,this.iron,[11,1.35,20.3],[.035,2.7,.035]);
-    b.batch(staticStreet);
-  }
-  vehicle(kind,index){
-    const b=this.builder,g=new THREE.Group();g.name=`Passing ${kind}`;g.userData.kind=kind;
-    const bus=kind.includes('bus'),truck=kind==='garbage-truck',suv=kind==='suv';
-    const length=bus?8.3:truck?7.5:suv?4.7:4.3,width=bus||truck?2.35:1.82,height=bus?2.9:truck?3.0:suv?1.77:1.42;
-    const paint=b.material(`Vehicle / ${kind} paint`,{car:0x5e3332,suv:0x53665d,'city-bus':0xe3d6bb,'school-bus':0xd6a732,'garbage-truck':0x597660}[kind],.42,.2);
-    b.box(g,this.black,[0,.38,0],[length*.88,.18,width*.8]);
-    b.box(g,paint,[0,.78,0],[length,.64,width]);
-    if(bus){
-      b.box(g,paint,[-.1,1.94,0],[length-.25,1.7,width]);
-      b.box(g,this.vehicleGlass,[length/2+.012,2.02,0],[.035,1.12,width-.25]);
-      for(const side of [-1,1])for(let i=0;i<8;i++)b.box(g,this.vehicleGlass,[-3.25+i*.87,2.04,side*(width/2+.012)],[.68,1.02,.025]);
-      for(const side of [-1,1])b.box(g,kind==='city-bus'?b.material('City bus / blue belt',0x34596d):this.black,[0,1.37,side*(width/2+.018)],[length,.12,.025]);
-      b.box(g,this.cream,[0,2.84,0],[length-.2,.16,width-.1]);
-      if(kind==='school-bus')for(const side of [-1,1]){
-        b.box(g,this.black,[length/2+.03,2.76,side*.77],[.04,.14,.16]);
-        b.box(g,this.tailLight,[length/2+.054,2.76,side*.77],[.045,.09,.1]);
-      }
-      this.sign(g,kind==='school-bus'?'SCHOOL BUS':'CITY TRANSIT',[length/2+.04,2.6,0],[1.5,.18]).rotation.y=Math.PI/2;
-    }else if(truck){
-      b.box(g,paint,[2.25,1.72,0],[2.7,1.45,width]);
-      b.box(g,this.vehicleGlass,[3.62,1.99,0],[.03,.87,width-.24]);
-      for(const side of [-1,1])b.box(g,this.vehicleGlass,[2.55,2.03,side*1.19],[1.32,.83,.025]);
-      b.box(g,paint,[-1.2,1.83,0],[4.4,2.35,width+.1]);
-      for(let x=-3;x<1;x+=.65)for(const side of [-1,1])b.box(g,this.chrome,[x,1.81,side*1.25],[.055,2.08,.04]);
-      b.box(g,this.black,[-3.53,1.3,0],[.12,1.44,1.95]);
-      b.cylinder(g,this.chrome,[-2.7,1.3,1.32],[.07,1.6,.07],[0,0,.45]);
-      b.box(g,this.yellow,[-3.62,.65,0],[.05,.16,width]);
-    }else{
-      // Sloped windscreens, a distinct bonnet and rounded roof soften the silhouette.
-      b.box(g,paint,[-.2,suv?1.36:1.14,0],[suv?2.8:2.35,suv?.84:.68,width*.87]);
-      b.box(g,this.vehicleGlass,[suv?1.2:1.0,suv?1.38:1.18,0],[.04,suv?.62:.53,width*.8],[0,0,-.34]);
-      b.box(g,this.vehicleGlass,[-1.35,suv?1.36:1.17,0],[.04,suv?.6:.49,width*.8],[0,0,.25]);
-      for(const side of [-1,1]){
-        b.box(g,this.vehicleGlass,[-.22,suv?1.41:1.22,side*width*.442],[suv?2.38:1.92,suv?.51:.43,.025]);
-        b.box(g,paint,[-.15,suv?1.42:1.21,side*width*.461],[.09,suv?.55:.47,.028]);
-        for(const x of [-.67,.55])b.box(g,this.chrome,[x,.94,side*width*.506],[.17,.035,.02]);
-        b.box(g,paint,[.97,1.12,side*1.0],[.22,.12,.17]);
-      }
-      if(suv)for(const side of [-1,1])b.box(g,this.iron,[-.3,1.83,side*.61],[2.3,.045,.045]);
-    }
-    const wheelX=bus?[-2.65,2.65]:truck?[-2.5,-1.5,2.5]:[-1.38,1.38];
-    for(const x of wheelX)for(const side of [-1,1]){
-      const radius=(bus||truck)?.46:.34;
-      b.cylinder(g,this.black,[x,radius,side*(width/2-.04)],[radius,.22,radius],[Math.PI/2,0,0]);
-      b.cylinder(g,this.chrome,[x,radius,side*(width/2+.075)],[radius*.54,.025,radius*.54],[Math.PI/2,0,0]);
-    }
-    for(const side of [-1,1]){
-      b.box(g,this.headlight,[length/2+.022,.85,side*width*.34],[.045,.16,.32]);
-      b.box(g,this.tailLight,[-length/2-.022,.86,side*width*.35],[.045,.18,.25]);
-    }
-    for(const side of [-1,1])b.box(g,this.chrome,[side*(length/2+.03),.54,0],[.07,.12,width*.9]);
-    b.box(g,this.cream,[-length/2-.075,.73,0],[.04,.14,.32]);
-    b.batch(g);g.userData.height=height;g.userData.length=length;return g;
-  }
-  person(kind,index){
-    const b=this.builder,g=new THREE.Group();g.name=`Passing ${kind} ${index}`;g.userData.kind=kind;
-    const shirt=b.material(`Walker / coat ${index}`,[0x806052,0x566e7a,0x847447,0x775660,0x495c4b,0x7f5443][index],.9);
-    const skin=b.material(`Walker / skin ${index}`,[0xbd9271,0x8d634c,0xd1ad8a][index%3],.85);
-    const trousers=b.material(`Walker / trousers ${index}`,index%2?0x364b5b:0x45423d,.95);
-    const hair=b.material(`Walker / hair ${index}`,index%3?0x403329:0x81725f,.96);
-    b.sphere(g,shirt,[0,1.16,0],[.19,.32,.13]);
-    b.cylinder(g,skin,[0,1.49,0],[.065,.13,.065]);
-    b.sphere(g,skin,[0,1.67,0],[.12,.155,.12]);
-    b.sphere(g,hair,[-.015,1.74,0],[.125,.09,.125]);
-    b.sphere(g,skin,[.112,1.67,0],[.045,.04,.038]);
-    if(kind==='jogger')b.box(g,shirt,[.07,1.79,0],[.22,.035,.22]);
-    const limbs=[];
-    for(const side of [-1,1]){
-      const leg=new THREE.Group();leg.position.set(0,.93,side*.095);g.add(leg);
-      b.cylinder(leg,trousers,[0,-.4,0],[.068,.8,.068]);
-      b.box(leg,this.black,[.055,-.82,0],[.23,.105,.13]);b.batch(leg);limbs.push({joint:leg,sign:side,leg:true});
-      const arm=new THREE.Group();arm.position.set(0,1.38,side*.19);g.add(arm);
-      b.cylinder(arm,shirt,[0,-.235,0],[.053,.47,.053]);b.sphere(arm,skin,[0,-.5,0],[.052,.07,.05]);b.batch(arm);limbs.push({joint:arm,sign:-side,leg:false});
-    }
-    if(kind==='dog-walker'){
-      const dog=new THREE.Group();dog.position.set(.75,0,.38);g.add(dog);
-      const fur=b.material(`Dog / fur ${index}`,index%2?0x9b805b:0x695342,.96);
-      b.sphere(dog,fur,[0,.37,0],[.34,.16,.13]);b.sphere(dog,fur,[.31,.52,0],[.14,.13,.12]);b.sphere(dog,fur,[.43,.5,0],[.11,.065,.08]);
-      for(const side of [-1,1])b.sphere(dog,hair,[.28,.59,side*.105],[.06,.11,.035]);
-      const dogLegs=[];
-      for(const x of [-.21,.21])for(const side of [-1,1]){
-        const joint=new THREE.Group();joint.position.set(x,.31,side*.09);dog.add(joint);b.cylinder(joint,fur,[0,-.13,0],[.03,.26,.03]);dogLegs.push({joint,sign:x*side>0?1:-1});
-      }
-      b.cylinder(dog,fur,[-.38,.48,0],[.035,.28,.035],[0,0,-.65]);
-      const leashPath=new THREE.CatmullRomCurve3([new THREE.Vector3(0,.88,.24),new THREE.Vector3(.37,.77,.34),new THREE.Vector3(1.04,.53,.38)]);
-      const leash=new THREE.Mesh(new THREE.TubeGeometry(leashPath,8,.009,4,false),this.iron);g.add(leash);
-      b.batch(dog);g.userData.dogLegs=dogLegs;
-    }
-    b.batch(g);g.userData.limbs=limbs;return g;
-  }
+  makeStreet(){buildStreetEnvironment(this);}
+  vehicle(kind,index){return buildStreetVehicle(this,kind,index);}
+  person(kind,index){return buildStreetPerson(this,kind,index);}
   makeActors(){
     for(const [index,kind]of STREET_VEHICLES.entries()){
-      const group=this.vehicle(kind,index);group.visible=false;this.root.add(group);this.actors.push({group,kind,index});
+      const group=this.vehicle(kind,index);group.visible=false;group.userData.streetActor=true;this.root.add(group);this.actors.push({group,kind,index});
     }
     for(let index=0;index<6;index++){
       const kind=index===1?'jogger':index===2||index===5?'dog-walker':'pedestrian';
-      const group=this.person(kind,index);group.visible=false;this.root.add(group);this.actors.push({group,kind,index});
+      const group=this.person(kind,index);group.visible=false;group.userData.streetActor=true;this.root.add(group);this.actors.push({group,kind,index});
     }
   }
   setDoorOpen(value){this.doorTarget=clamp(Number(value)||0);}
@@ -408,38 +270,70 @@ export class ShopStorefront {
     this.closed=!!value;this.openSign.visible=!this.closed;this.closedSign.visible=this.closed;
     this.openOutsideSign.visible=!this.closed;this.closedOutsideSign.visible=this.closed;
   }
-  update({nowMs=Date.now(),dt=0,camera,daylight=1,night=1-daylight,gentle=false,visible}={}){
+  update({nowMs=Date.now(),dt=0,camera,daylight=1,night=1-daylight,gentle=false,visible,sunDirection}={}){
     const light=clamp(daylight),dark=clamp(night);
+    const previousVisible=this.root.visible,previousDoor=this.doorAmount;
+    this.shadowDirty=false;
     this.builder.daylight.value=light;
     this.skyMaterial.uniforms.daylight.value=light;
-    this.sun.intensity=light*2.6;this.sun.color.set(light>.3?0xffedd4:0xe8a16b);
-    this.skyLight.intensity=.12+light*.74;this.skyLight.color.set(light>.2?0xbcd6ef:0x647aaf);
+    if(sunDirection?.length===3&&sunDirection.every(Number.isFinite)&&Math.hypot(...sunDirection)>.01)this.sunVector.fromArray(sunDirection).normalize();
+    this.sun.position.copy(this.sunVector).multiplyScalar(40).add(this.sun.target.position);
+    this.skyMaterial.uniforms.sunDirection.value.copy(this.sunVector);
+    const lowSun=1-clamp(this.sunVector.y*3);
+    // Twilight still lights the sky, but direct sun cannot illuminate the
+    // underside of the street after the solar disc falls below the horizon.
+    this.sun.intensity=light*2.8*clamp(this.sunVector.y/.04);this.sun.color.set(0xfff0d9).lerp(new THREE.Color(0xffbd83),lowSun*.65);
+    this.skyLight.intensity=.025+light*.48;this.skyLight.color.set(light>.2?0xbdd0e0:0x526b9a);
     this.windowMat.emissiveIntensity=.025+dark*.65;
     this.headlight.emissiveIntensity=.3+dark*2.2;this.tailLight.emissiveIntensity=.25+dark*.8;this.lampGlass.emissiveIntensity=.1+dark*2.4;
-    let inView=visible;
-    if(inView===undefined){
-      if(!camera)inView=true;
-      else{
-        camera.updateMatrixWorld(true);this.projection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);
-        this.frustum.setFromProjectionMatrix(this.projection);inView=camera.position.z>6.75||this.frustum.intersectsBox(this.portalBounds);
-      }
+    for(const {light:lamp,power}of this.streetLights)lamp.intensity=power*dark;
+    const occupied=this.builder.materials.get('Street / occupied window interior');if(occupied)occupied.emissiveIntensity=.025+dark*.7;
+    if(camera){
+      camera.updateMatrixWorld(true);camera.getWorldPosition(this.viewPosition);
+      this.projection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);this.frustum.setFromProjectionMatrix(this.projection);
     }
+    const inView=visible??(!camera||this.viewPosition.z>6.75||this.frustum.intersectsBox(this.portalBounds));
     this.root.visible=!!inView;this.stats.animatedActors=0;
     // Door opening belongs to the visitor's exit action and is never tied to
     // frame visibility; the next visible frame sees its current requested state.
-    const blend=gentle?1:1-Math.exp(-Math.max(0,dt)*7);
-    this.doorAmount+=(this.doorTarget-this.doorAmount)*blend;this.doorPivot.rotation.y=-this.doorAmount*1.35;
+    if(gentle){this.doorAmount=this.doorTarget;this.doorVelocity=0;}
+    else{
+      // Exact critically damped hinge solution: heavy door acceleration and
+      // settling are independent of frame rate, without a springy bounce.
+      const elapsed=Number.isFinite(dt)?Math.max(0,dt):0,omega=6;
+      const offset=this.doorAmount-this.doorTarget,coefficient=this.doorVelocity+omega*offset,decay=Math.exp(-omega*elapsed);
+      const amount=this.doorTarget+(offset+coefficient*elapsed)*decay;
+      this.doorVelocity=(this.doorVelocity-omega*coefficient*elapsed)*decay;
+      this.doorAmount=clamp(amount);if(amount!==this.doorAmount)this.doorVelocity=0;
+      if(Math.abs(this.doorAmount-this.doorTarget)<1e-10&&Math.abs(this.doorVelocity)<1e-10){
+        this.doorAmount=this.doorTarget;this.doorVelocity=0;
+      }
+    }
+    this.doorPivot.rotation.y=-this.doorAmount*1.35;
     if(!inView){this.stats.skippedUpdates++;return false;}
+    this.wind.value=gentle?0:(nowMs%86400000)/1000;
+    this.skyMaterial.uniforms.cloudTime.value=(nowMs%86400000)/1000;
     this.stats.updates++;
+    let nearbyMovingVehicle=false;
     for(const actor of this.actors){
       const p=streetActorPose(actor.kind,actor.index,nowMs,this.seed),g=actor.group;
       g.visible=p.active;if(!p.active)continue;
       g.position.set(p.x,STREET_VEHICLES.includes(actor.kind)?-.04:0,p.z);g.rotation.y=p.direction===1?0:Math.PI;
-      const bounce=gentle?0:Math.sin(p.phase*2)*(actor.kind==='jogger'?.035:.012);
-      if(!STREET_VEHICLES.includes(actor.kind))g.position.y=bounce;
-      for(const limb of g.userData.limbs||[])limb.joint.rotation.z=gentle?0:Math.sin(p.phase)*limb.sign*(limb.leg?.46:.31)*(actor.kind==='jogger'?1.4:1);
-      for(const limb of g.userData.dogLegs||[])limb.joint.rotation.z=gentle?0:Math.sin(p.phase*1.4)*limb.sign*.38;
+      animateStreetActor(actor,p,{gentle,nowMs});
       this.stats.animatedActors++;
+      if(camera&&p.speed>0&&STREET_VEHICLES.includes(actor.kind)){
+        // Nearby traffic moves too far between the distant shadow cadence's
+        // frames. Use a conservative actor bound, not a per-mesh scene scan.
+        const height=g.userData.height||1.8,length=g.userData.length||4.5;
+        this.shadowActorBounds.center.copy(g.position);this.shadowActorBounds.center.y+=height*.5;
+        this.shadowActorBounds.radius=Math.hypot(length*.5,height*.5,1.35);
+        if(this.shadowActorBounds.distanceToPoint(this.viewPosition)<20&&this.frustum.intersectsSphere(this.shadowActorBounds))nearbyMovingVehicle=true;
+      }
+    }
+    // A hidden exterior retains its last valid shadow map. Other room shadow
+    // updates must never replace it with an empty view of hidden casters.
+    if(nearbyMovingVehicle||!previousVisible||Math.abs(previousDoor-this.doorAmount)>.00001||nowMs-this.shadowAt>=80||nowMs<this.shadowAt){
+      this.shadowAt=nowMs;this.shadowDirty=true;this.sun.shadow.needsUpdate=true;
     }
     return true;
   }

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { loadPhotoSurfaceFamily } from './street-surfaces.js?scene=realism-1';
 
 // Surface textures carry no painted lighting. The room's lamps, reflections and
 // traced occlusion can therefore respond correctly as the visitor looks around.
@@ -153,6 +154,20 @@ export async function enhanceMaterials(room, renderer) {
     textures[name] = { color: loaded[0], height: loaded[1], roughness: loaded[2] };
   }));
 
+  // Photograph-derived normal detail adds irregular pores, worn grain and
+  // plaster relief to the existing pigment and baked light. Preserve authored
+  // normal maps (especially the book's cracks) and the dry timber roughness.
+  // An unavailable extra map falls back to the delivered micro-height surface.
+  let photoNormalFamilies = 0;
+  await Promise.all([['wood', 'wood'], ['leather', 'leather'], ['mineral', 'plaster']].map(async ([kind, photo]) => {
+    try {
+      const maps = await loadPhotoSurfaceFamily(photo, renderer);
+      textures[kind].normal = maps.normal;
+      textures[kind].normalStrength = maps.spec.normal;
+      photoNormalFamilies++;
+    } catch { /* The existing local surface is a complete fallback. */ }
+  }));
+
   room.updateMatrixWorld(true);
   const enhanced = new Map();
   const counts = {};
@@ -178,7 +193,11 @@ export async function enhanceMaterials(room, renderer) {
       if (!material.map || material.userData.room_depth_placeholder_color) material.map = neutralMetal ? null : maps.color;
       if (material.map) material.map.anisotropy = anisotropy;
       if (material.normalMap) material.normalMap.anisotropy = anisotropy;
-      else { material.bumpMap = maps.height; material.bumpScale = config.bump; }
+      else if (maps.normal) {
+        material.normalMap = maps.normal;
+        material.normalScale.setScalar(maps.normalStrength);
+        material.userData.surfaceNormalSource = 'Poly Haven / CC0';
+      } else { material.bumpMap = maps.height; material.bumpScale = config.bump; }
       material.roughnessMap = maps.roughness;
       // Both finishes retain varied roughness. Only an authored furniture
       // finish is allowed the lower range; dry boards remain .78–.97.
@@ -200,5 +219,6 @@ export async function enhanceMaterials(room, renderer) {
     });
     mesh.material = Array.isArray(mesh.material) ? replacements : replacements[0];
   });
-  return { materials: enhanced.size, families: counts, textureCount: 21, resolution: 512 };
+  return { materials: enhanced.size, families: counts, textureCount: 21,
+    resolution: 512, photoNormalFamilies, photoNormalResolution: 1024 };
 }

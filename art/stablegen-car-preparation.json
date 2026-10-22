@@ -1,0 +1,230 @@
+{
+  "tool": "https://github.com/sakalond/StableGen",
+  "version": [
+    0,
+    3,
+    1
+  ],
+  "source_commit": "1d6e83fc966afc8b2c196c011b75ce7cdaa07c83",
+  "blender_version": "4.2.1 LTS",
+  "source_scene_sha256": "2bac011fa0e440f1fc19392698cc78e921c06a720b2e17af2aa9fc2678a4d955",
+  "target": "car",
+  "source_meshes": 23,
+  "selected_surface_meshes": [
+    "Vehicle / car clearcoat / actor assembly"
+  ],
+  "triangles": 15908,
+  "executed_operation": "bpy.ops.object.add_cameras: normal_weighted, per-camera aspect",
+  "cameras": [
+    {
+      "name": "Camera_auto_0",
+      "matrix_world": [
+        [
+          0.999983549118042,
+          0.0005845538689754903,
+          -0.005708212498575449,
+          -2.0360686779022217
+        ],
+        [
+          -0.0057380651123821735,
+          0.1018713116645813,
+          -0.9947810173034668,
+          -21.458744049072266
+        ],
+        [
+          0.0,
+          0.99479740858078,
+          0.1018729880452156,
+          1.4112944602966309
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "resolution": [
+        1744,
+        600
+      ],
+      "view_label": "rear view"
+    },
+    {
+      "name": "Camera_auto_1",
+      "matrix_world": [
+        [
+          0.9999975562095642,
+          -0.0015905631007626653,
+          0.0015303579857572913,
+          -1.9827784299850464
+        ],
+        [
+          0.0022072349674999714,
+          0.7206116318702698,
+          -0.6933354735374451,
+          -19.10403060913086
+        ],
+        [
+          0.0,
+          0.6933371424674988,
+          0.7206133604049683,
+          6.17095422744751
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "resolution": [
+        1512,
+        696
+      ],
+      "view_label": "rear view, from above"
+    },
+    {
+      "name": "Camera_auto_2",
+      "matrix_world": [
+        [
+          -0.0029497540090233088,
+          -0.24214604496955872,
+          0.9702353477478027,
+          3.0112361907958984
+        ],
+        [
+          0.9999956488609314,
+          -0.0007142744143493474,
+          0.002861968008801341,
+          -13.692138671875
+        ],
+        [
+          0.0,
+          0.970239520072937,
+          0.24214710295200348,
+          1.6760790348052979
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "resolution": [
+        1248,
+        840
+      ],
+      "view_label": "left side view"
+    },
+    {
+      "name": "Camera_auto_3",
+      "matrix_world": [
+        [
+          0.9999973177909851,
+          -3.0702278309036046e-05,
+          0.002305639209225774,
+          -1.9793305397033691
+        ],
+        [
+          0.0,
+          0.999911367893219,
+          0.013314987532794476,
+          -13.606643676757812
+        ],
+        [
+          -0.002305843634530902,
+          -0.01331495214253664,
+          0.9999086856842041,
+          7.894962310791016
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "resolution": [
+        1464,
+        720
+      ],
+      "view_label": "top view"
+    },
+    {
+      "name": "Camera_auto_4",
+      "matrix_world": [
+        [
+          -0.9999855756759644,
+          0.0004893919685855508,
+          -0.005351032130420208,
+          -2.0333669185638428
+        ],
+        [
+          -0.0053733647800982,
+          -0.09107606112957001,
+          0.9958294630050659,
+          -5.936225891113281
+        ],
+        [
+          0.0,
+          0.9958438277244568,
+          0.09107737988233566,
+          1.330496072769165
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "resolution": [
+        1744,
+        600
+      ],
+      "view_label": "front view"
+    },
+    {
+      "name": "Camera_auto_5",
+      "matrix_world": [
+        [
+          -0.0030662210192531347,
+          0.2251388430595398,
+          -0.9743218421936035,
+          -6.924465179443359
+        ],
+        [
+          -0.9999952912330627,
+          -0.0006903287139721215,
+          0.0029875002801418304,
+          -13.695066452026367
+        ],
+        [
+          0.0,
+          0.9743264317512512,
+          0.22513990104198456,
+          1.5550425052642822
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "resolution": [
+        1256,
+        832
+      ],
+      "view_label": "right side view"
+    }
+  ],
+  "prompt": "Photorealistic everyday Indiana city sedan, burgundy automotive clearcoat, subtle orange-peel paint, fine restrained dust at lower panels, realistic rubber tires and machined alloy wheels, clean glazing, preserve every body panel, window and existing geometry, unbranded, neutral diffuse illumination, relightable albedo, no painted shadows or reflections.",
+  "denoise": 0.32,
+  "steps": 30,
+  "inference_status": "NOT_RUN_NO_COMFYUI_BACKEND",
+  "generated_texture_count": 0,
+  "material_note": "Actual geometry, UVs and base PBR values. Runtime microdetail maps are not copied; their originals must remain when merging generated albedo into the site."
+}

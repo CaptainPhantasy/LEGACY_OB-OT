@@ -7,7 +7,7 @@ registerHooks({ resolve(specifier, context, nextResolve) {
   return specifier === 'three' ? { url: threeURL, shortCircuit: true } : nextResolve(specifier, context);
 } });
 const THREE = await import(threeURL);
-const { applyRoomLightmap, updateRoomRevelation } = await import('../dist/room-lightmap.js');
+const { applyRoomLightmap, updateRoomRevelation, updateRoomDaylight } = await import('../dist/room-lightmap.js');
 
 function fixture() {
   const room = new THREE.Group();
@@ -96,10 +96,17 @@ test('separate atlases clone shared materials independently and share the live r
   }
   const shaders = [shaderFor(main), shaderFor(shelf)];
   assert.equal(shaders[0].uniforms.roomRevelationPower, shaders[1].uniforms.roomRevelationPower);
+  assert.equal(shaders[0].uniforms.roomDaylight, shaders[1].uniforms.roomDaylight);
   for (const power of [95, 3, 0]) {
     updateRoomRevelation(f.room, power);
     shaders.forEach(shader => assert.equal(shader.uniforms.roomRevelationPower.value, power));
   }
+  for(const [level,expected]of [[0,0],[.38,.38],[1,1],[-.5,0],[1.5,1]]){
+    updateRoomDaylight(f.room,level);
+    shaders.forEach(shader=>assert.equal(shader.uniforms.roomDaylight.value,expected));
+  }
+  assert.throws(()=>updateRoomDaylight(f.room,NaN),TypeError);
+  assert.doesNotThrow(()=>updateRoomDaylight(new THREE.Group(),.5),'The live-light fallback needs no bake uniforms');
   for (const node of [f.main, f.shelf]) node.children.forEach(mesh => assert.equal(mesh.castShadow, false));
   assert.equal(f.hinge.children[0].material, f.original);
   assert.equal(f.hinge.children[0].castShadow, true); assert.equal(f.original.lightMap, null);

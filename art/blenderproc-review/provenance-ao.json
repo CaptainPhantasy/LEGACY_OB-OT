@@ -1,0 +1,46 @@
+{
+  "tool": "DLR-RM/BlenderProc",
+  "blenderproc_version": "2.8.0",
+  "blender_version": "4.2.1 LTS",
+  "source_sha256": "2bac011fa0e440f1fc19392698cc78e921c06a720b2e17af2aa9fc2678a4d955",
+  "meshes": 2236,
+  "geometry_count": 378,
+  "materials": 125,
+  "samples": 32,
+  "engine": "Cycles CPU",
+  "review_images": [],
+  "limitations": "Offline Cycles evidence, not live browser screenshots. Runtime geometry/maps preserved; engine lighting and transparency response differ.",
+  "pipeline_sha256": "44bcd249b999279951408b97a448a576b928ca687b98ec8f0bb1acbfb25b74bd",
+  "camera_exposure_stops": {},
+  "light_transport": {
+    "day_sky": "Nishita atmosphere, exported sun direction, sun disc disabled to avoid double direct sun",
+    "sky_strength": 0.35,
+    "local_light_power_factor": "4*pi engine normalization",
+    "hemisphere_and_ambient_lights": "replaced by Cycles sky and traced bounce",
+    "spots": "actual direction, twice runtime half-angle, actual penumbra"
+  },
+  "ground_ao": {
+    "file": "/workspace/scratch/421ca78882b3/legacy/dist/assets/street-surfaces/ground-ao.webp",
+    "size": [
+      2048,
+      512
+    ],
+    "bounds": {
+      "x": [
+        -40,
+        40
+      ],
+      "z": [
+        7.5,
+        23.5
+      ]
+    },
+    "row0_world_z": 7.5,
+    "white_border_pixels": 2,
+    "receiver_triangles": 1218,
+    "distance_m": 1.1,
+    "color_space": "linear grayscale",
+    "sha256": "850b6a990f7b82746c04e80e3cc8c0bc54af73962051b85212f06053c6236b07"
+  },
+  "seconds": 28.02
+}

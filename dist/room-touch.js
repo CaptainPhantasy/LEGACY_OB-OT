@@ -2,6 +2,7 @@
 // Turning the camera must never change the path beneath a held thumb.
 const DEAD_ZONE = .12;
 const HALF_BUFFER = .12;
+const SPEED_SCALE = .5;
 
 export class RoomTouchStick {
   constructor() {
@@ -44,7 +45,9 @@ export class RoomTouchStick {
     this.x = scaledX / divisor;
     this.y = scaledY / divisor;
     const radius = Math.hypot(this.x, this.y);
-    const factor = radius > DEAD_ZONE ? (radius - DEAD_ZONE) / ((1 - DEAD_ZONE) * radius) : 0;
+    // Keep every fractional input: the enlarged pad supplies twice the thumb
+    // travel, and this gain halves speed throughout the continuous range.
+    const factor = radius > DEAD_ZONE ? SPEED_SCALE * (radius - DEAD_ZONE) / ((1 - DEAD_ZONE) * radius) : 0;
     this.forward = factor ? -this.y * factor : 0;
     this.right = factor ? this.x * factor : 0;
 

@@ -16,6 +16,14 @@ export function updateRoomRevelation(room, power) {
   if (uniforms) uniforms.power.value = Number.isFinite(power) ? Math.max(0, power) : 0;
 }
 
+// A small, current-sky contribution is independent of the fixed warm lamp bake.
+// This is an analytic doorway-area approximation, not another diffuse bake.
+export function updateRoomDaylight(room, level) {
+  if(!Number.isFinite(level))throw new TypeError('Room daylight must be finite.');
+  const uniforms=revelationByRoom.get(room);
+  if(uniforms)uniforms.daylight.value=THREE.MathUtils.clamp(level,0,1);
+}
+
 // Cycles' diffuse bake excludes material colour and contains direct + indirect
 // illumination. It replaces diffuse lighting; adding it to live diffuse lights
 // would light the room twice. View-dependent reflections remain live.
@@ -39,6 +47,7 @@ function lightmappedMaterial(source, texture, scale, shadowStrength, revelation,
     shader.uniforms.roomRevelationPower = revelation.power;
     shader.uniforms.roomRevelationColor = revelation.color;
     shader.uniforms.roomRevelationPosition = revelation.position;
+    shader.uniforms.roomDaylight = revelation.daylight;
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', '#include <common>\nvarying vec3 vRoomWorldPosition;')
       .replace(positionAnchor, `${positionAnchor}\nvRoomWorldPosition = ( modelMatrix * vec4( transformed, 1.0 ) ).xyz;`);
@@ -50,6 +59,22 @@ function lightmappedMaterial(source, texture, scale, shadowStrength, revelation,
         uniform float roomRevelationPower;
         uniform vec3 roomRevelationColor;
         uniform vec3 roomRevelationPosition;
+        uniform float roomDaylight;
+        // Only the moving book's spot shadow belongs on the warm baked lamp
+        // light. A street-sun shadow must not extinguish indoor lantern bounce.
+        float roomBookShadowMask(){
+          float shadow=1.0;
+          #if defined(USE_SHADOWMAP) && NUM_SPOT_LIGHT_SHADOWS > 0
+            SpotLightShadow light;
+            #pragma unroll_loop_start
+            for ( int i = 0; i < NUM_SPOT_LIGHT_SHADOWS; i ++ ) {
+              light=spotLightShadows[i];
+              shadow*=receiveShadow?getShadow(spotShadowMap[i],light.shadowMapSize,light.shadowIntensity,light.shadowBias,light.shadowRadius,vSpotLightCoord[i]):1.0;
+            }
+            #pragma unroll_loop_end
+          #endif
+          return shadow;
+        }
       `)
       .replace(diffuseAnchor, `${diffuseAnchor}
         #ifdef USE_LIGHTMAP
@@ -59,23 +84,29 @@ function lightmappedMaterial(source, texture, scale, shadowStrength, revelation,
           #else
             vec3 roomDiffuseIllumination = roomLightmapSample.rgb * lightMapIntensity;
           #endif
-          float roomMovingShadow = mix( 1.0, getShadowMask(), roomMovingShadowStrength );
+          float roomMovingShadow = mix( 1.0, roomBookShadowMask(), roomMovingShadowStrength );
           vec3 roomRevelationDiffuse = vec3( 0.0 );
+          vec3 roomWorldNormal = inverseTransformDirection( geometryNormal, viewMatrix );
+          vec3 roomToWindow=vec3(0.0,1.75,7.24)-vRoomWorldPosition;
+          float roomWindowDistance=max(length(roomToWindow),.3);
+          float roomWindowCosine=saturate(dot(roomWorldNormal,roomToWindow/roomWindowDistance));
+          float roomWindowAperture=10.0/(10.0+roomWindowDistance*roomWindowDistance);
+          float roomInside=step(vRoomWorldPosition.z,7.3);
+          vec3 roomSkyDiffuse=vec3(.68,.81,1.0)*roomDaylight*.62*roomWindowCosine*roomWindowAperture*roomInside;
           if ( roomRevelationPower > 0.0 ) {
             vec3 roomToRevelation = roomRevelationPosition - vRoomWorldPosition;
             float roomRevelationDistance = length( roomToRevelation );
             vec3 roomRevelationDirection = roomToRevelation / max( roomRevelationDistance, 0.0001 );
-            vec3 roomWorldNormal = inverseTransformDirection( geometryNormal, viewMatrix );
             float roomRevelationCosine = saturate( dot( roomWorldNormal, roomRevelationDirection ) );
             float roomRevelationFalloff = getDistanceAttenuation( max( roomRevelationDistance, 0.2 ), 12.0, 1.5 );
             roomRevelationDiffuse = roomRevelationColor * roomRevelationPower * roomRevelationFalloff * roomRevelationCosine * RECIPROCAL_PI;
           }
           reflectedLight.directDiffuse = vec3( 0.0 );
-          reflectedLight.indirectDiffuse = material.diffuseColor * ( roomDiffuseIllumination * roomMovingShadow + roomRevelationDiffuse );
+          reflectedLight.indirectDiffuse = material.diffuseColor * ( roomDiffuseIllumination * roomMovingShadow + roomRevelationDiffuse + roomSkyDiffuse );
         #endif
       `);
   };
-  material.customProgramCacheKey = () => `${previousKey()}|room-uv-lightmap-v3|${encoding || 'SRGB'}`;
+  material.customProgramCacheKey = () => `${previousKey()}|room-uv-lightmap-v4|${encoding || 'SRGB'}`;
   material.userData.roomLightmap = true;
   material.needsUpdate = true;
   return material;
@@ -194,6 +225,7 @@ export async function applyRoomLightmap(room, renderer, { movingShadowStrength =
 
   const revelation = {
     power: { value: 0 },
+    daylight: { value: 0 },
     color: { value: new THREE.Color(0xffd893) },
     position: { value: new THREE.Vector3(0, 1.45, -5) }
   };

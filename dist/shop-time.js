@@ -143,10 +143,18 @@ export function solarLight(now = new Date()) {
   const hourAngle = (trueSolarMinutes / 4 - 180) * RAD;
   const altitude = Math.asin(clamp(Math.sin(LATITUDE * RAD) * Math.sin(declination)
     + Math.cos(LATITUDE * RAD) * Math.cos(declination) * Math.cos(hourAngle), -1, 1));
+  // Local east/up/south coordinates match the street's world axes. Lighting
+  // follows the sun's actual azimuth as well as its elevation over Indiana.
+  const sunDirection = [
+    -Math.cos(declination) * Math.sin(hourAngle),
+    Math.sin(altitude),
+    Math.sin(LATITUDE * RAD) * Math.cos(declination) * Math.cos(hourAngle)
+      - Math.cos(LATITUDE * RAD) * Math.sin(declination),
+  ];
   const altitudeDegrees = altitude / RAD;
   const daylight = smoothstep(-0.833, 8, altitudeDegrees);
   const night = 1 - smoothstep(-6, -0.833, altitudeDegrees);
   const twilight = (1 - daylight) * (1 - night);
   const { sunrise, sunset } = solarDay(date);
-  return { daylight, twilight, altitude, night, sunrise, sunset };
+  return { daylight, twilight, altitude, sunDirection, night, sunrise, sunset };
 }

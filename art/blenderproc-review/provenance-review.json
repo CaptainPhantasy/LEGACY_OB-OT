@@ -1,0 +1,68 @@
+{
+  "tool": "DLR-RM/BlenderProc",
+  "blenderproc_version": "2.8.0",
+  "blender_version": "4.2.1 LTS",
+  "source_sha256": "9bf7c6c8fe49893aa618171ebca148195c12f3cd7c9e6c934ff2a1e98933ee1d",
+  "meshes": 2321,
+  "geometry_count": 463,
+  "materials": 210,
+  "samples": 48,
+  "engine": "Cycles CPU",
+  "review_images": [
+    "street-from-door-day.webp",
+    "vehicle-and-pedestrian-day.webp",
+    "shop-interior-day.webp",
+    "street-from-door-night.webp"
+  ],
+  "limitations": "Offline Cycles evidence, not live browser screenshots. Runtime geometry/maps preserved; engine lighting and transparency response differ. Browser-specific sky, canvas signs, particles, and custom postprocessing are not reproduced by the offline conversion.",
+  "pipeline_sha256": "44bcd249b999279951408b97a448a576b928ca687b98ec8f0bb1acbfb25b74bd",
+  "camera_exposure_stops": {
+    "street-from-door-day.png": 0.0,
+    "vehicle-and-pedestrian-day.png": 0.0,
+    "shop-interior-day.png": 2.0,
+    "street-from-door-night.png": 0.0
+  },
+  "light_transport": {
+    "day_sky": "Nishita atmosphere, exported sun direction, sun disc disabled to avoid double direct sun",
+    "sky_strength": 0.35,
+    "local_light_power_factor": "4*pi engine normalization",
+    "hemisphere_and_ambient_lights": "replaced by Cycles sky and traced bounce",
+    "spots": "actual direction, twice runtime half-angle, actual penumbra"
+  },
+  "seconds": 117.87,
+  "compact_images": [
+    {
+      "file": "street-from-door-day.webp",
+      "source_png": "street-from-door-day.png",
+      "source_png_sha256": "1de35fa0b9a8b37708bda97c7874475dfac2054d1bc39223375f5a24e71d6ade",
+      "webp_sha256": "a3db0c8cb3a24168f5a156594de39d6f350f2a01c6afb168fc89c6c3b4ab23f1",
+      "bytes": 87518,
+      "exposure_stops": 0.0
+    },
+    {
+      "file": "vehicle-and-pedestrian-day.webp",
+      "source_png": "vehicle-and-pedestrian-day.png",
+      "source_png_sha256": "d149cd8353e90ccf3bc5ddd90323107f64c1e9d341f6b576becbad398b3b8713",
+      "webp_sha256": "d77bc487110e1a0e1647b69d65e47779740a07f882ca95e086222e2f28c1d09d",
+      "bytes": 107252,
+      "exposure_stops": 0.0
+    },
+    {
+      "file": "shop-interior-day.webp",
+      "source_png": "shop-interior-day.png",
+      "source_png_sha256": "5e79b6798cd6268652ee8df2dbef7697a02d694db11e82989252cbdfff010939",
+      "webp_sha256": "7c3ddcac0295a89739bfd8fa3c1b29b0bfc506420b1ec7f055d87d7e8a7616ab",
+      "bytes": 41968,
+      "exposure_stops": 2.0
+    },
+    {
+      "file": "street-from-door-night.webp",
+      "source_png": "street-from-door-night.png",
+      "source_png_sha256": "1ca24060120a7e92b378f03cb5f371ea0e6b420becf7fca214cb9b3de142fa56",
+      "webp_sha256": "4eb3989269a3594b41e3abd19d98463f21544f62db9310fe20158138d0c22b20",
+      "bytes": 34414,
+      "exposure_stops": 0.0
+    }
+  ],
+  "compact_encoding": "WebP quality 90, original dimensions, no image content or color edits"
+}

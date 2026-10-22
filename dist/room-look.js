@@ -2,7 +2,7 @@ const radians=degrees=>degrees*Math.PI/180;
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
 const lowestPitch=radians(-89),highestPitch=radians(89);
 const sensitivity=.0045;
-const touchSensitivity=.002;
+const touchSensitivity=.001;
 
 // Turn freely through any number of revolutions, with the horizon kept level.
 // Pitch limits are measured against the room, never the current object's tilt.
@@ -39,7 +39,7 @@ export class RoomLook {
   faceHeading(heading,position,focus,gentle=false){
     this.stopTouch();
     const current=this.heading(position,focus),difference=Math.atan2(Math.sin(heading-current),Math.cos(heading-current));
-    this.autoTurn={from:this.yaw,to:this.yaw+difference,elapsed:0,duration:gentle?1.6:1.2};
+    this.autoTurn={from:this.yaw,to:this.yaw+difference,elapsed:0,duration:gentle?3.2:2.4};
   }
   update(dt){
     if(!Number.isFinite(dt)||dt<=0)return;

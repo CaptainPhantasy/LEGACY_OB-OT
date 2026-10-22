@@ -276,7 +276,11 @@ test('full diffuse lightmap replaces live diffuse and leaves the moving cover in
       const reset = source.indexOf('reflectedLight.directDiffuse = vec3( 0.0 );');
       assert.ok(reset > source.indexOf('#include <lights_fragment_end>'));
       assert.ok(reset < source.indexOf('vec3 totalDiffuse ='));
-      assert.match(source, /reflectedLight\.indirectDiffuse = material\.diffuseColor \* \( roomDiffuseIllumination \* roomMovingShadow \+ roomRevelationDiffuse \)/);
+      assert.match(source, /reflectedLight\.indirectDiffuse = material\.diffuseColor \* \( roomDiffuseIllumination \* roomMovingShadow \+ roomRevelationDiffuse \+ roomSkyDiffuse \)/);
+      assert.match(source, /roomMovingShadow = mix\( 1\.0, roomBookShadowMask\(\), roomMovingShadowStrength \)/);
+      const bookShadow=source.slice(source.indexOf('float roomBookShadowMask()'),source.indexOf('#include <bumpmap_pars_fragment>'));
+      assert.match(bookShadow, /spotShadowMap\[i\]/);
+      assert.doesNotMatch(bookShadow, /directionalShadowMap|pointShadowMap|getShadowMask\(\)/,'The sun cannot extinguish the warm baked light');
       assert.match(source, /#include <shadowmask_pars_fragment>/);
       assert.doesNotMatch(source, /reflectedLight\.(?:directSpecular|indirectSpecular)\s*=/);
       assert.match(source, /totalSpecular \+ totalEmissiveRadiance/);

@@ -82,7 +82,7 @@ test('glazed storefront has bounded recognizable actors, passable door, and real
     assert.equal(hit.length,0,`eye-height glass remains clear at x=${x}`);
   }
   assert.deepEqual(ENTRANCE_THRESHOLD,[0,1.6,6.65]);assert.deepEqual(EXIT_POSITION,[0,1.6,9.4]);
-  assert.ok(front.stats.drawMeshes<240,`mobile mesh budget: ${front.stats.drawMeshes}`);
+  assert.ok(front.stats.drawMeshes<420,`complete bounded actor pool: ${front.stats.drawMeshes}`);
 });
 
 test('canvas door signs face both the room and sidewalk and switch together', () => {
@@ -156,4 +156,88 @@ test('padded doorway frustum culls street work without clipping the entrance or 
   front.update({camera,nowMs:3,dt:.016,daylight:0,night:1});
   assert.equal(front.sun.intensity,0);assert.equal(front.skyMaterial.uniforms.daylight.value,0);
   assert.ok(front.windowMat.emissiveIntensity>.6);assert.ok(front.sun.userData.exteriorLight&&front.skyLight.userData.exteriorLight);
+});
+
+test('masonry windows contain visible room depth and street foliage uses bounded instances',()=>{
+  const scene=new THREE.Scene(),front=new ShopStorefront(scene,null);scene.updateMatrixWorld(true);
+  const ray=new THREE.Raycaster(new THREE.Vector3(.3,4.65,22),new THREE.Vector3(0,0,1),0,3);
+  const hits=ray.intersectObject(front.street,true);
+  const glass=hits.find(h=>h.object.material===front.windowMat);
+  const room=hits.find(h=>!h.object.material.transparent);
+  assert.ok(glass&&room,'the visible window has glazing and a furnished recess');
+  assert.ok(room.distance-glass.distance>.35,'a solid facade plate must not cover the room behind its glass');
+  assert.equal(front.street.userData.quality.recessedFacades,15);
+  let leaves=0;front.street.traverse(mesh=>{if(mesh.isInstancedMesh&&mesh.name==='Individual wind-moved leaves')leaves+=mesh.count;});
+  assert.equal(leaves,1860,'real leaf silhouettes are batched into three draw calls');
+  assert.equal(front.glass.isMeshPhysicalMaterial,true);assert.ok(front.glass.clearcoat>.9);
+  front.facade.traverse(mesh=>{if(mesh.isMesh&&mesh.material===front.glass)assert.equal(mesh.castShadow,false,'glazing must not cast an opaque wall shadow');});
+});
+
+test('sunlight follows the supplied astronomical direction and hidden street shadows retain their cache',()=>{
+  const front=new ShopStorefront(new THREE.Scene(),null),direction=[.4,.8,-.3];
+  front.update({nowMs:1000,dt:.016,visible:true,sunDirection:direction});
+  const actual=front.sun.position.clone().sub(front.sun.target.position).normalize();
+  assert.ok(actual.distanceTo(new THREE.Vector3(...direction).normalize())<1e-10);
+  assert.equal(front.sun.castShadow,true);assert.equal(front.sun.shadow.autoUpdate,false);
+  assert.equal(front.sun.shadow.needsUpdate,true);assert.equal(front.shadowDirty,true);
+  front.sun.shadow.needsUpdate=false;
+  front.update({nowMs:1010,dt:.016,visible:true});
+  assert.equal(front.sun.shadow.needsUpdate,false,'successive camera frames reuse the shadow map');
+  front.update({nowMs:19000,dt:18,visible:false});
+  assert.equal(front.shadowDirty,false);assert.equal(front.sun.shadow.needsUpdate,false,'room shadow renders cannot clear the cached street shadows');
+  front.update({nowMs:19001,dt:.016,visible:true});
+  assert.equal(front.shadowDirty,true);assert.equal(front.sun.shadow.needsUpdate,true,'returning to the street redraws current actor shadows');
+  front.update({nowMs:19100,daylight:.2,sunDirection:[.9,-.02,.4],visible:true});
+  assert.equal(front.sun.intensity,0,'twilight cannot shine direct sunlight upward through the ground');
+  assert.equal(front.skyMaterial.uniforms.daylight.value,.2,'the twilight sky remains softly lit');
+});
+
+test('the heavy door hinge settles without overshoot at every frame rate and continues offscreen',()=>{
+  const front=new ShopStorefront(new THREE.Scene(),null),positions=[];
+  for(const fps of [30,60,120]){
+    front.doorAmount=0;front.doorVelocity=0;front.setDoorOpen(1);
+    let previous=0;
+    for(let frame=0;frame<fps;frame++){
+      front.update({nowMs:frame*1000/fps,dt:1/fps,visible:false});
+      assert.ok(front.doorAmount>=previous&&front.doorAmount<=1);previous=front.doorAmount;
+    }
+    positions.push(front.doorAmount);
+  }
+  assert.ok(positions.every(value=>Math.abs(value-positions[0])<1e-10),'the analytic hinge has the same state at the same elapsed time');
+  assert.ok(positions[0]>.98&&positions[0]<1,'the door slows as its mass settles into the open position');
+  front.setDoorOpen(0);front.update({dt:120,visible:false});
+  assert.equal(front.doorAmount,0);assert.equal(front.doorVelocity,0,'long tab suspension remains finite and settled');
+});
+
+test('nearby visible traffic keeps its shadow attached without refreshing distant, rear-facing or hidden traffic',()=>{
+  const scene=new THREE.Scene(),front=new ShopStorefront(scene,null),camera=new THREE.PerspectiveCamera(50,1,.04,60);
+  const bookLight=new THREE.SpotLight();bookLight.castShadow=true;bookLight.shadow.autoUpdate=false;bookLight.shadow.needsUpdate=false;scene.add(bookLight);
+  const nowMs=12000,pose=streetActorPose('car',0,nowMs,front.seed);assert.equal(pose.active,true);
+  const placeCamera=distance=>{camera.position.set(pose.x,1.6,pose.z-distance);camera.lookAt(pose.x,.9,pose.z);};
+  placeCamera(8);front.update({camera,nowMs,dt:.016,visible:true});front.sun.shadow.needsUpdate=false;
+  front.update({camera,nowMs:nowMs+16,dt:.016,visible:true});
+  assert.equal(front.sun.shadow.needsUpdate,true,'a visible car eight metres away receives a new sun map every frame');
+  assert.equal(bookLight.shadow.needsUpdate,false,'street movement does not dirty the independent book shadow');
+  front.sun.shadow.needsUpdate=false;placeCamera(45);
+  front.update({camera,nowMs:nowMs+32,dt:.016,visible:true});
+  assert.equal(front.shadowDirty,false,'distant traffic retains the bounded shadow cadence');
+  placeCamera(8);camera.lookAt(pose.x,1.6,pose.z-100);
+  front.update({camera,nowMs:nowMs+48,dt:.016,visible:true});
+  assert.equal(front.shadowDirty,false,'nearby traffic behind the camera does not force a shadow render');
+  placeCamera(8);front.update({camera,nowMs:nowMs+500,dt:.016,visible:false});
+  assert.equal(front.shadowDirty,false);assert.equal(front.sun.shadow.needsUpdate,false,'a hidden street preserves its valid shadow map');
+  front.update({camera,nowMs:nowMs+501,dt:.016,visible:true});
+  assert.equal(front.shadowDirty,true,'the first returning view restores current traffic shadows');
+});
+
+test('the detailed street stays within the visible mobile draw budget across its traffic cycle',()=>{
+  const scene=new THREE.Scene(),front=new ShopStorefront(scene,null),camera=new THREE.PerspectiveCamera(58,390/844,.04,60);
+  camera.position.set(0,1.6,6);camera.lookAt(0,1.6,24);camera.updateMatrixWorld(true);
+  const frustum=new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
+  let maximum=0;
+  for(let nowMs=0;nowMs<180000;nowMs+=2000){
+    front.update({nowMs,dt:.016,visible:true});scene.updateMatrixWorld(true);let count=0;
+    front.root.traverseVisible(mesh=>{if(mesh.isMesh&&frustum.intersectsObject(mesh))count++;});maximum=Math.max(maximum,count);
+  }
+  assert.ok(maximum<180,`visible mobile geometry draws: ${maximum}`);
 });

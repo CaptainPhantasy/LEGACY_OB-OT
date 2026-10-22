@@ -73,19 +73,19 @@ test('mouse drags retain their original sensitivity and keep the horizon level',
   near(new Vector3(1,0,0).applyQuaternion(camera.quaternion).y,0);
 });
 
-test('touch looking is less sensitive than mouse dragging and eases toward the requested view',()=>{
+test('touch looking uses half its previous sensitivity and eases toward the requested view',()=>{
   const {position,focus}=stops[1],mouse=new RoomLook(),touch=new RoomLook();
   mouse.turn(-150,-100,position,focus);touch.turnTouch(-150,-100,position,focus);
   near(mouse.yaw,.675);near(touch.yaw,0);
   touch.update(1/60);
-  assert.ok(touch.yaw>0&&touch.yaw<.3,'the first frame moves partway instead of snapping');
+  assert.ok(touch.yaw>0&&touch.yaw<.15,'the first frame moves partway instead of snapping');
   let previous=touch.yaw;
   for(let i=0;i<120;i++){
     touch.update(1/60);
-    assert.ok(touch.yaw>=previous&&touch.yaw<=.3,'smoothing never overshoots the requested turn');
+    assert.ok(touch.yaw>=previous&&touch.yaw<=.15,'smoothing never overshoots the requested turn');
     previous=touch.yaw;
   }
-  near(touch.yaw,.3);near(touch.pitch,-.2);
+  near(touch.yaw,.15);near(touch.pitch,-.1);
   assert.ok(touch.yaw<mouse.yaw/2,'the same swipe turns less than half as far on touch');
   const {camera}=direction(touch,position,focus);
   near(new Vector3(1,0,0).applyQuaternion(camera.quaternion).y,0);
@@ -108,7 +108,7 @@ test('touch cancellation stops immediately and starts a new swipe from the visib
   for(let i=0;i<60;i++)look.update(1/60);
   near(look.yaw,before.yaw);near(look.pitch,before.pitch);
   look.turnTouch(10,-10,position,focus);look.update(1);
-  near(look.yaw,before.yaw-.02);near(look.pitch,before.pitch-.02);
+  near(look.yaw,before.yaw-.01);near(look.pitch,before.pitch-.01);
 });
 
 test('a flick completed between frames settles to its full requested angle within 100 ms without drifting',()=>{
@@ -119,11 +119,11 @@ test('a flick completed between frames settles to its full requested angle withi
     let previous=0;
     for(let frame=0;frame<fps/10;frame++){
       look.update(1/fps);
-      assert.ok(look.yaw>=previous&&look.yaw<=.18,'settling must not overshoot');
+      assert.ok(look.yaw>=previous&&look.yaw<=.09,'settling must not overshoot');
       previous=look.yaw;
     }
-    near(look.yaw,.18);near(look.pitch,.09);
-    look.update(3);near(look.yaw,.18);near(look.pitch,.09);
+    near(look.yaw,.09);near(look.pitch,.045);
+    look.update(3);near(look.yaw,.09);near(look.pitch,.045);
   }
 });
 
@@ -131,7 +131,7 @@ test('cancelling during the release settle stops at the visible angle immediatel
   const {position,focus}=stops[1];
   for(const cancel of ['stopTouch','cancelMotion']){
     const look=new RoomLook();look.turnTouch(-200,100,position,focus);look.releaseTouch();look.update(.03);
-    assert.ok(look.yaw>0&&look.yaw<.4);
+    assert.ok(look.yaw>0&&look.yaw<.2);
     const visible={yaw:look.yaw,pitch:look.pitch};look[cancel]();look.update(3);
     near(look.yaw,visible.yaw);near(look.pitch,visible.pitch);
   }
@@ -143,11 +143,11 @@ test('a new swipe or a requested half-turn replaces release settling from the vi
   const visible={yaw:swipe.yaw,pitch:swipe.pitch};
   swipe.turnTouch(50,-25,position,focus);near(swipe.yaw,visible.yaw);near(swipe.pitch,visible.pitch);
   swipe.releaseTouch();swipe.update(.1);
-  near(swipe.yaw,visible.yaw-.1);near(swipe.pitch,visible.pitch-.05);
+  near(swipe.yaw,visible.yaw-.05);near(swipe.pitch,visible.pitch-.025);
   const turn=new RoomLook();turn.turnTouch(-200,100,position,focus);turn.releaseTouch();turn.update(.03);
   const turnStart={yaw:turn.yaw,pitch:turn.pitch},heading=turn.heading(position,focus);
   turn.faceHeading(heading+Math.PI,position,focus);near(turn.yaw,turnStart.yaw);
-  turn.update(1.2);near(Math.abs(turn.yaw-turnStart.yaw),Math.PI);near(turn.pitch,turnStart.pitch);
+  turn.update(2.4);near(Math.abs(turn.yaw-turnStart.yaw),Math.PI);near(turn.pitch,turnStart.pitch);
   const settled=turn.yaw;turn.update(3);near(turn.yaw,settled);near(turn.pitch,turnStart.pitch);
 });
 
@@ -164,10 +164,10 @@ test('large touch swipes stay upright at both pitch limits at every inspection s
   }
 });
 
-test('automatic half-turn takes the full gentle interval, completes once and never overshoots',()=>{
+test('automatic half-turn takes twice the previous interval, completes once and never overshoots',()=>{
   const {position,focus}=stops[1];
   for(const gentle of [false,true]){
-    const look=new RoomLook(),duration=gentle?1.6:1.2;
+    const look=new RoomLook(),duration=gentle?3.2:2.4;
     const initial=look.heading(position,focus);look.faceHeading(initial+Math.PI,position,focus,gentle);
     near(look.yaw,0);look.update(duration/2);near(look.yaw,Math.PI/2);
     look.update(duration/2-.001);assert.ok(look.yaw<Math.PI&&look.yaw>Math.PI*.99);
@@ -181,7 +181,7 @@ test('automatic turning crosses the heading wrap by the short route in either di
   for(const sign of [-1,1]){
     const look=new RoomLook();look.turn(-sign*179*Math.PI/180/.0045,0,position,focus);
     const before=look.yaw;look.faceHeading(-sign*179*Math.PI/180,position,focus);
-    look.update(1.2);
+    look.update(2.4);
     near(degrees(look.yaw-before),sign*2);
   }
 });
@@ -191,7 +191,7 @@ test('a deliberate look gesture takes control from an automatic turn without a s
   look.faceHeading(look.heading(position,focus)+Math.PI,position,focus);look.update(.4);
   const before=look.yaw;look.turnTouch(20,0,position,focus);
   near(look.yaw,before);assert.equal(look.autoTurn,null);
-  look.update(1);near(look.yaw,before-.04);
+  look.update(1);near(look.yaw,before-.02);
   look.stopTouch();look.faceHeading(look.heading(position,focus)+Math.PI,position,focus);
   look.update(.3);const stopped=look.yaw;look.stopAutoTurn();look.update(2);near(look.yaw,stopped);
 });

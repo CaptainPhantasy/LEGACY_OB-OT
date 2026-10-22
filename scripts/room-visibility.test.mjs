@@ -85,7 +85,7 @@ test('room reflection capture includes the actual storefront sky in its front-fa
     scene.add(room);
     let renderTarget=null,activeFace=0,activeMip=0;
     // Keep real Three.js camera setup and PMREM orchestration; only the GPU
-    // drawing calls are inert. Record the six cameras actually used by capture.
+    // drawing calls are inert. Record the cameras actually used by capture.
     const renderer={
       coordinateSystem:THREE.WebGLCoordinateSystem,extensions:{has:()=>false},shadowMap:{needsUpdate:false},xr:{enabled:false},autoClear:true,
       compile(){},getRenderTarget:()=>renderTarget,getActiveCubeFace:()=>activeFace,getActiveMipmapLevel:()=>activeMip,
@@ -93,8 +93,9 @@ test('room reflection capture includes the actual storefront sky in its front-fa
       render(object,camera){if(object===scene){scene.updateMatrixWorld(true);cameras.push(camera);}}
     };
     const radiance=new RoomRadiance(scene,renderer),air={points:new THREE.Object3D(),beams:[],bookRays:[]};
+    radiance.setEnvironmentContext({storefront:front});
     radiance.capture(room,air);
-    assert.equal(cameras.length,6);
+    assert.equal(cameras.length,18,'front, rear, and street each capture all six directions');
     const camera=cameras.find(value=>value.getWorldDirection(new THREE.Vector3()).z>.99);
     assert.ok(camera,'capture renders a front-facing cube image');
     const sky=front.root.getObjectByName('Sky beyond Indiana street');assert.ok(sky);
@@ -105,7 +106,7 @@ test('room reflection capture includes the actual storefront sky in its front-fa
     assert.ok(frustum.containsPoint(hit.point),'the front sky surface must survive reflection-camera far-plane clipping');
     for(const face of cameras){assert.equal(face.near,.08);assert.equal(face.far,60);}
     assert.equal(air.points.visible,true,'capture restores the atmosphere after hiding it from reflections');
-    radiance.environment.dispose();
+    radiance.dispose();
   }finally{if(originalMatch===undefined)delete globalThis.matchMedia;else globalThis.matchMedia=originalMatch;}
 });
 

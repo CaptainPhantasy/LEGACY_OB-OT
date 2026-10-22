@@ -1,0 +1,4 @@
+# Pin BlenderProc 2.8's numerical stack during its first Blender-Python setup.
+# Prevents a transient newer SciPy install followed by a mixed-file downgrade.
+numpy==1.26.4
+scipy==1.13.1

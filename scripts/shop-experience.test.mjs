@@ -19,7 +19,7 @@ function section(start,end){
 function classes(initial=[]){const values=new Set(initial);return{add(...names){names.forEach(n=>values.add(n));},remove(...names){names.forEach(n=>values.delete(n));},contains(n){return values.has(n);},toggle(n,value){if(value??!values.has(n))values.add(n);else values.delete(n);}};}
 function memory(){const data=new Map();return{getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,value)};}
 function harness({at=oct('12:00:00'),inside=false,storage=memory(),gentle=false,simple=false}={}){
-  let now=at;const elements=new Map(),calls={owner:0,bell:0,reset:0,bookClosed:0,ui:[],focusedLeave:0,dismiss:0,announcements:[],door:[],lights:[],ambientLights:[],storefrontFrames:[],render:0};
+  let now=at;const elements=new Map(),calls={owner:0,bell:0,reset:0,bookClosed:0,ui:[],focusedLeave:0,dismiss:0,announcements:[],door:[],lights:[],ambientLights:[],storefrontFrames:[],daylightUniforms:[],pipelineFrames:[],render:0,directRender:0};
   const el=id=>{
     if(!elements.has(id))elements.set(id,{id,hidden:false,disabled:false,open:false,innerHTML:`original ${id}`,textContent:'',attrs:{},dataset:{},classList:classes(),
       setAttribute(key,value){this.attrs[key]=value;},focus(){calls.focus=id;}});
@@ -46,8 +46,9 @@ function harness({at=oct('12:00:00'),inside=false,storage=memory(),gentle=false,
     atmosphere:{close(){calls.atmosphereClosed=true;},setShopLight(level){calls.ambientLights.push(level);},update(){}},
     radiance:{setDaylight(level){calls.daylight=level;return this;},setShopLight(level){calls.lights.push(level);return this;},update(){}},
     roomVisibility:{update(){}},magicLight:{intensity:0},room:{},scene:{},mixer:null,hinge:null,hingeStart:null,openAction:null,closing:null,
-    renderer:{render(){calls.render++;}},lastFrame:1000,time:0,qualitySettled:true,
-    requestAnimationFrame(){},updateRoomRevelation(){},updateWaypoints(){},updateManualMovement(){},
+    renderer:{shadowMap:{needsUpdate:false},render(){calls.directRender++;}},
+    roomRenderer:{render(scene,camera){calls.render++;calls.pipelineFrames.push({scene,camera});}},lastFrame:1000,time:0,qualitySettled:true,
+    requestAnimationFrame(){},updateRoomRevelation(){},updateRoomDaylight(room,level){calls.daylightUniforms.push({room,level});},updateWaypoints(){},updateManualMovement(){},
     announce(message){calls.announcements.push(message);},
     closePanels(){for(const id of ['#shelf-panel','#chair-panel','#explore-menu','#settings-panel','#leave-panel'])el(id).hidden=true;},
     closeBook(){el('#book-reader').open=false;calls.bookClosed++;},
@@ -190,14 +191,37 @@ test('a saved hiding place resumes after midnight and reopens without trapping m
 
 test('closing fades the real lamps while the street keeps the current real time and solar lighting',()=>{
   const h=harness({at:oct('19:59:59'),inside:true}),{c,calls}=h;c.tickShop();
+  c.storefront.shadowDirty=true;
   h.setNow(oct('20:00:00'));c.tickShop();c.frame(1050);
   assert.ok(c.shopLightLevel>0&&c.shopLightLevel<1,'normal motion fades rather than snaps the lamps');
   assert.equal(calls.lights.at(-1),c.shopLightLevel);assert.equal(calls.ambientLights.at(-1),c.shopLightLevel);
   assert.equal(calls.storefrontFrames.at(-1).nowMs,h.now());assert.equal(calls.storefrontFrames.at(-1).daylight,c.solarState.daylight);
+  assert.deepEqual(calls.storefrontFrames.at(-1).sunDirection,c.solarState.sunDirection);
+  assert.equal(c.renderer.shadowMap.needsUpdate,true,'A dirty street shadow is refreshed through the renderer-wide gate');
   const before=c.shopLightLevel;c.frame(1100);assert.ok(c.shopLightLevel<before);
   c.gentle=true;c.frame(1150);assert.equal(c.shopLightLevel,0);
   h.setNow(oct('09:00:00','23'));c.tickShop();c.frame(1200);assert.equal(c.shopLightLevel,1);
-  assert.equal(calls.render,4);
+  assert.equal(calls.daylight,c.solarState.daylight);
+  assert.equal(calls.daylightUniforms.at(-1).level,c.solarState.daylight);
+  assert.equal(calls.daylightUniforms.at(-1).room,c.room);
+  assert.equal(calls.render,4);assert.equal(calls.directRender,0,'Active frames go through the contact/reflection pipeline');
+  assert.ok(calls.pipelineFrames.every(frame=>frame.scene===c.scene&&frame.camera===c.camera));
+  c.document.hidden=true;c.frame(1250);assert.equal(calls.render,4,'Backgrounding suspends the complete rendering pipeline');
+  c.document.hidden=false;c.simple=true;c.frame(1300);assert.equal(calls.render,4,'Simple view does not continue hidden GPU work');
+});
+
+test('solar clock updates feed the same daylight into live lights and the room daylight uniform',()=>{
+  const h=harness({at:oct('12:00:00'),inside:true}),{c,calls}=h;c.tickShop();
+  assert.equal(calls.daylightUniforms.length,0,'A cached solar state does not need another uniform update');
+  h.setNow(oct('12:00:16'));c.tickShop();
+  assert.equal(calls.daylightUniforms.length,1);
+  assert.equal(calls.daylightUniforms[0].room,c.room);
+  assert.equal(calls.daylightUniforms[0].level,solarLight(h.now()).daylight);
+  assert.equal(calls.daylight,calls.daylightUniforms[0].level);
+  h.setNow(oct('12:00:17'));c.tickShop();assert.equal(calls.daylightUniforms.length,1);
+  h.setNow(oct('00:10:00'));c.tickShop();
+  assert.equal(calls.daylightUniforms.length,2,'A device clock adjustment also refreshes the solar state');
+  assert.equal(calls.daylightUniforms.at(-1).level,0);assert.equal(calls.daylight,0);
 });
 
 test('reduced-motion and simple views complete story choices without requiring animated frames',()=>{
