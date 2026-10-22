@@ -6,6 +6,8 @@ Live site: https://sundays-old-books.captainphantasy.chatgpt.site/
 
 The repository preserves the original GitHub commit and the complete Sites history through version 9, source commit `945d960b852455e105146fa99a9449ed99952da9`. The site identity remains `appgprj_6ad8807dd7f881919dec6e1a28881f9e`.
 
+The natural movement update is GitHub commit `3d73326ce03ec34dc1ba624e903b38e558527b3d`, also saved as Sites version 10 from source `f5f9833ded9b41f7984edf9e5995896d3a351aea`. These commits contain identical runtime code; the separate histories keep native Blender files in GitHub LFS and deployment assets in Sites.
+
 ## Run locally
 
 Serve `dist/` with any static HTTP server. For example:
@@ -21,6 +23,8 @@ Open http://localhost:8080/. Asset URLs remain relative so the site can also liv
 ```sh
 node --test --test-reporter=spec scripts/room-*.test.mjs
 ```
+
+The current movement update passes 52 automated checks, plus an independent review of 768 routes and complete walks around both shelf ends. See `art/v10-movement-verification.md` for controls, evidence, and the live WebGL test limitation.
 
 Version 9 passed 36 automated checks and inspection of 36 rendered stills. See `art/v9-verification.md` for evidence and limitations. Those stills are not live browser screenshots.
 
