@@ -18,32 +18,32 @@
   "static_runtime_diffuse_lights_must_be_disabled": true,
   "statistics": {
     "max_linear_occupied": 636.5971069335938,
-    "mean_linear_occupied": 0.09675231575965881,
+    "mean_linear_occupied": 0.09672702103853226,
     "linear_percentiles_occupied": {
       "p01": 0.0,
-      "p50": 0.005607693223282695,
-      "p95": 0.3867973506450646,
-      "p9999": 81.44798076140796
+      "p50": 0.005590631626546383,
+      "p95": 0.38648560643196106,
+      "p9999": 81.57760993955299
     },
     "channels_clipped": 0,
     "fraction_occupied_channels_clipped": 0.0,
     "nonfinite_channels": 0,
     "negative_channels_clamped": 0,
-    "black_pixels_including_unused_atlas": 7656366,
+    "black_pixels_including_unused_atlas": 7663640,
     "max_abs_decode_error_occupied": 2.041211152448909,
-    "mean_abs_decode_error_occupied": 0.0002504983907603365,
-    "mean_abs_decode_error_shadow_channels": 5.8852607440877083e-05,
+    "mean_abs_decode_error_occupied": 0.000250411416937071,
+    "mean_abs_decode_error_shadow_channels": 5.88461373203393e-05,
     "minimum_positive_decoded_occupied": 2.421805353602945e-07,
     "total_pixels": 16777216,
-    "bytes": 23811482,
-    "occupied_texels": 11927070,
-    "atlas_coverage_fraction": 0.7109087705612183,
+    "bytes": 23783320,
+    "occupied_texels": 11914402,
+    "atlas_coverage_fraction": 0.7101536989212036,
     "interior_overlap_texels": 0,
     "degenerate_uv_triangles": 12,
     "positive_area_degenerate_uv_faces": [],
     "conflicting_faces": [],
     "collision_triangle_pair_count": 0,
-    "uv_loops_checked": 991031,
+    "uv_loops_checked": 976823,
     "nonfinite_uv_loops": 0,
     "out_of_bounds_uv_loops": 0,
     "invalid_uv_faces": [],
@@ -60,21 +60,21 @@
     "invalid_uv_examples": [],
     "collision_examples": []
   },
-  "sha256": "35004b92b8992dbb9b27dcfb08ea04dfdb82576aab93b71903171596d60983e6",
+  "sha256": "c076f7c33b3b0d13f5c248faca67f7a63657e8118129ecd0d0c91c13500897ca",
   "additionalLightmaps": [
     "curiosity-lightmap.json"
   ],
   "export": {
     "path": "dist/assets/bookstore-depth.gltf",
-    "bytes": 129923,
-    "sha256": "93758fdf7264ef737514ac34dc25007deb2bd60f443b4ffa6d06a0585643c340",
+    "bytes": 129986,
+    "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7",
     "format": "gltf",
-    "total_bytes": 42893587,
+    "total_bytes": 43826842,
     "files": [
       {
         "path": "dist/assets/bookstore-depth.gltf",
-        "bytes": 129923,
-        "sha256": "93758fdf7264ef737514ac34dc25007deb2bd60f443b4ffa6d06a0585643c340"
+        "bytes": 129986,
+        "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7"
       },
       {
         "path": "dist/assets/bookstore-depth/part-001.bin",
@@ -88,23 +88,23 @@
       },
       {
         "path": "dist/assets/bookstore-depth/part-003.bin",
-        "bytes": 8372108,
-        "sha256": "e6306e1eeb97619438fd4cae96467cbfb9c5ab8f41ee282df6506e7a28a60b34"
+        "bytes": 8304188,
+        "sha256": "8b386f6a0f5da45f3a4eebf2b53190d29e87bc510ef4409c34084ec0272011ec"
       },
       {
         "path": "dist/assets/bookstore-depth/part-004.bin",
-        "bytes": 8388080,
-        "sha256": "a01427854891f3b1144e6e7877788792f0033fad552e1dfdcb80c46c6b504a0c"
+        "bytes": 8042608,
+        "sha256": "c7db16eb39fdeb801bbae23e18195aa0b0b198eba4adc6d8d50182784684e18e"
       },
       {
         "path": "dist/assets/bookstore-depth/part-005.bin",
-        "bytes": 8243872,
-        "sha256": "485f5fcc692c497b2e926e66d73f7b5727b3dfd93b2121b09d8d11f308a9b6b1"
+        "bytes": 8204996,
+        "sha256": "6527c0ad95905a519f4d0a45b4bfdddd4f1634e7e982fc72df146ad7bcc5880d"
       },
       {
         "path": "dist/assets/bookstore-depth/part-006.bin",
-        "bytes": 1723308,
-        "sha256": "b56be90aaecd49140f66d8b1713e8dc49058cec867a474bca4d4cf52178ad8a3"
+        "bytes": 3108768,
+        "sha256": "78dd9b5a43ab43e98976b1e71ea29a16692b7fdb5c02ce586edad5438d2ac6e7"
       }
     ],
     "buffer_parts": 6,
@@ -113,13 +113,13 @@
     "geometry_bytes_preserved": true,
     "source_glb": {
       "path": "art/bookstore-depth.glb",
-      "bytes": 42893844,
-      "sha256": "0fd2772c0e4c5ab36452010562f22f1e2d7c5b32a3834e3cd7865c45864c312b"
+      "bytes": 43827080,
+      "sha256": "f29802399f9ea1a87cd028b2337c5e38c073a6ed875a8e8a2b4ad9e1620b04ad"
     },
-    "static_primitives": 59,
+    "static_primitives": 55,
     "static_nodes": {
-      "OldCuriosityShop": 59,
-      "CenterCuriosityShelf": 10
+      "OldCuriosityShop": 55,
+      "CenterCuriosityShelf": 14
     },
     "required_texcoords": [
       0,
@@ -300,30 +300,6 @@
         0.11999999731779099,
         0.10499999672174454,
         0.054999999701976776,
-        1.0
-      ],
-      "Dusty bottle 03 / delivery": [
-        0.11999999731779099,
-        0.09600000083446503,
-        0.06400000303983688,
-        1.0
-      ],
-      "Dusty bottle 00 / delivery": [
-        0.03500000014901161,
-        0.06499999761581421,
-        0.0430000014603138,
-        1.0
-      ],
-      "Dusty bottle 01 / delivery": [
-        0.09000000357627869,
-        0.054999999701976776,
-        0.02199999988079071,
-        1.0
-      ],
-      "Dusty bottle 02 / delivery": [
-        0.05700000002980232,
-        0.0729999989271164,
-        0.07000000029802322,
         1.0
       ],
       "Dust-darkened globe / delivery": [
@@ -516,6 +492,30 @@
         1.0,
         1.0,
         1.0,
+        1.0
+      ],
+      "Dusty bottle 02 / delivery": [
+        0.05700000002980232,
+        0.0729999989271164,
+        0.07000000029802322,
+        1.0
+      ],
+      "Dusty bottle 00 / delivery": [
+        0.03500000014901161,
+        0.06499999761581421,
+        0.0430000014603138,
+        1.0
+      ],
+      "Dusty bottle 03 / delivery": [
+        0.11999999731779099,
+        0.09600000083446503,
+        0.06400000303983688,
+        1.0
+      ],
+      "Dusty bottle 01 / delivery": [
+        0.09000000357627869,
+        0.054999999701976776,
+        0.02199999988079071,
         1.0
       ]
     }

@@ -17,70 +17,70 @@
   "bake_extension_pixels": 3,
   "static_runtime_diffuse_lights_must_be_disabled": true,
   "statistics": {
-    "max_linear_occupied": 6.541421890258789,
-    "mean_linear_occupied": 0.09033501148223877,
+    "max_linear_occupied": 6.476396560668945,
+    "mean_linear_occupied": 0.0923110768198967,
     "linear_percentiles_occupied": {
       "p01": 0.0,
-      "p50": 0.004938694182783365,
-      "p95": 0.5418172717094407,
-      "p9999": 2.387222442793581
+      "p50": 0.005212589632719755,
+      "p95": 0.5496299326419822,
+      "p9999": 2.3819021508690703
     },
     "channels_clipped": 0,
     "fraction_occupied_channels_clipped": 0.0,
     "nonfinite_channels": 0,
     "negative_channels_clamped": 0,
-    "black_pixels_including_unused_atlas": 9383681,
-    "max_abs_decode_error_occupied": 0.023560808703148695,
-    "mean_abs_decode_error_occupied": 0.00022281286994837375,
-    "mean_abs_decode_error_shadow_channels": 3.865398878349442e-05,
+    "black_pixels_including_unused_atlas": 9260470,
+    "max_abs_decode_error_occupied": 0.019169282755545858,
+    "mean_abs_decode_error_occupied": 0.00022773225046013315,
+    "mean_abs_decode_error_shadow_channels": 3.8926064177444866e-05,
     "minimum_positive_decoded_occupied": 1.892035432502301e-09,
     "total_pixels": 16777216,
-    "bytes": 23013099,
-    "occupied_texels": 9841666,
-    "atlas_coverage_fraction": 0.5866090059280396,
+    "bytes": 23315123,
+    "occupied_texels": 9836641,
+    "atlas_coverage_fraction": 0.5863094925880432,
     "interior_overlap_texels": 0,
-    "degenerate_uv_triangles": 19,
+    "degenerate_uv_triangles": 20,
     "positive_area_degenerate_uv_faces": [],
     "conflicting_faces": [],
     "collision_triangle_pair_count": 0,
-    "uv_loops_checked": 142848,
+    "uv_loops_checked": 241188,
     "nonfinite_uv_loops": 0,
     "out_of_bounds_uv_loops": 0,
     "invalid_uv_faces": [],
     "nonfinite_uv_faces": [],
     "out_of_bounds_uv_faces": [],
     "uv_min": [
-      0.0019531016005203128,
-      0.0019531018333509564
+      0.0019531226716935635,
+      0.0019530790159478784
     ],
     "uv_max": [
-      0.987978458404541,
-      0.9911789894104004
+      0.9980451464653015,
+      0.9941127300262451
     ],
     "invalid_uv_examples": [],
     "collision_examples": []
   },
-  "sha256": "407c6d3e88c7bfc775c07134e29aae5599f9a18b39204d834a3724cc9937056b",
+  "sha256": "fa73bc05ea876c66bd557b0e20c9848e6a7695552dc835dd6b4340aefb0dc820",
   "texel_density": {
     "major_wood_triangles": 172,
     "major_wood_area_m2": 42.9915675722032,
-    "texels_per_metre_min": 400.92612862908555,
-    "texels_per_metre_p10": 400.95955723500737,
-    "texels_per_metre_median": 401.32103081430955,
+    "texels_per_metre_min": 395.58189154846383,
+    "texels_per_metre_p10": 395.66057656735217,
+    "texels_per_metre_median": 396.66807909339565,
     "required_p10": 256,
     "measurement": "Wood triangles >=0.02m2 with minimum altitude >=0.03m; UV area / world area"
   },
   "export": {
     "path": "dist/assets/bookstore-depth.gltf",
-    "bytes": 129923,
-    "sha256": "93758fdf7264ef737514ac34dc25007deb2bd60f443b4ffa6d06a0585643c340",
+    "bytes": 129986,
+    "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7",
     "format": "gltf",
-    "total_bytes": 42893587,
+    "total_bytes": 43826842,
     "files": [
       {
         "path": "dist/assets/bookstore-depth.gltf",
-        "bytes": 129923,
-        "sha256": "93758fdf7264ef737514ac34dc25007deb2bd60f443b4ffa6d06a0585643c340"
+        "bytes": 129986,
+        "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7"
       },
       {
         "path": "dist/assets/bookstore-depth/part-001.bin",
@@ -94,23 +94,23 @@
       },
       {
         "path": "dist/assets/bookstore-depth/part-003.bin",
-        "bytes": 8372108,
-        "sha256": "e6306e1eeb97619438fd4cae96467cbfb9c5ab8f41ee282df6506e7a28a60b34"
+        "bytes": 8304188,
+        "sha256": "8b386f6a0f5da45f3a4eebf2b53190d29e87bc510ef4409c34084ec0272011ec"
       },
       {
         "path": "dist/assets/bookstore-depth/part-004.bin",
-        "bytes": 8388080,
-        "sha256": "a01427854891f3b1144e6e7877788792f0033fad552e1dfdcb80c46c6b504a0c"
+        "bytes": 8042608,
+        "sha256": "c7db16eb39fdeb801bbae23e18195aa0b0b198eba4adc6d8d50182784684e18e"
       },
       {
         "path": "dist/assets/bookstore-depth/part-005.bin",
-        "bytes": 8243872,
-        "sha256": "485f5fcc692c497b2e926e66d73f7b5727b3dfd93b2121b09d8d11f308a9b6b1"
+        "bytes": 8204996,
+        "sha256": "6527c0ad95905a519f4d0a45b4bfdddd4f1634e7e982fc72df146ad7bcc5880d"
       },
       {
         "path": "dist/assets/bookstore-depth/part-006.bin",
-        "bytes": 1723308,
-        "sha256": "b56be90aaecd49140f66d8b1713e8dc49058cec867a474bca4d4cf52178ad8a3"
+        "bytes": 3108768,
+        "sha256": "78dd9b5a43ab43e98976b1e71ea29a16692b7fdb5c02ce586edad5438d2ac6e7"
       }
     ],
     "buffer_parts": 6,
@@ -119,13 +119,13 @@
     "geometry_bytes_preserved": true,
     "source_glb": {
       "path": "art/bookstore-depth.glb",
-      "bytes": 42893844,
-      "sha256": "0fd2772c0e4c5ab36452010562f22f1e2d7c5b32a3834e3cd7865c45864c312b"
+      "bytes": 43827080,
+      "sha256": "f29802399f9ea1a87cd028b2337c5e38c073a6ed875a8e8a2b4ad9e1620b04ad"
     },
-    "static_primitives": 59,
+    "static_primitives": 55,
     "static_nodes": {
-      "OldCuriosityShop": 59,
-      "CenterCuriosityShelf": 10
+      "OldCuriosityShop": 55,
+      "CenterCuriosityShelf": 14
     },
     "required_texcoords": [
       0,
@@ -306,30 +306,6 @@
         0.11999999731779099,
         0.10499999672174454,
         0.054999999701976776,
-        1.0
-      ],
-      "Dusty bottle 03 / delivery": [
-        0.11999999731779099,
-        0.09600000083446503,
-        0.06400000303983688,
-        1.0
-      ],
-      "Dusty bottle 00 / delivery": [
-        0.03500000014901161,
-        0.06499999761581421,
-        0.0430000014603138,
-        1.0
-      ],
-      "Dusty bottle 01 / delivery": [
-        0.09000000357627869,
-        0.054999999701976776,
-        0.02199999988079071,
-        1.0
-      ],
-      "Dusty bottle 02 / delivery": [
-        0.05700000002980232,
-        0.0729999989271164,
-        0.07000000029802322,
         1.0
       ],
       "Dust-darkened globe / delivery": [
@@ -522,6 +498,30 @@
         1.0,
         1.0,
         1.0,
+        1.0
+      ],
+      "Dusty bottle 02 / delivery": [
+        0.05700000002980232,
+        0.0729999989271164,
+        0.07000000029802322,
+        1.0
+      ],
+      "Dusty bottle 00 / delivery": [
+        0.03500000014901161,
+        0.06499999761581421,
+        0.0430000014603138,
+        1.0
+      ],
+      "Dusty bottle 03 / delivery": [
+        0.11999999731779099,
+        0.09600000083446503,
+        0.06400000303983688,
+        1.0
+      ],
+      "Dusty bottle 01 / delivery": [
+        0.09000000357627869,
+        0.054999999701976776,
+        0.02199999988079071,
         1.0
       ]
     }
