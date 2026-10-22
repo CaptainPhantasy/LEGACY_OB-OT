@@ -67,6 +67,16 @@ VIEWS = {
     'backroom-floor': ((-1.85, 4.80, .72), (-2.04, 5.80, .07), 28),
 }
 
+# Use the delivered layout for inspection cameras, so a still cannot silently
+# review a different shelf stop from the one visitors actually receive.
+layout_path = ASSETS / 'rabbit-hole-layout.json'
+if layout_path.exists():
+    shelf_layout = json.loads(layout_path.read_text())
+    for item in shelf_layout['items']:
+        location, target = item['pose']
+        to_blender = lambda p: (p[0], -p[2], p[1])
+        VIEWS['object-' + item['id']] = (to_blender(location), to_blender(target), 36.9)
+
 
 def note(message, **data):
     print('ROOM_DEPTH ' + json.dumps({'message': message, **data}), flush=True)
@@ -131,7 +141,7 @@ def family(name):
         ('leather', ('leather', 'rawhide')),
         ('cloth', ('cloth', 'linen', 'canvas', 'rug', 'hemp', 'thread')),
         ('paper', ('paper', 'leaf', 'page edges')),
-        ('metal', ('brass', 'bronze', 'iron', 'copper', 'gilt', 'gold leaf')),
+        ('metal', ('brass', 'bronze', 'iron', 'copper', 'gilt', 'gold leaf', 'silver', 'steel', 'aluminium', 'display metal')),
         ('mineral', ('plaster', 'stone', 'brick', 'pottery')),
         ('glass', ('bottle', 'blown glass')),
     ]
@@ -1529,7 +1539,7 @@ def camera_view(name, dof=False):
     camera.data.sensor_width = 36
     # The web camera's 52 degrees are vertical. Use its framing for the
     # exported room/table diagnostics; beauty/close views remain photographic.
-    if ARGS.stage == 'review' and name in ('entrance', 'aisle', 'table', 'open'):
+    if ARGS.stage == 'review' and (name in ('entrance', 'aisle', 'table', 'open') or name.startswith('object-')):
         camera.data.sensor_fit = 'VERTICAL'
         camera.data.sensor_height = 24
         camera.data.lens = 24 / (2 * math.tan(math.radians(52) / 2))
@@ -1605,6 +1615,11 @@ def apply_review_lightmap(manifest):
             copies[original] = source
             obj.data.materials[slot_index] = source
             p = principal(source)
+            # A diffuse-only diagnostic must not turn clear exhibit glass into
+            # an opaque shell and hide the lamp or vortex it is meant to reveal.
+            # Preserve the exported physical transmission graph for those faces.
+            if p and p.inputs['Transmission Weight'].default_value > .5:
+                continue
             nodes, links = source.node_tree.nodes, source.node_tree.links
             output = next(n for n in nodes if n.type == 'OUTPUT_MATERIAL')
             base = p.inputs['Base Color']
@@ -1612,7 +1627,8 @@ def apply_review_lightmap(manifest):
             if source.get('room_depth_placeholder_color', False):
                 kind = family(source.get('original_material_name', source.name))
                 family_color_path = ASSETS / 'surfaces' / ((kind or '') + '-color.webp')
-                if kind and family_color_path.exists():
+                neutral_metal = kind == 'metal' and any(word in source.name.lower() for word in ('silver', 'steel', 'aluminium'))
+                if kind and family_color_path.exists() and not neutral_metal:
                     family_uv = nodes.new('ShaderNodeUVMap')
                     family_uv.uv_map = obj.data.uv_layers[1].name
                     family_tex = nodes.new('ShaderNodeTexImage')

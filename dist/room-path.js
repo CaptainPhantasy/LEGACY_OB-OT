@@ -1,6 +1,6 @@
 // The center shelf stays solid while the visitor chooses another part of the room.
 // Extra clearance includes the small walking sway applied by the camera.
-export const CENTER_SHELF = Object.freeze({ minX: -.38, maxX: .38, minZ: -.5, maxZ: 3.5 });
+export const CENTER_SHELF = Object.freeze({ minX: -.393, maxX: .393, minZ: -.5, maxZ: 3.5 });
 export const WALK_CLEARANCE = .32;
 export const ROOM_POSES = Object.freeze({
   entrance: [[0, 1.6, 6.6], [0, 1.25, -5.4]],

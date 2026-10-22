@@ -5,10 +5,11 @@ import { PhysicalPageTurn } from './page-physics.js';
 import { RoomAtmosphere } from './room-atmosphere.js';
 import { RoomLook } from './room-look.js';
 import { RoomRadiance } from './room-radiance.js';
-import { enhanceMaterials } from './room-materials.js?depth=1';
-import { applyRoomLightmap, updateRoomRevelation } from './room-lightmap.js?scene=curiosities-1';
-import { ROOM_POSES, planRoomPath, sampleRoomPath } from './room-path.js';
-import { curiosities } from './curiosities.js?scene=curiosities-1';
+import { enhanceMaterials } from './room-materials.js?scene=rabbit-holes-1';
+import { applyRoomLightmap, updateRoomRevelation } from './room-lightmap.js?scene=rabbit-holes-1';
+import { ROOM_POSES, planRoomPath, sampleRoomPath } from './room-path.js?scene=rabbit-holes-1';
+import { curiosities } from './curiosities.js?scene=rabbit-holes-1';
+import { shelfNavigation, shelfItemAtHit, shelfFraming } from './shelf-navigation.js?scene=rabbit-holes-1';
 import { escapeHTML, inline, markdown, loadBook } from './book-content.js';
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -36,21 +37,51 @@ let currentCuriosity='maps';
 let frameCost=0,frameSamples=0,qualitySettled=false;
 
 for(const c of [...curiosities,{id:'table',name:'Farther into the back',mark:'·'}]){
-  const b=document.createElement('button');b.className='waypoint';b.dataset.place=c.id;
-  b.innerHTML=`<span class="point" aria-hidden="true"></span><span>${escapeHTML(c.name)}</span>`;
+  const b=document.createElement(c.shelf?'a':'button');b.className=`waypoint${c.shelf?' shelf-waypoint':''}`;b.dataset.place=c.id;
+  if(c.shelf){b.href=c.url;b.target='_blank';b.rel='noopener noreferrer';b.setAttribute('aria-label',`Inspect ${c.name} — ${c.website}`);}
+  b.innerHTML=`<span class="point" aria-hidden="true"></span><span class="waypoint-label">${escapeHTML(c.website||c.name)}</span>`;
   $('#waypoints').append(b);
 }
-for(const [label,items] of [['The middle shelf',curiosities.filter(c=>c.shelf)],['Around the room',curiosities.filter(c=>!c.shelf)]]){
+for(const [label,items] of [['Middle shelf · first side',curiosities.filter(c=>c.shelf&&c.side===-1)],['Middle shelf · other side',curiosities.filter(c=>c.shelf&&c.side===1)],['Around the room',curiosities.filter(c=>!c.shelf)]]){
   const heading=document.createElement('h3');heading.className='curiosity-group';heading.textContent=label;$('#curiosity-menu').append(heading);
-  for(const c of items){const b=document.createElement('button');b.dataset.go=c.id;b.innerHTML=`<span aria-hidden="true">${c.mark}</span>${escapeHTML(c.name)}<b aria-hidden="true">↗</b>`;$('#curiosity-menu').append(b);}
+  for(const c of items){const b=document.createElement('button');b.dataset.go=c.id;b.innerHTML=`<span aria-hidden="true">${c.mark}</span><span class="menu-object">${escapeHTML(c.name)}${c.shelf?`<small>${escapeHTML(c.website)}</small>`:''}</span><b aria-hidden="true">↗</b>`;$('#curiosity-menu').append(b);}
 }
 function showCuriosity(id){
   const c=curiosities.find(c=>c.id===id);if(!c)return;currentCuriosity=id;
+  const shelf=!!c.shelf,panel=$('#shelf-panel');panel.classList.toggle('shelf-inspection',shelf);document.body.classList.toggle('inspecting-shelf',shelf);
   glide(id);$('#curiosity-eyebrow').textContent=c.eyebrow;$('#curiosity-mark').textContent=c.mark;$('#shelf-title').textContent=c.title;$('#curiosity-description').textContent=c.description;
   $('#curiosity-links').replaceChildren();
-  for(const [title,description,url,kind] of c.links){const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.innerHTML=`<span class="shelf-number" aria-hidden="true">${c.mark}</span><span>${kind?`<span class="source-kind">${escapeHTML(kind)}</span>`:''}${escapeHTML(title)}<small>${escapeHTML(description)}</small></span><span aria-hidden="true">↗</span>`;$('#curiosity-links').append(a);}
-  $('#shelf-panel').hidden=false;$('#shelf-panel').scrollTop=0;announce(`${c.name}. ${c.links.length} paths into the wider internet. Each opens a new tab.`);
+  for(const [title,description,url,kind] of c.links){const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.innerHTML=shelf?`<span>Open ${escapeHTML(c.website)} <span aria-hidden="true">↗</span></span>`:`<span class="shelf-number" aria-hidden="true">${c.mark}</span><span>${kind?`<span class="source-kind">${escapeHTML(kind)}</span>`:''}${escapeHTML(title)}<small>${escapeHTML(description)}</small></span><span aria-hidden="true">↗</span>`;a.setAttribute('aria-label',`${shelf?'Open ':''}${title} — opens in a new tab`);$('#curiosity-links').append(a);}
+  $('#shelf-details').hidden=!shelf;$('#shelf-details').open=false;$('#shelf-trail').textContent=c.trail||'';$('#shelf-evidence').textContent=c.evidence||'';$('#shelf-object-note').textContent=c.description;
+  $('#shelf-related-links').replaceChildren();
+  for(const [title,description,url,kind] of c.relatedLinks||[]){const destination=new URL(url,location.href);if(!['https:','http:'].includes(destination.protocol))continue;const item=document.createElement('li'),link=document.createElement('a');link.href=destination.href;link.target='_blank';link.rel='noopener noreferrer';link.textContent=`${title} ↗`;link.title=description;link.setAttribute('aria-label',`${title}${kind?` — ${kind}`:''}, opens in a new tab`);item.append(link);$('#shelf-related-links').append(item);}
+  $('#shelf-related').hidden=!shelf||!$('#shelf-related-links').children.length;
+  $('#shelf-navigation').hidden=!shelf;$('#shelf-website-note').textContent=shelf?'The website opens in a new tab. The shop stays here.':'These doors open other websites in a new tab. The shop stays here.';
+  if(shelf){
+    const nav=shelfNavigation(curiosities,id);$('#shelf-progress').textContent=`${c.side===-1?'First side':'Other side'} · ${nav.index+1} of ${nav.count}`;
+    for(const [button,item] of [['shelf-previous',nav.previous],['shelf-next',nav.next],['shelf-opposite',nav.opposite]]){const el=$('#'+button);el.disabled=!item;el.dataset.destination=item?.id||'';el.setAttribute('aria-label',item?`${button==='shelf-opposite'?'Walk around to':button==='shelf-next'?'Next object:':'Previous object:'} ${item.name}`:button==='shelf-next'?'Last object on this side':'First object on this side');}
+    $('#waypoints').hidden=false;
+  }
+  panel.hidden=false;panel.scrollTop=0;
+  for(const label of $$('.shelf-waypoint')){const item=curiosities.find(value=>value.id===label.dataset.place),selected=item.id===id;label.classList.toggle('selected',selected);label.setAttribute('aria-label',selected?`Open ${item.website} — opens in a new tab`:`Inspect ${item.name} — ${item.website}`);}
+  updateShelfFraming();
+  announce(shelf?`${c.name}. ${c.question} Open ${c.website}, inspect the next object, or walk around to the other side.`:`${c.name}. ${c.links.length} paths into the wider internet. Each opens a new tab.`);
 }
+function updateShelfFraming(){
+  if(!camera)return;
+  const c=curiosities.find(c=>c.id===place&&c.shelf),panel=$('#shelf-panel');
+  if(c&&!panel.hidden){
+    const card=panel.getBoundingClientRect(),landscape=innerHeight<600&&innerWidth>600;
+    const framing=shelfFraming(c,{width:innerWidth,height:innerHeight,top:$('.shop-header').getBoundingClientRect().bottom+14,bottom:landscape?$('.shop-footer').getBoundingClientRect().top-12:card.top-20,right:landscape?card.left-20:innerWidth-20});
+    camera.fov=framing.fov;camera.setViewOffset(innerWidth,innerHeight,framing.offsetX,framing.offsetY,innerWidth,innerHeight);
+  }else{camera.fov=innerWidth<600?58:52;camera.clearViewOffset();}
+  camera.updateProjectionMatrix();
+}
+function openCuriosityWebsite(c){window.open(c.url,'_blank','noopener,noreferrer');announce(`${c.website} opened in a new tab. Your place in the shop is kept here.`);}
+for(const id of ['shelf-previous','shelf-next','shelf-opposite'])$('#'+id).onclick=()=>{const button=$('#'+id),destination=button.dataset.destination,heldFocus=document.activeElement===button;if(destination){go(destination);if(heldFocus&&button.disabled)$('#'+(id==='shelf-previous'?'shelf-next':'shelf-previous')).focus({preventScroll:true});}};
+$('#shelf-head-on').onclick=()=>{glide(currentCuriosity);updateShelfFraming();announce('Looking straight at the object again.');};
+$('#shelf-details').addEventListener('toggle',updateShelfFraming);
+if('ResizeObserver' in window){const framingObserver=new ResizeObserver(updateShelfFraming);for(const selector of ['#shelf-panel','.shop-header','.shop-footer'])framingObserver.observe($(selector));}
 function rummage(){const others=curiosities.filter(c=>c.id!==currentCuriosity);go(others[Math.floor(Math.random()*others.length)].id);$('#rummage').focus();}
 $('#rummage').onclick=rummage;
 
@@ -76,8 +107,10 @@ async function initScene(){
     magicLight=new THREE.PointLight(0xffd893,0,12,1.5);magicLight.position.set(0,1.45,-5);scene.add(magicLight);atmosphere=new RoomAtmosphere(scene);applyComfort();
     $('#load-note').textContent='The lamps are warming. The room is coming into view…';
     const sceneFiles=new THREE.LoadingManager();
-    sceneFiles.setURLModifier(url=>/^(blob:|data:)/.test(url)?url:`${url}${url.includes('?')?'&':'?'}scene=curiosities-1`);
-    const gltf=await new GLTFLoader(sceneFiles).loadAsync('./assets/bookstore-depth.gltf');room=gltf.scene;scene.add(room);
+    sceneFiles.setURLModifier(url=>/^(blob:|data:)/.test(url)?url:`${url}${url.includes('?')?'&':'?'}scene=rabbit-holes-1`);
+    const [gltf,layout]=await Promise.all([new GLTFLoader(sceneFiles).loadAsync('./assets/bookstore-depth.gltf'),fetch('./assets/rabbit-hole-layout.json?scene=rabbit-holes-1').then(response=>{if(!response.ok)throw new Error('Shelf layout could not load.');return response.json();})]);room=gltf.scene;scene.add(room);
+    for(const item of layout.items){const c=curiosities.find(c=>c.id===item.id&&c.shelf);if(c){c.pickBounds=item.pickBounds;c.labelBounds=item.labelBounds;if(item.labelBounds)spots[c.id].fromArray(item.labelBounds[0].map((value,axis)=>(value+item.labelBounds[1][axis])/2));}}
+    if(curiosities.filter(c=>c.shelf&&c.pickBounds).length!==20)throw new Error('The twenty shelf objects could not be matched to their displays.');
     room.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
     await enhanceMaterials(room,renderer);
     try{await applyRoomLightmap(room,renderer);}catch(error){console.warn('Baked room lighting unavailable; live lighting remains active.',error);}
@@ -86,7 +119,7 @@ async function initScene(){
     renderer.shadowMap.needsUpdate=true;
     hinge=room.getObjectByName('BookCoverHinge');if(hinge)hingeStart=hinge.quaternion.clone();
     if(gltf.animations.length){mixer=new THREE.AnimationMixer(room);const clip=gltf.animations.find(a=>/open/i.test(a.name))||gltf.animations[0];openAction=mixer.clipAction(clip);openAction.setLoop(THREE.LoopOnce,1);openAction.clampWhenFinished=true;}
-    renderReady=true;document.body.classList.add('scene-ready');$('#load-note').textContent='Take your time. The shelves don’t mind.';$('#load-note').classList.add('ready');
+    renderReady=true;updateShelfFraming();document.body.classList.add('scene-ready');$('#load-note').textContent='Take your time. The shelves don’t mind.';$('#load-note').classList.add('ready');
     const hint=room.getObjectByName('BookCoverHinge');if(hint){hint.userData.interactive='book';}
     requestAnimationFrame(frame);
   }catch(e){console.error('The 3D shop could not load.',e);useSimpleView('The moving room could not load. You can still explore every place below.');}
@@ -134,17 +167,23 @@ function frame(now){
 }
 function updateWaypoints(){
   if($('#waypoints').hidden)return;
-  const mobile=innerWidth<600,placed=[],limit=mobile?3:5;
+  const mobile=innerWidth<600,placed=[],limit=mobile?2:3,inspecting=curiosities.some(c=>c.id===place&&c.shelf)&&!$('#shelf-panel').hidden;
   const candidates=$$('.waypoint').map(b=>{
-    const point=spots[b.dataset.place],c=curiosities.find(c=>c.id===b.dataset.place),v=point.clone().project(camera);
+    const point=spots[b.dataset.place],c=curiosities.find(c=>c.id===b.dataset.place);
+    if(c?.labelBounds)point.fromArray(c.labelBounds[0].map((value,axis)=>(value+c.labelBounds[1][axis])/2));
+    const v=point.clone().project(camera);
     return {b,c,v,distance:point.distanceToSquared(camera.position),x:(v.x*.5+.5)*innerWidth,y:(-v.y*.5+.5)*innerHeight};
   }).sort((a,b)=>a.distance-b.distance);
+  const landscape=innerHeight<600&&innerWidth>600;
+  const bottom=inspecting?(landscape?$('.shop-footer').getBoundingClientRect().top-12:$('#shelf-panel').getBoundingClientRect().top-24):innerHeight*(mobile?.57:.69);
   for(const {b,c,v,x,y} of candidates){
-    // The opposite face is hidden by the shelf; every choice remains in Look around.
-    const facing=!c?.shelf||camera.position.x*c.side>.52;
-    const clear=placed.every(p=>Math.abs(p.x-x)>(mobile?134:184)||Math.abs(p.y-y)>78);
-    const visible=facing&&clear&&placed.length<limit&&v.z>-1&&v.z<1&&Math.abs(v.x)<.84&&y>112&&y<innerHeight*(mobile?.57:.69);
+    const selected=!!c?.shelf&&place===c.id,facing=!c?.shelf||camera.position.x*c.side>.52;
+    const clear=placed.every(p=>Math.abs(p.x-x)>(mobile?100:150)||Math.abs(p.y-y)>72);
+    const eligible=inspecting?selected:true;
+    const clearOfCard=!inspecting||!landscape||x<$('#shelf-panel').getBoundingClientRect().left-20;
+    const visible=eligible&&clearOfCard&&facing&&clear&&placed.length<limit&&v.z>-1&&v.z<1&&Math.abs(v.x)<.84&&y>112&&y<bottom;
     if(visible)placed.push({x,y});
+    b.classList.toggle('selected',selected);if(c?.shelf)b.setAttribute('aria-label',selected?`Open ${c.website} — opens in a new tab`:`Inspect ${c.name} — ${c.website}`);
     b.style.left=`${x}px`;b.style.top=`${y}px`;b.style.opacity=visible?'1':'0';b.style.pointerEvents=visible?'auto':'none';b.tabIndex=visible?0:-1;b.setAttribute('aria-hidden',String(!visible));
   }
 }
@@ -160,14 +199,14 @@ function glide(name){
   const destination=new THREE.Vector3(...pair[0]),distance=path.length;
   busy=distance>.1;move={path,to:destination,lookFrom:focus.clone(),lookTo:new THREE.Vector3(...pair[1]),start:performance.now(),duration:THREE.MathUtils.clamp(distance*930,2100,6800),distance,lastStep:0};
 }
-function closePanels(){for(const id of ['explore-menu','settings-panel','shelf-panel','chair-panel','leave-panel'])$('#'+id).hidden=true;$('#explore-toggle').setAttribute('aria-expanded','false');$('#settings-toggle').setAttribute('aria-expanded','false');}
+function closePanels(){for(const id of ['explore-menu','settings-panel','shelf-panel','chair-panel','leave-panel'])$('#'+id).hidden=true;document.body.classList.remove('inspecting-shelf');$('#explore-toggle').setAttribute('aria-expanded','false');$('#settings-toggle').setAttribute('aria-expanded','false');updateShelfFraming();}
 function setCaption(label,title,description,buttons=[]){$('#place-label').textContent=label;$('#place-title').textContent=title;$('#place-description').textContent=description;$('#place-actions').replaceChildren();for(const b of buttons){const el=document.createElement('button');el.className=b.primary?'brass-button':'quiet-button';el.textContent=b.label;el.onclick=()=>b.action();$('#place-actions').append(el);}$('#scene-caption').hidden=false;}
 function go(name){
   openingToken++;audio.stopActive('book-open');$('#opening-caption').hidden=true;$('#revelation').classList.remove('active');
   if(revealAt&&!$('#book-reader').open){revealAt=0;if(magicLight)magicLight.intensity=0;atmosphere?.close();if(hinge&&hingeStart&&!closing){hinge.quaternion.copy(hingeStart);if(renderer)renderer.shadowMap.needsUpdate=true;}}
   if($('#book-reader').open)closeBook();closePanels();place=name;$('#intro').hidden=name!=='entrance';$('#waypoints').hidden=name!=='aisle';$('#scene-caption').hidden=true;document.body.classList.toggle('inside',name!=='entrance');
   if(name==='entrance'){document.title='Legacy — Old books & odd things';glide(name);return;}
-  if(name==='aisle'){glide(name);setCaption('SOMETHING, EVERYWHERE','This way. Or that.','Choose a tag for a closer look. There is no right order.',[{label:'Let something catch my eye ↝',action:rummage},{label:'Look around',action:()=>togglePanel('explore-menu','explore-toggle')}]);}
+  if(name==='aisle'){glide(name);setCaption('SOMETHING, EVERYWHERE','This way. Or that.','Select an object or a small tag to inspect it. Walk either side of the middle shelf.',[{label:'Explore the first side →',action:()=>go(curiosities.find(c=>c.shelf&&c.side===-1).id)},{label:'Explore the other side →',action:()=>go(curiosities.find(c=>c.shelf&&c.side===1).id)},{label:'Look around',action:()=>togglePanel('explore-menu','explore-toggle')}]);}
   if(name==='table'){glide(name);setCaption('UNDER THE DUST',hasOpened?'It remembers where you were.':'No price. No date.',hasOpened?'The old leather settles beneath your hand. Your place is waiting.':'The leather has worn soft around its old repairs. The page edges are dark and uneven. Someone has kept this for a very long time.',[{label:hasOpened?'Open to your bookmark →':'Lift the cover →',primary:true,action:openBook},{label:'Leave it be',action:()=>go('aisle')}]);}
   if(curiosities.some(c=>c.id===name))showCuriosity(name);
   if(name==='shelves')showCuriosity('paper');
@@ -176,8 +215,8 @@ function go(name){
   if(simple&&['aisle','table'].includes(name))$('#waypoints').hidden=name!=='aisle';
 }
 $('#enter').onclick=async()=>{await toggleSound(true);audio.bell();go('aisle');};$('#enter-quietly').onclick=async()=>{await toggleSound(false);go('aisle');};$('#home').onclick=()=>go('entrance');$('#return-shop').onclick=()=>go('aisle');$('#resume').onclick=()=>{go('table');openBook(true);};
-$$('[data-go]').forEach(el=>el.onclick=()=>go(el.dataset.go));$$('.waypoint').forEach(el=>el.onclick=()=>go(el.dataset.place));
-$$('[data-close]').forEach(el=>el.onclick=()=>{$('#'+el.dataset.close).hidden=true;$('#waypoints').hidden=false;$('#explore-toggle').focus();});
+$$('[data-go]').forEach(el=>el.onclick=e=>{go(el.dataset.go);if(e.detail===0&&!$('#shelf-panel').hidden)$('#curiosity-links a')?.focus({preventScroll:true});});$$('.waypoint').forEach(el=>el.onclick=e=>{const c=curiosities.find(item=>item.id===el.dataset.place);if(c?.shelf&&place===c.id&&!busy){announce(`${c.website} opens in a new tab. Your place stays here.`);return;}e.preventDefault();go(el.dataset.place);if(e.detail===0&&!$('#shelf-panel').hidden)$('#curiosity-links a')?.focus({preventScroll:true});});
+$$('[data-close]').forEach(el=>el.onclick=()=>{$('#'+el.dataset.close).hidden=true;document.body.classList.remove('inspecting-shelf');$('#waypoints').hidden=false;updateShelfFraming();$('#explore-toggle').focus();});
 function togglePanel(id,button){const next=$('#'+id).hidden;closePanels();$('#'+id).hidden=!next;$('#'+button).setAttribute('aria-expanded',String(next));if(next)$('#'+id).scrollTop=0;}
 $('#explore-toggle').onclick=()=>togglePanel('explore-menu','explore-toggle');$('#settings-toggle').onclick=()=>togglePanel('settings-panel','settings-toggle');
 async function toggleSound(value){
@@ -196,13 +235,20 @@ $('#motion-setting').onchange=e=>setGentle(e.target.checked);$('#reader-motion')
 $('#brightness-setting').onchange=e=>{bright=e.target.checked;applyComfort();};
 $('#world').addEventListener('pointerdown',e=>{if($('#book-reader').open||!e.isPrimary||(e.pointerType==='mouse'&&e.button!==0))return;dragging=true;dragPointer=e.pointerId;dragX=e.clientX;dragY=e.clientY;pointerTravel=0;$('#world').focus({preventScroll:true});$('#world').setPointerCapture(e.pointerId);});
 $('#world').addEventListener('pointermove',e=>{if(dragging&&e.pointerId===dragPointer){const dx=e.clientX-dragX,dy=e.clientY-dragY;pointerTravel+=Math.abs(dx)+Math.abs(dy);roomLook.turn(dx,dy,pose,focus);dragX=e.clientX;dragY=e.clientY;}});
-$('#world').addEventListener('pointerup',e=>{if(!dragging||e.pointerId!==dragPointer)return;dragging=false;dragPointer=null;if(pointerTravel>7||!room||!hinge||busy)return;const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,1-e.clientY/innerHeight*2),camera);if(ray.intersectObject(hinge,true).length){if(place==='table')openBook();else go('table');}});
+$('#world').addEventListener('pointerup',e=>{
+  if(!dragging||e.pointerId!==dragPointer)return;dragging=false;dragPointer=null;if(pointerTravel>7||!room||busy||place==='entrance')return;
+  const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,1-e.clientY/innerHeight*2),camera);
+  const hit=ray.intersectObject(room,true)[0];if(!hit)return;
+  const c=shelfItemAtHit(curiosities,hit.point.toArray(),camera.position.x);
+  if(c){if(place===c.id)openCuriosityWebsite(c);else go(c.id);return;}
+  for(let object=hit.object;object;object=object.parent)if(object===hinge){if(place==='table')openBook();else go('table');break;}
+});
 const stopLooking=e=>{if(e.pointerId===dragPointer){dragging=false;dragPointer=null;}};
 $('#world').addEventListener('pointercancel',stopLooking);
 $('#world').addEventListener('lostpointercapture',stopLooking);
 $('#world').addEventListener('keydown',e=>{const directions={ArrowLeft:[40,0],ArrowRight:[-40,0],ArrowUp:[0,40],ArrowDown:[0,-40]};const delta=directions[e.key];if(delta){e.preventDefault();roomLook.turn(...delta,pose,focus);}});
 $('#world').addEventListener('webglcontextlost',e=>{e.preventDefault();useSimpleView('The moving room paused. The simple shop keeps every place available.');});
-addEventListener('resize',()=>{stopPageTurn();if(renderer){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.fov=innerWidth<600?58:52;camera.updateProjectionMatrix();}renderPages();});
+addEventListener('resize',()=>{stopPageTurn();if(renderer){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;updateShelfFraming();}renderPages();});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#book-reader').open){const guideOpen=['shelf-panel','chair-panel'].some(id=>!$('#'+id).hidden);closePanels();if(guideOpen)$('#waypoints').hidden=false;$('#explore-toggle').focus();}if($('#book-reader').open&&!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)){if(e.key==='ArrowRight'){e.preventDefault();turnPage(1);}if(e.key==='ArrowLeft'){e.preventDefault();turnPage(-1);}}});
 
 let pages=[],basePages=[],chapters=[],pageIndex=Math.max(0,Number(saved.page)||0),plain=false,contentReady;

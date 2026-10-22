@@ -144,9 +144,11 @@ function snapshotUV(attribute) {
 
 test('the actual glTF retains valid binary chunks and all linear material factors instead of white defaults', async () => {
   const document = await exportedDocument();
-  // The v8 export retains all 65 existing material names and adds ten shelf
-  // delivery copies for its second static node; no original material was removed.
-  assert.equal(document.materials.length, 75, 'Keep all original materials and the ten shelf delivery copies');
+  // New exhibits can add materials, but must not silently lose an original
+  // room or book material. Compare identities, not an obsolete total count.
+  const inventory = JSON.parse(await readFile(new URL('./fixtures/room-original-materials.json', import.meta.url), 'utf8'));
+  const retained = new Set(document.materials.map(material => material.extras?.original_material_name));
+  for (const name of inventory.original_material_names) assert.ok(retained.has(name), `Missing original material: ${name}`);
   for (const material of document.materials) {
     const pbr = material.pbrMetallicRoughness;
     assert.ok(pbr && Object.hasOwn(pbr, 'baseColorFactor'),
@@ -208,8 +210,13 @@ test('final exported extras replace only placeholder maps and preserve color, or
       if (original.placeholder && material.userData.surfaceFamily) {
         assert.ok(original.map, `${original.name}: the export must contain its neutral UV-retention image`);
         assert.notEqual(material.map, original.map, `${original.name}: white placeholder suppressed surface color`);
-        assert.equal(material.map.channel, 1);
-        assert.equal(material.map.colorSpace, THREE.SRGBColorSpace);
+        if (material.userData.surfaceFamily === 'metal' && /silver|steel|aluminium/i.test(original.name)) {
+          assert.equal(material.map, null, 'Neutral display metals must not inherit a bronze color tile');
+          assert.ok(material.roughnessMap && material.bumpMap, 'Silver retains varied roughness and micro-surface detail');
+        } else {
+          assert.equal(material.map.channel, 1);
+          assert.equal(material.map.colorSpace, THREE.SRGBColorSpace);
+        }
         replaced++;
       } else if (original.map && !original.placeholder) {
         assert.equal(material.map, original.map, `${original.name}: authored image replaced`);

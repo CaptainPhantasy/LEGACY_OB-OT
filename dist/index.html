@@ -24,13 +24,13 @@
   <meta name="twitter:image" content="https://sundays-old-books.captainphantasy.chatgpt.site/assets/legacy-social-book-2ddb4e959565.jpg">
   <meta name="twitter:image:alt" content="An antique leather book branded LEGACY with a brass four-point star.">
   <link rel="icon" type="image/svg+xml" href="./assets/mark.svg">
-  <link rel="stylesheet" href="./style.css?scene=curiosities-1">
+  <link rel="stylesheet" href="./style.css?scene=rabbit-holes-1">
   <link rel="alternate" type="application/json" href="./content/book.json" title="Book contents">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
 </head>
 <body>
   <a class="skip-link" href="#explore-toggle">Skip to places to explore</a>
-  <canvas id="world" tabindex="0" aria-label="A cellar of old books and curious objects. Drag or swipe to look around, or use the arrow keys while the room is selected." role="img"></canvas>
+  <canvas id="world" tabindex="0" aria-label="A cellar of old books and curious objects. Drag or swipe to look around. Select an object to inspect it. Use the arrow keys to look, or Tab to choose an object and the shelf walking controls." role="img"></canvas>
   <div class="vignette" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
   <div id="revelation" aria-hidden="true"><div class="solar-ring"></div><div class="solar-ring second"></div><div class="flare-core"></div></div>
@@ -88,7 +88,12 @@
       <h2 id="shelf-title">One thing leads to another.</h2>
       <p id="curiosity-description" class="panel-intro"></p>
       <div id="curiosity-links" class="rabbit-holes"></div>
-      <p class="small-note">These doors open other websites in a new tab. The shop stays here.</p>
+      <nav id="shelf-navigation" aria-label="Walk along the middle shelf" hidden>
+        <div class="shelf-walk-row"><button id="shelf-previous" class="shelf-walk-button">← Previous</button><span id="shelf-progress" role="status"></span><button id="shelf-next" class="shelf-walk-button">Next →</button></div>
+        <div class="shelf-walk-options"><button id="shelf-opposite" class="underlined">Walk around to the other side ↶</button><button id="shelf-head-on" class="underlined">Look straight at it</button></div>
+      </nav>
+      <details id="shelf-details" hidden><summary>Follow the trail &amp; read about the object</summary><p id="shelf-trail"></p><p id="shelf-evidence" class="source-kind"></p><p id="shelf-object-note"></p><div id="shelf-related" hidden><h3>More paths from here</h3><ul id="shelf-related-links"></ul></div></details>
+      <p id="shelf-website-note" class="small-note">These doors open other websites in a new tab. The shop stays here.</p>
       <div class="rummage-actions"><button id="rummage" class="underlined">Find another curiosity ↝</button><button class="underlined" data-close="shelf-panel">Back into the cellar →</button></div>
     </section>
     <section id="chair-panel" class="discovery-panel chair-panel" hidden aria-labelledby="chair-title">
@@ -132,7 +137,7 @@
   <div id="announcement" class="sr-only" aria-live="polite"></div>
   <noscript><div class="noscript">You’re welcome here. The moving shop needs JavaScript, but <a href="./content/oath.txt">the book is still yours to read</a>.</div></noscript>
   <script type="module">
-    import('./app.js?scene=curiosities-1').catch(error => {
+    import('./app.js?scene=rabbit-holes-1').catch(error => {
       console.error('The shop could not finish opening.', error);
       const note=document.querySelector('#load-note');
       note.textContent='Part of the room could not arrive. Your saved place is safe. You can try opening the door again.';

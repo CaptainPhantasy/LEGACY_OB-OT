@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 const revelationByRoom = new WeakMap();
-const atlasRevision = 'curiosities-1';
+const atlasRevision = 'rabbit-holes-1';
 
 function atlasURL(file) {
   const url = new URL(`./assets/${file}`, import.meta.url);

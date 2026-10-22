@@ -15,7 +15,7 @@ function shelfDistance(point) {
 }
 
 test('every real destination pair keeps the visitor and walking sway clear of the shelf', () => {
-  assert.ok(curiosities.filter(c => c.shelf).length >= 6, 'Check both sides of all new shelf bays');
+  assert.equal(curiosities.filter(c => c.shelf).length, 20, 'Route every one of the twenty physical displays');
   for (const [fromName, [from]] of Object.entries(poses)) {
     for (const [toName, [to]] of Object.entries(poses)) {
       const path = planRoomPath(from, to);
@@ -52,20 +52,66 @@ test('opposite shelf sides take the shortest end route while clear paths stay st
   assert.ok(entrance.length > pointDistance(ROOM_POSES.entrance[0], ROOM_POSES.table[0]));
 });
 
-test('the entry stop frames all three facing shelf bays above the caption on desktop and phone', () => {
-  for (const [width, height, fov, bottom] of [[1440, 900, 52, .69], [390, 844, 58, .57]]) {
-    const camera = new THREE.PerspectiveCamera(fov, width / height, .04, 60);
-    camera.position.fromArray(ROOM_POSES.aisle[0]);
-    camera.lookAt(new THREE.Vector3(...ROOM_POSES.aisle[1]));
-    camera.updateMatrixWorld();
-    const facing = curiosities.filter(c => c.shelf && c.side === 1);
-    assert.equal(facing.length, 3);
-    for (const curiosity of facing) {
-      const point = new THREE.Vector3(...curiosity.position).project(camera);
-      const y = (-point.y * .5 + .5) * height;
-      assert.ok(point.z > -1 && point.z < 1 && Math.abs(point.x) < .84 && y > 112 && y < height * bottom,
-        `${width}px: ${curiosity.name} must face the visitor within the discovery area`);
+test('twenty shelf destinations are split evenly into five spaced bays on each face', () => {
+  const shelf = curiosities.filter(c => c.shelf);
+  assert.equal(shelf.length, 20);
+  assert.equal(new Set(shelf.map(c => c.id)).size, 20, 'Every physical display has a distinct destination');
+  for (const side of [-1, 1]) {
+    const face = shelf.filter(c => c.side === side);
+    assert.equal(face.length, 10, 'Each side must carry exactly half the objects');
+    const bays = new Map();
+    for (const c of face) {
+      assert.equal(Math.sign(c.position[0]), side, `${c.id}: target must be on its declared face`);
+      const z = c.position[2];
+      bays.set(z, [...(bays.get(z) || []), c]);
     }
+    assert.equal(bays.size, 5);
+    const centers = [...bays.keys()].sort((a, b) => a - b);
+    for (let i = 1; i < centers.length; i++) assert.ok(centers[i] - centers[i - 1] >= .70,
+      'Separate neighboring displays by at least seventy centimeters along the aisle');
+    for (const items of bays.values()) {
+      assert.equal(items.length, 2, 'Each bay has one upper and one lower display');
+      const levels = items.map(c => c.position[1]).sort((a, b) => a - b);
+      assert.ok(levels[1] - levels[0] >= .50, 'The two display levels remain physically distinct');
+    }
+  }
+});
+
+test('all twenty stops face their object head-on from a clear aisle position', () => {
+  for (const c of curiosities.filter(c => c.shelf)) {
+    const [eye, target] = c.pose;
+    near(eye[2], target[2]);
+    near(target[2], c.position[2]);
+    assert.ok(eye[0] * c.side >= .95, `${c.id}: camera remains in the same side aisle`);
+    assert.ok(shelfDistance(eye) >= WALK_CLEARANCE, `${c.id}: camera keeps the walking clearance`);
+    assert.ok((eye[0] - target[0]) * c.side > .65, `${c.id}: viewing distance must show the complete miniature`);
+    for (const [width, height, fov] of [[1440, 900, 52], [390, 844, 58]]) {
+      const camera = new THREE.PerspectiveCamera(fov, width / height, .04, 60);
+      camera.position.fromArray(eye);
+      camera.lookAt(new THREE.Vector3(...target));
+      camera.updateMatrixWorld();
+      const center = new THREE.Vector3(...c.position).project(camera);
+      assert.ok(center.z > -1 && center.z < 1 && Math.abs(center.x) < .01 && Math.abs(center.y) < .08,
+        `${width}px: ${c.id} remains centered in its head-on stop before responsive card framing`);
+    }
+  }
+});
+
+test('every bay can be traversed along either aisle and crossed only around a shelf end', () => {
+  const shelf = curiosities.filter(c => c.shelf);
+  for (const source of shelf) {
+    for (const destination of shelf.filter(c => c.side === source.side)) {
+      const path = planRoomPath(source.pose[0], destination.pose[0]);
+      assert.equal(path.points.length, 2, `${source.id} → ${destination.id}: clear same-side traversal stays in the aisle`);
+      assert.ok(path.points.every(point => point[0] * source.side > CENTER_SHELF.maxX + WALK_CLEARANCE));
+    }
+    const opposite = shelf.find(c => c.side === -source.side && c.position[2] === source.position[2] && c.position[1] === source.position[1]);
+    assert.ok(opposite, `${source.id}: an equivalent bay exists on the other side`);
+    const path = planRoomPath(source.pose[0], opposite.pose[0]);
+    assert.ok(path.points.length >= 4, 'Switching sides must walk around an end');
+    const turns = path.points.slice(1, -1);
+    assert.ok(turns.every(point => point[2] <= CENTER_SHELF.minZ - WALK_CLEARANCE + 1e-8 ||
+      point[2] >= CENTER_SHELF.maxZ + WALK_CLEARANCE - 1e-8), 'No turn cuts through the shelf');
   }
 });
 

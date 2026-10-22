@@ -41,12 +41,12 @@ async function withTransport(callback, documents = manifests(), failImage = null
   const originalFetch = globalThis.fetch, originalLoad = THREE.TextureLoader.prototype.loadAsync;
   const images = [], disposed = new Set(), requests = [];
   globalThis.fetch = async url => {
-    assert.equal(new URL(url).searchParams.get('scene'), 'curiosities-1');
+    assert.equal(new URL(url).searchParams.get('scene'), 'rabbit-holes-1');
     const name = new URL(url).pathname.split('/').pop(); requests.push(name);
     return documents[name] ? new Response(JSON.stringify(documents[name])) : new Response('', { status: 404 });
   };
   THREE.TextureLoader.prototype.loadAsync = async url => {
-    assert.equal(new URL(url).searchParams.get('scene'), 'curiosities-1');
+    assert.equal(new URL(url).searchParams.get('scene'), 'rabbit-holes-1');
     const name = new URL(url).pathname.split('/').pop(); requests.push(name);
     if (name === failImage) throw new Error('fixture image unavailable');
     const document = Object.values(documents).find(item => item.file === name);

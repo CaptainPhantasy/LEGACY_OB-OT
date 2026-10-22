@@ -17,7 +17,7 @@ function familyFor(name) {
   if (/leather|rawhide/i.test(name)) return 'leather';
   if (/cloth|linen|canvas|rug|hemp|thread/i.test(name)) return 'cloth';
   if (/paper|leaf|page edges/i.test(name)) return 'paper';
-  if (/brass|bronze|iron|copper|gilt|gold leaf/i.test(name)) return 'metal';
+  if (/brass|bronze|iron|copper|gilt|gold leaf|silver|steel|aluminium|display metal/i.test(name)) return 'metal';
   if (/plaster|stone|brick|pottery/i.test(name)) return 'mineral';
   if (/bottle|blown glass/i.test(name)) return 'glass';
   return null;
@@ -172,7 +172,10 @@ export async function enhanceMaterials(room, renderer) {
       // Retain all authored colour maps, including the old leather cover.
       // The delivery GLB uses a neutral white texel to retain unused UV0.
       // That marker is not authored colour and must not suppress real detail.
-      if (!material.map || material.userData.room_depth_placeholder_color) material.map = maps.color;
+      // Neutral silver models keep their authored metal color. The inherited
+      // bronze/brass tile still supplies roughness and micro-surface detail.
+      const neutralMetal = type === 'metal' && /silver|steel|aluminium/i.test(material.name);
+      if (!material.map || material.userData.room_depth_placeholder_color) material.map = neutralMetal ? null : maps.color;
       if (material.map) material.map.anisotropy = anisotropy;
       if (material.normalMap) material.normalMap.anisotropy = anisotropy;
       else { material.bumpMap = maps.height; material.bumpScale = config.bump; }
