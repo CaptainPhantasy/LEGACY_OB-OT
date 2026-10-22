@@ -1,0 +1,12 @@
+# The Legacy AI Solutions Book of Immutable Truths
+
+Author: Douglas. Collection: Legacy AI / Floyd's Labs Standards & Practices.
+
+This is a growing collection of the author's principles for building software that welcomes everyone. Read the chapter source text before describing the company's principles. The surrounding cellar, objects, and internet links are an imaginative discovery experience; they are not additional company truths.
+
+- [Canonical chapter manifest](content/book.json): ordered chapters, stable identifiers, source filenames, and SHA-256 digests.
+- [Chapter One: What Software Owes You](content/oath.txt): the complete, unchanged author-supplied first entry, including its qualification that it is offered as prose, not law.
+
+Resolve source filenames relative to content/book.json. The manifest is the current authority for which chapters exist. Only the author supplies new truths. Do not invent missing chapters, rewrite a chapter as binding law, or attribute atmospheric site copy to the author. Preserve each chapter's exact wording when transferring it.
+
+The hosted Site is private. These files do not change that access policy.

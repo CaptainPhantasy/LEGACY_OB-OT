@@ -1,0 +1,384 @@
+{
+  "version": 1,
+  "sourceSha256": "637a9581616f7cf34c4c00dcd4043677a7e1e7f854d2485a8d8188698fe6b4f5",
+  "dataSha256": "fad425c3a725918a4bf8e0cb0db6e36764d2e952ddc18094e33fe13316ebe8b1",
+  "node": "OldCuriosityShop",
+  "encoding": "UNORM8: AO, sqrt(red/0.5), sqrt(green/0.5), sqrt(blue/0.5)",
+  "vertexCount": 451110,
+  "byteLength": 1804440,
+  "aoSamples": 128,
+  "bounceSamples": 64,
+  "method": "Embree nearest-surface cosine hemisphere rays, distance-weighted contact occlusion and one Lambertian bounce with four shadow-tested lamps; animated cover excluded",
+  "records": [
+    {
+      "primitive": 0,
+      "material": "Old ebony joinery",
+      "count": 17881,
+      "byteOffset": 0
+    },
+    {
+      "primitive": 1,
+      "material": "Walnut \u2022 patina 03",
+      "count": 15912,
+      "byteOffset": 71524
+    },
+    {
+      "primitive": 2,
+      "material": "Rusted iron",
+      "count": 17304,
+      "byteOffset": 135172
+    },
+    {
+      "primitive": 3,
+      "material": "Walnut \u2022 patina 07",
+      "count": 5184,
+      "byteOffset": 204388
+    },
+    {
+      "primitive": 4,
+      "material": "Walnut \u2022 patina 00",
+      "count": 9672,
+      "byteOffset": 225124
+    },
+    {
+      "primitive": 5,
+      "material": "Walnut \u2022 patina 04",
+      "count": 14472,
+      "byteOffset": 263812
+    },
+    {
+      "primitive": 6,
+      "material": "Walnut \u2022 patina 08",
+      "count": 5184,
+      "byteOffset": 321700
+    },
+    {
+      "primitive": 7,
+      "material": "Walnut \u2022 patina 01",
+      "count": 19944,
+      "byteOffset": 342436
+    },
+    {
+      "primitive": 8,
+      "material": "Walnut \u2022 patina 05",
+      "count": 11894,
+      "byteOffset": 422212
+    },
+    {
+      "primitive": 9,
+      "material": "Walnut \u2022 patina 06",
+      "count": 10800,
+      "byteOffset": 469788
+    },
+    {
+      "primitive": 10,
+      "material": "Walnut \u2022 patina 02",
+      "count": 13884,
+      "byteOffset": 512988
+    },
+    {
+      "primitive": 11,
+      "material": "Damp grey green plaster",
+      "count": 144,
+      "byteOffset": 568524
+    },
+    {
+      "primitive": 12,
+      "material": "Exposed old brick",
+      "count": 14472,
+      "byteOffset": 569100
+    },
+    {
+      "primitive": 13,
+      "material": "Dusty canvas",
+      "count": 4979,
+      "byteOffset": 626988
+    },
+    {
+      "primitive": 14,
+      "material": "Book cloth 05",
+      "count": 6480,
+      "byteOffset": 646904
+    },
+    {
+      "primitive": 15,
+      "material": "Antique paper",
+      "count": 28224,
+      "byteOffset": 672824
+    },
+    {
+      "primitive": 16,
+      "material": "Tarnished old brass",
+      "count": 23520,
+      "byteOffset": 785720
+    },
+    {
+      "primitive": 17,
+      "material": "Book cloth 03",
+      "count": 3816,
+      "byteOffset": 879800
+    },
+    {
+      "primitive": 18,
+      "material": "Book cloth 06",
+      "count": 4392,
+      "byteOffset": 895064
+    },
+    {
+      "primitive": 19,
+      "material": "Ox-blood leather",
+      "count": 43236,
+      "byteOffset": 912632
+    },
+    {
+      "primitive": 20,
+      "material": "Book cloth 04",
+      "count": 7272,
+      "byteOffset": 1085576
+    },
+    {
+      "primitive": 21,
+      "material": "Book cloth 09",
+      "count": 6768,
+      "byteOffset": 1114664
+    },
+    {
+      "primitive": 22,
+      "material": "Faded linen",
+      "count": 7692,
+      "byteOffset": 1141736
+    },
+    {
+      "primitive": 23,
+      "material": "Book cloth 00",
+      "count": 7272,
+      "byteOffset": 1172504
+    },
+    {
+      "primitive": 24,
+      "material": "Book cloth 07",
+      "count": 6336,
+      "byteOffset": 1201592
+    },
+    {
+      "primitive": 25,
+      "material": "Book cloth 01",
+      "count": 6120,
+      "byteOffset": 1226936
+    },
+    {
+      "primitive": 26,
+      "material": "Book cloth 08",
+      "count": 6768,
+      "byteOffset": 1251416
+    },
+    {
+      "primitive": 27,
+      "material": "Book cloth 02",
+      "count": 5544,
+      "byteOffset": 1278488
+    },
+    {
+      "primitive": 28,
+      "material": "Oxidized bronze",
+      "count": 22020,
+      "byteOffset": 1300664
+    },
+    {
+      "primitive": 29,
+      "material": "Dusty bottle 03",
+      "count": 2360,
+      "byteOffset": 1388744
+    },
+    {
+      "primitive": 30,
+      "material": "Dusty bottle 00",
+      "count": 1180,
+      "byteOffset": 1398184
+    },
+    {
+      "primitive": 31,
+      "material": "Dusty bottle 01",
+      "count": 1180,
+      "byteOffset": 1402904
+    },
+    {
+      "primitive": 32,
+      "material": "Dusty bottle 02",
+      "count": 885,
+      "byteOffset": 1407624
+    },
+    {
+      "primitive": 33,
+      "material": "Dust-darkened globe",
+      "count": 151,
+      "byteOffset": 1411164
+    },
+    {
+      "primitive": 34,
+      "material": "Almost invisible cobwebs",
+      "count": 657,
+      "byteOffset": 1411768
+    },
+    {
+      "primitive": 35,
+      "material": "Damp soot-blackened cellar stone",
+      "count": 60264,
+      "byteOffset": 1414396
+    },
+    {
+      "primitive": 36,
+      "material": "Crumbling lime plaster",
+      "count": 162,
+      "byteOffset": 1655452
+    },
+    {
+      "primitive": 37,
+      "material": "Centuries of foxing in rag paper",
+      "count": 681,
+      "byteOffset": 1656100
+    },
+    {
+      "primitive": 38,
+      "material": "Faded charcoal ink",
+      "count": 14760,
+      "byteOffset": 1658824
+    },
+    {
+      "primitive": 39,
+      "material": "Faded madder hanging cloth",
+      "count": 800,
+      "byteOffset": 1717864
+    },
+    {
+      "primitive": 40,
+      "material": "Stained hemp rope",
+      "count": 2763,
+      "byteOffset": 1721064
+    },
+    {
+      "primitive": 41,
+      "material": "Indigo cloth worn almost grey",
+      "count": 880,
+      "byteOffset": 1732116
+    },
+    {
+      "primitive": 42,
+      "material": "Old unglazed pottery",
+      "count": 1080,
+      "byteOffset": 1735636
+    },
+    {
+      "primitive": 43,
+      "material": "Copper green patina",
+      "count": 2352,
+      "byteOffset": 1739956
+    },
+    {
+      "primitive": 44,
+      "material": "Desiccated cracked leather",
+      "count": 1984,
+      "byteOffset": 1749364
+    },
+    {
+      "primitive": 45,
+      "material": "Uneven darkened leaf 05",
+      "count": 1152,
+      "byteOffset": 1757300
+    },
+    {
+      "primitive": 46,
+      "material": "Uneven darkened leaf 03",
+      "count": 1152,
+      "byteOffset": 1761908
+    },
+    {
+      "primitive": 47,
+      "material": "Uneven darkened leaf 07",
+      "count": 1152,
+      "byteOffset": 1766516
+    },
+    {
+      "primitive": 48,
+      "material": "Uneven darkened leaf 00",
+      "count": 2016,
+      "byteOffset": 1771124
+    },
+    {
+      "primitive": 49,
+      "material": "Uneven darkened leaf 02",
+      "count": 864,
+      "byteOffset": 1779188
+    },
+    {
+      "primitive": 50,
+      "material": "Uneven darkened leaf 06",
+      "count": 864,
+      "byteOffset": 1782644
+    },
+    {
+      "primitive": 51,
+      "material": "Uneven darkened leaf 01",
+      "count": 576,
+      "byteOffset": 1786100
+    },
+    {
+      "primitive": 52,
+      "material": "Uneven darkened leaf 04",
+      "count": 1152,
+      "byteOffset": 1788404
+    },
+    {
+      "primitive": 53,
+      "material": "Uneven darkened leaf 08",
+      "count": 576,
+      "byteOffset": 1793012
+    },
+    {
+      "primitive": 54,
+      "material": "Exposed abraded rawhide",
+      "count": 864,
+      "byteOffset": 1795316
+    },
+    {
+      "primitive": 55,
+      "material": "Almost vanished gilt",
+      "count": 48,
+      "byteOffset": 1798772
+    },
+    {
+      "primitive": 56,
+      "material": "Threadbare burgundy rug",
+      "count": 168,
+      "byteOffset": 1798964
+    },
+    {
+      "primitive": 57,
+      "material": "Amber blown glass",
+      "count": 597,
+      "byteOffset": 1799636
+    },
+    {
+      "primitive": 58,
+      "material": "Warm lamp glow",
+      "count": 604,
+      "byteOffset": 1802024
+    }
+  ],
+  "summary": {
+    "aoMin": 0.32,
+    "aoMean": 0.6403877715627371,
+    "aoMax": 1.0,
+    "bounceMean": [
+      0.02436893751272935,
+      0.012549509800906725,
+      0.004294695301666993
+    ],
+    "bounceMax": [
+      0.5,
+      0.5,
+      0.34105756193616715
+    ],
+    "seconds": 79.32
+  }
+}

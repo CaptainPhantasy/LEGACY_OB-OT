@@ -1,0 +1,520 @@
+{
+  "source_backup": "/Volumes/Storage/LAI-BookOfTruths/sites/legacy-depth-v7/art/rendering.quarantine/room-curiosities-before-continuous-bottles.blend",
+  "bottles_replaced": 19,
+  "labels_replaced": 14,
+  "corks_preserved": 19,
+  "removed_old_faces": 3552,
+  "retained_old_faces": 250443,
+  "retained_uv0_uv2_material_signature_before": "e97ffa16fefb7e9044708e21b7f789ba30013704d56539c7beba476044ec5c69",
+  "retained_uv0_uv2_material_signature_after": "e97ffa16fefb7e9044708e21b7f789ba30013704d56539c7beba476044ec5c69",
+  "retained_source_positions_unchanged_except_floor_bundles": true,
+  "authorized_floor_bundle_vertices_modified": 720,
+  "floor_bundles": [
+    {
+      "source_xy": [
+        -1.75,
+        -4.6
+      ],
+      "rolls": 3,
+      "ties": 1,
+      "support_sample_count": 27,
+      "support_m": 0.007715880870819092,
+      "before_roll_floor_gap_m": 0.06728411465883255,
+      "after_roll_floor_clearance_m": 0.003399990499019623,
+      "after_tie_floor_gap_m": 0.00039999932050704956,
+      "translation_z_m": -0.06388411912918092,
+      "tie_tube_radius_m": 0.0015,
+      "rolls_rest_on_tie": true,
+      "topology_and_uvs_unchanged": true,
+      "modified_vertices": 360
+    },
+    {
+      "source_xy": [
+        1.55,
+        -2.7
+      ],
+      "rolls": 3,
+      "ties": 1,
+      "support_sample_count": 27,
+      "support_m": 0.008198153227567673,
+      "before_roll_floor_gap_m": 0.06680184230208397,
+      "after_roll_floor_clearance_m": 0.0033999942243099213,
+      "after_tie_floor_gap_m": 0.000400003045797348,
+      "translation_z_m": -0.06340184677243234,
+      "tie_tube_radius_m": 0.0015,
+      "rolls_rest_on_tie": true,
+      "topology_and_uvs_unchanged": true,
+      "modified_vertices": 360
+    }
+  ],
+  "hero_hinge_unchanged": true,
+  "new_shelf_vertices": 42754,
+  "new_shelf_triangles": 80396,
+  "bottles": [
+    {
+      "xy": [
+        -2.73,
+        -0.5
+      ],
+      "radius_m": 0.05837845802307129,
+      "height_parameter_m": 0.20207444826761883,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.4829721450805664,
+      "cork_bottom_m": 1.4829721450805664,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0015378251999499742,
+      "material": "Dusty bottle 02"
+    },
+    {
+      "xy": [
+        -2.73,
+        -0.15
+      ],
+      "radius_m": 0.05444145202636719,
+      "height_parameter_m": 0.2484591801961263,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.5248345136642456,
+      "cork_bottom_m": 1.5248345136642456,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0016443907774068324,
+      "material": "Dusty bottle 00",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.000449999999999999,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.0762181282043457,
+        "original_vertical_bounds": [
+          1.3552610874176025,
+          1.4099221229553223
+        ]
+      }
+    },
+    {
+      "xy": [
+        -2.44,
+        -0.52
+      ],
+      "radius_m": 0.06500005722045898,
+      "height_parameter_m": 0.25999983151753747,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.535249948501587,
+      "cork_bottom_m": 1.535249948501587,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0024529637181906986,
+      "material": "Dusty bottle 03",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.00045000000000000595,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.09100008010864258,
+        "original_vertical_bounds": [
+          1.357800006866455,
+          1.4149999618530273
+        ]
+      }
+    },
+    {
+      "xy": [
+        -2.43,
+        -1.9
+      ],
+      "radius_m": 0.0398716926574707,
+      "height_parameter_m": 0.22470196088155112,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.503393530845642,
+      "cork_bottom_m": 1.503393530845642,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0007976763182179171,
+      "material": "Dusty bottle 00",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.000449999999999999,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.055820465087890625,
+        "original_vertical_bounds": [
+          1.3500345945358276,
+          1.399469017982483
+        ]
+      }
+    },
+    {
+      "xy": [
+        -2.43,
+        -1.55
+      ],
+      "radius_m": 0.058744192123413086,
+      "height_parameter_m": 0.28585076332092285,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.5585802793502808,
+      "cork_bottom_m": 1.5585802793502808,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0022027217484707276,
+      "material": "Dusty bottle 03"
+    },
+    {
+      "xy": [
+        -2.43,
+        -1.2
+      ],
+      "radius_m": 0.04278850555419922,
+      "height_parameter_m": 0.2565868695576986,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.5321698188781738,
+      "cork_bottom_m": 1.5321698188781738,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.001049008811067211,
+      "material": "Dusty bottle 01",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.000449999999999999,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.05990409851074219,
+        "original_vertical_bounds": [
+          1.3570492267608643,
+          1.4134984016418457
+        ]
+      }
+    },
+    {
+      "xy": [
+        -2.43,
+        -0.85
+      ],
+      "radius_m": 0.059533119201660156,
+      "height_parameter_m": 0.3099660078684489,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.5803444385528564,
+      "cork_bottom_m": 1.5803444385528564,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0024531374319261253,
+      "material": "Dusty bottle 03",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.000449999999999999,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.08334636688232422,
+        "original_vertical_bounds": [
+          1.3687925338745117,
+          1.4369850158691406
+        ]
+      }
+    },
+    {
+      "xy": [
+        -2.43,
+        0.2
+      ],
+      "radius_m": 0.04963946342468262,
+      "height_parameter_m": 0.22082010904947919,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.4998902082443237,
+      "cork_bottom_m": 1.4998902082443237,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0012150194326603337,
+      "material": "Dusty bottle 00",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.000449999999999999,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.06949520111083984,
+        "original_vertical_bounds": [
+          1.3491804599761963,
+          1.3977608680725098
+        ]
+      }
+    },
+    {
+      "xy": [
+        -2.34,
+        -0.1
+      ],
+      "radius_m": 0.06500005722045898,
+      "height_parameter_m": 0.3000001112620036,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.57135009765625,
+      "cork_bottom_m": 1.57135009765625,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.002830345068931591,
+      "material": "Dusty bottle 00",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.00045000000000000595,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.09100008010864258,
+        "original_vertical_bounds": [
+          1.3666000366210938,
+          1.4326000213623047
+        ]
+      }
+    },
+    {
+      "xy": [
+        -2.2,
+        -0.35
+      ],
+      "radius_m": 0.06500005722045898,
+      "height_parameter_m": 0.38999994595845544,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.6525750160217285,
+      "cork_bottom_m": 1.6525750160217285,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0036794468219055088,
+      "material": "Dusty bottle 03"
+    },
+    {
+      "xy": [
+        -2.01,
+        -0.1
+      ],
+      "radius_m": 0.06500005722045898,
+      "height_parameter_m": 0.31999985376993817,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.589400053024292,
+      "cork_bottom_m": 1.589400053024292,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0030190329344088255,
+      "material": "Dusty bottle 01",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.00045000000000000595,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.09100008010864258,
+        "original_vertical_bounds": [
+          1.371000051498413,
+          1.4414000511169434
+        ]
+      }
+    },
+    {
+      "xy": [
+        -1.95,
+        -0.52
+      ],
+      "radius_m": 0.06500005722045898,
+      "height_parameter_m": 0.23000001907348633,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.508175015449524,
+      "cork_bottom_m": 1.508175015449524,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0021699300967463354,
+      "material": "Dusty bottle 03",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.00045000000000000595,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.09100008010864258,
+        "original_vertical_bounds": [
+          1.351199984550476,
+          1.4018000364303589
+        ]
+      }
+    },
+    {
+      "xy": [
+        2.43,
+        -1.9
+      ],
+      "radius_m": 0.04940080642700195,
+      "height_parameter_m": 0.2159396807352702,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.495485782623291,
+      "cork_bottom_m": 1.495485782623291,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0011767687891175531,
+      "material": "Dusty bottle 01"
+    },
+    {
+      "xy": [
+        2.43,
+        -1.55
+      ],
+      "radius_m": 0.05869698524475098,
+      "height_parameter_m": 0.17988999684651694,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.4629507064819336,
+      "cork_bottom_m": 1.4629507064819336,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0013839777246987136,
+      "material": "Dusty bottle 03",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.000449999999999999,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.08217573165893555,
+        "original_vertical_bounds": [
+          1.340175747871399,
+          1.3797515630722046
+        ]
+      }
+    },
+    {
+      "xy": [
+        2.43,
+        -1.2
+      ],
+      "radius_m": 0.05884814262390137,
+      "height_parameter_m": 0.17532785733540854,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.4588333368301392,
+      "cork_bottom_m": 1.4588333368301392,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0013558350764110662,
+      "material": "Dusty bottle 02",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.000449999999999999,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.08238744735717773,
+        "original_vertical_bounds": [
+          1.3391722440719604,
+          1.3777443170547485
+        ]
+      }
+    },
+    {
+      "xy": [
+        2.43,
+        -0.85
+      ],
+      "radius_m": 0.0542755126953125,
+      "height_parameter_m": 0.1795494556427002,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.4626432657241821,
+      "cork_bottom_m": 1.4626432657241821,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0011810885897714518,
+      "material": "Dusty bottle 03",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.000449999999999999,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.07598590850830078,
+        "original_vertical_bounds": [
+          1.340100884437561,
+          1.3796018362045288
+        ]
+      }
+    },
+    {
+      "xy": [
+        2.43,
+        -0.5
+      ],
+      "radius_m": 0.03994607925415039,
+      "height_parameter_m": 0.2276126543680827,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.506020426750183,
+      "cork_bottom_m": 1.506020426750183,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0008110266244466971,
+      "material": "Dusty bottle 01"
+    },
+    {
+      "xy": [
+        2.43,
+        -0.15
+      ],
+      "radius_m": 0.04338192939758301,
+      "height_parameter_m": 0.23092667261759442,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.5090112686157227,
+      "cork_bottom_m": 1.5090112686157227,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0009704705835516447,
+      "material": "Dusty bottle 03",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.000449999999999999,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.06073474884033203,
+        "original_vertical_bounds": [
+          1.3514039516448975,
+          1.402207851409912
+        ]
+      }
+    },
+    {
+      "xy": [
+        2.43,
+        0.2
+      ],
+      "radius_m": 0.03951883316040039,
+      "height_parameter_m": 0.219648281733195,
+      "base_m": 1.3006000518798828,
+      "neck_top_m": 1.4988324642181396,
+      "cork_bottom_m": 1.4988324642181396,
+      "cork_contact_gap_m": 0.0,
+      "segments": 48,
+      "profile_rings": 17,
+      "closed_manifold": true,
+      "positive_volume_m3": 0.0007659956936026237,
+      "material": "Dusty bottle 02",
+      "label": {
+        "segments": 16,
+        "thickness_m": 0.000449999999999999,
+        "inner_radial_clearance_m": 0.0002500000000000002,
+        "original_width_m": 0.05532646179199219,
+        "original_vertical_bounds": [
+          1.348922610282898,
+          1.3972452878952026
+        ]
+      }
+    }
+  ],
+  "atlas_action_required": "Repack only CenterCuriosityShelf and rebake both static atlases.",
+  "scope": "Old body/shoulder/neck and label UV loops removed with their replaced faces. All remaining original face-corner UV0/UV2 and material associations are unchanged."
+}

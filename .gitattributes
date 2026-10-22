@@ -1,0 +1,5 @@
+art/room-curiosities.blend filter=lfs diff=lfs merge=lfs -text
+art/room-rabbit-holes.blend filter=lfs diff=lfs merge=lfs -text
+
+# Geometry buffers are binary assets.
+dist/assets/bookstore-depth/*.bin binary

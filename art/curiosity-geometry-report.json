@@ -1,0 +1,4685 @@
+{
+  "source": "/Volumes/Storage/LAI-BookOfTruths/sites/legacy-depth-v7/art/room-depth.blend",
+  "output": "/Volumes/Storage/LAI-BookOfTruths/sites/legacy-depth-v7/art/room-curiosities.blend",
+  "bottles": [
+    {
+      "original_xy": [
+        -2.44,
+        -0.52
+      ],
+      "new_xy": [
+        -2.44,
+        -0.52
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 0.017800092697143555,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        -2.43,
+        -1.9
+      ],
+      "new_xy": [
+        -2.43,
+        -1.9
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 1.3482805490493774,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        -2.43,
+        -1.55
+      ],
+      "new_xy": [
+        -2.43,
+        -1.55
+      ],
+      "vertices": 182,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 0,
+      "before_gap_m": 1.3801149129867554,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        -2.43,
+        -1.2
+      ],
+      "new_xy": [
+        -2.43,
+        -1.2
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 1.349237084388733,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        -2.43,
+        -0.85
+      ],
+      "new_xy": [
+        -2.43,
+        -0.85
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 0.08929908275604248,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        -2.43,
+        -0.5
+      ],
+      "new_xy": [
+        -2.73,
+        -0.5
+      ],
+      "vertices": 182,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 0,
+      "before_gap_m": 0.038262248039245605,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        -2.43,
+        -0.15
+      ],
+      "new_xy": [
+        -2.73,
+        -0.15
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 0.08745384216308594,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        -2.43,
+        0.2
+      ],
+      "new_xy": [
+        -2.43,
+        0.2
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 1.3507612943649292,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        -2.34,
+        -0.1
+      ],
+      "new_xy": [
+        -2.34,
+        -0.1
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 0.01900005340576172,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.2999999523162842,
+      "measured_after_gap_m": 0.0006000995635986328
+    },
+    {
+      "original_xy": [
+        -2.2,
+        -0.35
+      ],
+      "new_xy": [
+        -2.2,
+        -0.35
+      ],
+      "vertices": 182,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 0,
+      "before_gap_m": 0.021700024604797363,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.2999999523162842,
+      "measured_after_gap_m": 0.0006000995635986328
+    },
+    {
+      "original_xy": [
+        -2.01,
+        -0.1
+      ],
+      "new_xy": [
+        -2.01,
+        -0.1
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 0.0196000337600708,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.2999999523162842,
+      "measured_after_gap_m": 0.0006000995635986328
+    },
+    {
+      "original_xy": [
+        -1.95,
+        -0.52
+      ],
+      "new_xy": [
+        -1.95,
+        -0.52
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 0.016900062561035156,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.2999999523162842,
+      "measured_after_gap_m": 0.0006000995635986328
+    },
+    {
+      "original_xy": [
+        2.43,
+        -1.9
+      ],
+      "new_xy": [
+        2.43,
+        -1.9
+      ],
+      "vertices": 182,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 0,
+      "before_gap_m": 0.8764783143997192,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        2.43,
+        -1.55
+      ],
+      "new_xy": [
+        2.43,
+        -1.55
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 0.9553967118263245,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        2.43,
+        -1.2
+      ],
+      "new_xy": [
+        2.43,
+        -1.2
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 1.3467509746551514,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        2.43,
+        -0.85
+      ],
+      "new_xy": [
+        2.43,
+        -0.85
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 1.3815407752990723,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        2.43,
+        -0.5
+      ],
+      "new_xy": [
+        2.43,
+        -0.5
+      ],
+      "vertices": 182,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 0,
+      "before_gap_m": 1.3529824018478394,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        2.43,
+        -0.15
+      ],
+      "new_xy": [
+        2.43,
+        -0.15
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 1.3830819129943848,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    },
+    {
+      "original_xy": [
+        2.43,
+        0.2
+      ],
+      "new_xy": [
+        2.43,
+        0.2
+      ],
+      "vertices": 226,
+      "body_parts": 3,
+      "caps_moved": 1,
+      "labels_moved": 1,
+      "before_gap_m": 1.3527437448501587,
+      "after_gap_m": 0.0006,
+      "support_height_m": 1.3,
+      "measured_bottom_m": 1.3006000518798828,
+      "measured_support_m": 1.3000000715255737,
+      "measured_after_gap_m": 0.000599980354309082
+    }
+  ],
+  "contacts": [
+    {
+      "assembly": "loose map stack",
+      "parts": 5,
+      "before_gap_m": 0.10349994897842407,
+      "after_gap_m": 0.0005,
+      "measured_bottom_m": 0.8245000243186951,
+      "measured_support_m": 0.8240000009536743,
+      "measured_after_gap_m": 0.000500023365020752
+    },
+    {
+      "assembly": "globe and book stack",
+      "before_gap_m": 0.5879780831336975,
+      "after_gap_m": 0,
+      "new_support_top_m": 0.594,
+      "measured_bottom_m": 0.5940000414848328,
+      "measured_support_m": 0.593999981880188,
+      "measured_after_gap_m": 5.960464477539063e-08
+    },
+    {
+      "assembly": "center shelf foot",
+      "xy": [
+        -0.292,
+        -3.36
+      ],
+      "floor_m": 0.03849998861551285,
+      "bottom_m": 0.03899998861551285,
+      "after_gap_m": 0.0005000000000000004,
+      "measured_after_gap_m": 0.0005000000000000004
+    },
+    {
+      "assembly": "center shelf foot",
+      "xy": [
+        -0.292,
+        -1.5
+      ],
+      "floor_m": 0.038499996066093445,
+      "bottom_m": 0.038999996066093445,
+      "after_gap_m": 0.0005000000000000004,
+      "measured_after_gap_m": 0.0005000074505805974
+    },
+    {
+      "assembly": "center shelf foot",
+      "xy": [
+        -0.292,
+        0.36
+      ],
+      "floor_m": 0.038499996066093445,
+      "bottom_m": 0.038999996066093445,
+      "after_gap_m": 0.0005000000000000004,
+      "measured_after_gap_m": 0.0005000074505805974
+    },
+    {
+      "assembly": "center shelf foot",
+      "xy": [
+        0.292,
+        -3.36
+      ],
+      "floor_m": 0.03849998116493225,
+      "bottom_m": 0.03899998116493225,
+      "after_gap_m": 0.0005000000000000004,
+      "measured_after_gap_m": 0.0004999925494194035
+    },
+    {
+      "assembly": "center shelf foot",
+      "xy": [
+        0.292,
+        -1.5
+      ],
+      "floor_m": 0.03849998861551285,
+      "bottom_m": 0.03899998861551285,
+      "after_gap_m": 0.0005000000000000004,
+      "measured_after_gap_m": 0.0005000000000000004
+    },
+    {
+      "assembly": "center shelf foot",
+      "xy": [
+        0.292,
+        0.36
+      ],
+      "floor_m": 0.03849998861551285,
+      "bottom_m": 0.03899998861551285,
+      "after_gap_m": 0.0005000000000000004,
+      "measured_after_gap_m": 0.0005000000000000004
+    }
+  ],
+  "hotspots": [
+    {
+      "id": "cia",
+      "blender": [
+        -0.205,
+        -2.83,
+        1.13
+      ],
+      "web": [
+        -0.205,
+        1.13,
+        2.83
+      ],
+      "facing": -1
+    },
+    {
+      "id": "darpa",
+      "blender": [
+        -0.205,
+        -1.5,
+        1.13
+      ],
+      "web": [
+        -0.205,
+        1.13,
+        1.5
+      ],
+      "facing": -1
+    },
+    {
+      "id": "time-slips",
+      "blender": [
+        -0.205,
+        -0.17,
+        1.13
+      ],
+      "web": [
+        -0.205,
+        1.13,
+        0.17
+      ],
+      "facing": -1
+    },
+    {
+      "id": "ufo",
+      "blender": [
+        0.205,
+        -2.83,
+        1.13
+      ],
+      "web": [
+        0.205,
+        1.13,
+        2.83
+      ],
+      "facing": 1
+    },
+    {
+      "id": "ciphers",
+      "blender": [
+        0.205,
+        -1.5,
+        1.13
+      ],
+      "web": [
+        0.205,
+        1.13,
+        1.5
+      ],
+      "facing": 1
+    },
+    {
+      "id": "artifacts",
+      "blender": [
+        0.205,
+        -0.17,
+        1.13
+      ],
+      "web": [
+        0.205,
+        1.13,
+        0.17
+      ],
+      "facing": 1
+    }
+  ],
+  "parts": [
+    {
+      "name": "Fitted apothecary bottle ledge",
+      "group": "support",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          -3.0999999046325684,
+          -2.0999999046325684,
+          1.2519999742507935
+        ],
+        [
+          -2.3400001525878906,
+          0.3999999761581421,
+          1.3000000715255737
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge wall fixing",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -3.1024999618530273,
+          -1.902500033378601,
+          0.9300000071525574
+        ],
+        [
+          -3.067500114440918,
+          -1.8574999570846558,
+          1.2699999809265137
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge diagonal bracket",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -3.0794568061828613,
+          -1.8919999599456787,
+          0.9688583016395569
+        ],
+        [
+          -2.3955435752868652,
+          -1.8680000305175781,
+          1.2611416578292847
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge bracket seat",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -3.069999933242798,
+          -1.8975000381469727,
+          1.2320001125335693
+        ],
+        [
+          -2.370000123977661,
+          -1.8624999523162842,
+          1.25
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge wall fixing.001",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -3.1024999618530273,
+          -0.92249995470047,
+          0.9300000071525574
+        ],
+        [
+          -3.067500114440918,
+          -0.8774999976158142,
+          1.2699999809265137
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge diagonal bracket.001",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -3.0794568061828613,
+          -0.9120000004768372,
+          0.9688583016395569
+        ],
+        [
+          -2.3955435752868652,
+          -0.887999951839447,
+          1.2611416578292847
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge bracket seat.001",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -3.069999933242798,
+          -0.9174999594688416,
+          1.2320001125335693
+        ],
+        [
+          -2.370000123977661,
+          -0.8824999928474426,
+          1.25
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge wall fixing.002",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -3.1024999618530273,
+          0.19749999046325684,
+          0.9300000071525574
+        ],
+        [
+          -3.067500114440918,
+          0.24250000715255737,
+          1.2699999809265137
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge diagonal bracket.002",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -3.0794568061828613,
+          0.20799998939037323,
+          0.9688583016395569
+        ],
+        [
+          -2.3955435752868652,
+          0.23200000822544098,
+          1.2611416578292847
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge bracket seat.002",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -3.069999933242798,
+          0.20250000059604645,
+          1.2320001125335693
+        ],
+        [
+          -2.370000123977661,
+          0.23749999701976776,
+          1.25
+        ]
+      ]
+    },
+    {
+      "name": "Fitted apothecary bottle ledge.001",
+      "group": "support",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          2.3400001525878906,
+          -2.0999999046325684,
+          1.2519999742507935
+        ],
+        [
+          3.0999999046325684,
+          0.3999999761581421,
+          1.3000000715255737
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge wall fixing.003",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          3.067500114440918,
+          -1.902500033378601,
+          0.9300000071525574
+        ],
+        [
+          3.1024999618530273,
+          -1.8574999570846558,
+          1.2699999809265137
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge diagonal bracket.003",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          2.3955435752868652,
+          -1.8919999599456787,
+          0.9688583016395569
+        ],
+        [
+          3.0794568061828613,
+          -1.8680000305175781,
+          1.2611416578292847
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge bracket seat.003",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          2.370000123977661,
+          -1.8975000381469727,
+          1.2320001125335693
+        ],
+        [
+          3.069999933242798,
+          -1.8624999523162842,
+          1.25
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge wall fixing.004",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          3.067500114440918,
+          -0.92249995470047,
+          0.9300000071525574
+        ],
+        [
+          3.1024999618530273,
+          -0.8774999976158142,
+          1.2699999809265137
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge diagonal bracket.004",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          2.3955435752868652,
+          -0.9120000004768372,
+          0.9688583016395569
+        ],
+        [
+          3.0794568061828613,
+          -0.887999951839447,
+          1.2611416578292847
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge bracket seat.004",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          2.370000123977661,
+          -0.9174999594688416,
+          1.2320001125335693
+        ],
+        [
+          3.069999933242798,
+          -0.8824999928474426,
+          1.25
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge wall fixing.005",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          3.067500114440918,
+          0.19749999046325684,
+          0.9300000071525574
+        ],
+        [
+          3.1024999618530273,
+          0.24250000715255737,
+          1.2699999809265137
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge diagonal bracket.005",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          2.3955435752868652,
+          0.20799998939037323,
+          0.9688583016395569
+        ],
+        [
+          3.0794568061828613,
+          0.23200000822544098,
+          1.2611416578292847
+        ]
+      ]
+    },
+    {
+      "name": "Bottle ledge bracket seat.005",
+      "group": "support",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          2.370000123977661,
+          0.20250000059604645,
+          1.2320001125335693
+        ],
+        [
+          3.069999933242798,
+          0.23749999701976776,
+          1.25
+        ]
+      ]
+    },
+    {
+      "name": "Loose-map crate fitted lid",
+      "group": "support",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          1.3725000619888306,
+          -1.7925000190734863,
+          0.7999999523162842
+        ],
+        [
+          2.007500171661377,
+          -1.2074999809265137,
+          0.8240000009536743
+        ]
+      ]
+    },
+    {
+      "name": "Globe stack support top",
+      "group": "support",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          1.7699999809265137,
+          0.5,
+          0.5590000152587891
+        ],
+        [
+          2.3299999237060547,
+          1.1399999856948853,
+          0.593999981880188
+        ]
+      ]
+    },
+    {
+      "name": "Globe stand fitted leg",
+      "group": "support",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          1.8174999952316284,
+          0.5575000047683716,
+          0.004054397344589233
+        ],
+        [
+          1.8625000715255737,
+          0.6024999618530273,
+          0.5590000152587891
+        ]
+      ]
+    },
+    {
+      "name": "Globe stand fitted leg.001",
+      "group": "support",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          1.8174999952316284,
+          1.0374999046325684,
+          0.004054397344589233
+        ],
+        [
+          1.8625000715255737,
+          1.0824999809265137,
+          0.5590000152587891
+        ]
+      ]
+    },
+    {
+      "name": "Globe stand fitted leg.002",
+      "group": "support",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          2.237499952316284,
+          0.5575000047683716,
+          0.004245787858963013
+        ],
+        [
+          2.2825000286102295,
+          0.6024999618530273,
+          0.5590000152587891
+        ]
+      ]
+    },
+    {
+      "name": "Globe stand fitted leg.003",
+      "group": "support",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          2.237499952316284,
+          1.0374999046325684,
+          0.0042458176612854
+        ],
+        [
+          2.2825000286102295,
+          1.0824999809265137,
+          0.5590000152587891
+        ]
+      ]
+    },
+    {
+      "name": "Globe stand braced apron",
+      "group": "support",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          1.8249999284744263,
+          0.5659999847412109,
+          0.4300000071525574
+        ],
+        [
+          2.2749998569488525,
+          0.593999981880188,
+          0.550000011920929
+        ]
+      ]
+    },
+    {
+      "name": "Globe stand braced apron.001",
+      "group": "support",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          1.8249999284744263,
+          1.0459998846054077,
+          0.4300000071525574
+        ],
+        [
+          2.2749998569488525,
+          1.0740000009536743,
+          0.550000011920929
+        ]
+      ]
+    },
+    {
+      "name": "Continuous rounded display shelf",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          -0.3799999952316284,
+          -3.5,
+          0.17749999463558197
+        ],
+        [
+          0.3799999952316284,
+          0.5,
+          0.23250000178813934
+        ]
+      ]
+    },
+    {
+      "name": "Continuous rounded display shelf.001",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          -0.3799999952316284,
+          -3.5,
+          0.48899999260902405
+        ],
+        [
+          0.3799999952316284,
+          0.5,
+          0.531000018119812
+        ]
+      ]
+    },
+    {
+      "name": "Continuous rounded display shelf.002",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          -0.3799999952316284,
+          -3.5,
+          0.9879999160766602
+        ],
+        [
+          0.3799999952316284,
+          0.5,
+          1.0299999713897705
+        ]
+      ]
+    },
+    {
+      "name": "Two-sided shelf central spine",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          -0.017500000074505806,
+          -3.490000009536743,
+          0.21500003337860107
+        ],
+        [
+          0.017500000074505806,
+          0.49000000953674316,
+          1.274999976158142
+        ]
+      ]
+    },
+    {
+      "name": "Rounded central spine cap",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.032499998807907104,
+          -3.5,
+          1.2699999809265137
+        ],
+        [
+          0.032499998807907104,
+          0.5,
+          1.2999999523162842
+        ]
+      ]
+    },
+    {
+      "name": "Shelf bay rounded end post",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.375,
+          -3.492499828338623,
+          0.18800002336502075
+        ],
+        [
+          -0.3199999928474426,
+          -3.4375,
+          1.2999999523162842
+        ]
+      ]
+    },
+    {
+      "name": "Shelf bay rounded end post.001",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.3199999928474426,
+          -3.492499828338623,
+          0.18800002336502075
+        ],
+        [
+          0.375,
+          -3.4375,
+          1.2999999523162842
+        ]
+      ]
+    },
+    {
+      "name": "Shelf bay lower divider",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          -0.3499999940395355,
+          -3.4809999465942383,
+          0.5099999904632568
+        ],
+        [
+          0.3499999940395355,
+          -3.4489998817443848,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "Shelf bay rounded end post.002",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.375,
+          -2.197499990463257,
+          0.18800002336502075
+        ],
+        [
+          -0.3199999928474426,
+          -2.142500162124634,
+          1.2999999523162842
+        ]
+      ]
+    },
+    {
+      "name": "Shelf bay rounded end post.003",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.3199999928474426,
+          -2.197499990463257,
+          0.18800002336502075
+        ],
+        [
+          0.375,
+          -2.142500162124634,
+          1.2999999523162842
+        ]
+      ]
+    },
+    {
+      "name": "Shelf bay lower divider.001",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          -0.3499999940395355,
+          -2.186000108718872,
+          0.5099999904632568
+        ],
+        [
+          0.3499999940395355,
+          -2.1540000438690186,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "Shelf bay rounded end post.004",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.375,
+          -0.8574999570846558,
+          0.18800002336502075
+        ],
+        [
+          -0.3199999928474426,
+          -0.8025000095367432,
+          1.2999999523162842
+        ]
+      ]
+    },
+    {
+      "name": "Shelf bay rounded end post.005",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.3199999928474426,
+          -0.8574999570846558,
+          0.18800002336502075
+        ],
+        [
+          0.375,
+          -0.8025000095367432,
+          1.2999999523162842
+        ]
+      ]
+    },
+    {
+      "name": "Shelf bay lower divider.002",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          -0.3499999940395355,
+          -0.8459999561309814,
+          0.5099999904632568
+        ],
+        [
+          0.3499999940395355,
+          -0.8140000104904175,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "Shelf bay rounded end post.006",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.375,
+          0.4375,
+          0.18800002336502075
+        ],
+        [
+          -0.3199999928474426,
+          0.4925000071525574,
+          1.2999999523162842
+        ]
+      ]
+    },
+    {
+      "name": "Shelf bay rounded end post.007",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.3199999928474426,
+          0.4375,
+          0.18800002336502075
+        ],
+        [
+          0.375,
+          0.4925000071525574,
+          1.2999999523162842
+        ]
+      ]
+    },
+    {
+      "name": "Shelf bay lower divider.003",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          -0.3499999940395355,
+          0.4490000009536743,
+          0.5099999904632568
+        ],
+        [
+          0.3499999940395355,
+          0.48100000619888306,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "Shelf foot fitted to actual floor",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.328000009059906,
+          -3.4049999713897705,
+          0.03899998217821121
+        ],
+        [
+          -0.25599998235702515,
+          -3.31499981880188,
+          0.19499999284744263
+        ]
+      ]
+    },
+    {
+      "name": "Shelf foot fitted to actual floor.001",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.328000009059906,
+          -1.5449999570846558,
+          0.038999997079372406
+        ],
+        [
+          -0.25599998235702515,
+          -1.4550000429153442,
+          0.19499999284744263
+        ]
+      ]
+    },
+    {
+      "name": "Shelf foot fitted to actual floor.002",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.328000009059906,
+          0.3149999976158142,
+          0.038999997079372406
+        ],
+        [
+          -0.25599998235702515,
+          0.4050000309944153,
+          0.19499999284744263
+        ]
+      ]
+    },
+    {
+      "name": "Shelf foot fitted to actual floor.003",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.25599998235702515,
+          -3.4049999713897705,
+          0.03899998217821121
+        ],
+        [
+          0.328000009059906,
+          -3.31499981880188,
+          0.19499999284744263
+        ]
+      ]
+    },
+    {
+      "name": "Shelf foot fitted to actual floor.004",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.25599998235702515,
+          -1.5449999570846558,
+          0.03899998217821121
+        ],
+        [
+          0.328000009059906,
+          -1.4550000429153442,
+          0.19499999284744263
+        ]
+      ]
+    },
+    {
+      "name": "Shelf foot fitted to actual floor.005",
+      "group": "shelf",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.25599998235702515,
+          0.3149999976158142,
+          0.03899998217821121
+        ],
+        [
+          0.328000009059906,
+          0.4050000309944153,
+          0.19499999284744263
+        ]
+      ]
+    },
+    {
+      "name": "Artifact felt-lined tray",
+      "group": "cia",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.3474999964237213,
+          -3.0899999141693115,
+          1.0299999713897705
+        ],
+        [
+          -0.0625,
+          -2.569999933242798,
+          1.0439999103546143
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine timber lip",
+      "group": "cia",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.34700000286102295,
+          -3.0859999656677246,
+          1.0350000858306885
+        ],
+        [
+          -0.06299999356269836,
+          -3.0739998817443848,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine timber lip.001",
+      "group": "cia",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.34700000286102295,
+          -2.5859999656677246,
+          1.0350000858306885
+        ],
+        [
+          -0.06299999356269836,
+          -2.5739998817443848,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine side lip",
+      "group": "cia",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.34700000286102295,
+          -3.0749998092651367,
+          1.0350000858306885
+        ],
+        [
+          -0.3349999785423279,
+          -2.5850000381469727,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine side lip.001",
+      "group": "cia",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.07499999552965164,
+          -3.0749998092651367,
+          1.0350000858306885
+        ],
+        [
+          -0.06300000101327896,
+          -2.5850000381469727,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Curiosity label brass mount",
+      "group": "cia",
+      "faces": 188,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          -0.38850000500679016,
+          -2.9700000286102295,
+          0.9040000438690186
+        ],
+        [
+          -0.37950000166893005,
+          -2.68999981880188,
+          0.9639999866485596
+        ]
+      ]
+    },
+    {
+      "name": "Curiosity engraved label DECLASSIFIED",
+      "group": "cia",
+      "faces": 416,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.3901499807834625,
+          -2.8854219913482666,
+          0.9284380078315735
+        ],
+        [
+          -0.389849990606308,
+          -2.775117874145508,
+          0.9410380125045776
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover",
+      "group": "cia",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3333737552165985,
+          -3.0041823387145996,
+          0.531499981880188
+        ],
+        [
+          -0.0766262412071228,
+          -2.6558175086975098,
+          0.5364999771118164
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.001",
+      "group": "cia",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3333737552165985,
+          -3.0041823387145996,
+          0.5634999871253967
+        ],
+        [
+          -0.0766262412071228,
+          -2.6558175086975098,
+          0.5684999823570251
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block",
+      "group": "cia",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          -0.3272024691104889,
+          -2.9989755153656006,
+          0.5365000367164612
+        ],
+        [
+          -0.08279752731323242,
+          -2.661024332046509,
+          0.5634999871253967
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.002",
+      "group": "cia",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3254287838935852,
+          -2.972292900085449,
+          0.5690000057220459
+        ],
+        [
+          -0.08457120507955551,
+          -2.6177072525024414,
+          0.5740000009536743
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.003",
+      "group": "cia",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3254287838935852,
+          -2.972292900085449,
+          0.6010000109672546
+        ],
+        [
+          -0.08457120507955551,
+          -2.6177072525024414,
+          0.6060000061988831
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.001",
+      "group": "cia",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          -0.319374144077301,
+          -2.9672272205352783,
+          0.5740000009536743
+        ],
+        [
+          -0.09062584489583969,
+          -2.6227729320526123,
+          0.6009999513626099
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.004",
+      "group": "cia",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3218562602996826,
+          -3.0134730339050293,
+          0.6065000295639038
+        ],
+        [
+          -0.0881437435746193,
+          -2.64652681350708,
+          0.6115000247955322
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.005",
+      "group": "cia",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3218562602996826,
+          -3.0134730339050293,
+          0.6384999752044678
+        ],
+        [
+          -0.0881437435746193,
+          -2.64652681350708,
+          0.6434999704360962
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.002",
+      "group": "cia",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          -0.3157917559146881,
+          -3.0083954334259033,
+          0.6115000247955322
+        ],
+        [
+          -0.0942082405090332,
+          -2.651604413986206,
+          0.6384999752044678
+        ]
+      ]
+    },
+    {
+      "name": "Creased archive folder",
+      "group": "cia",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          -0.33371084928512573,
+          -3.0430214405059814,
+          1.0440000295639038
+        ],
+        [
+          -0.07628913968801498,
+          -2.616978406906128,
+          1.0619999170303345
+        ]
+      ]
+    },
+    {
+      "name": "Declassified typed page",
+      "group": "cia",
+      "faces": 188,
+      "material": "Centuries of foxing in rag paper",
+      "bounds": [
+        [
+          -0.3182779848575592,
+          -3.0051708221435547,
+          1.062250018119812
+        ],
+        [
+          -0.09172201156616211,
+          -2.6548290252685547,
+          1.06374990940094
+        ]
+      ]
+    },
+    {
+      "name": "Declassified typed page.001",
+      "group": "cia",
+      "faces": 188,
+      "material": "Centuries of foxing in rag paper",
+      "bounds": [
+        [
+          -0.3182779848575592,
+          -2.993170976638794,
+          1.0640500783920288
+        ],
+        [
+          -0.09172201156616211,
+          -2.642829179763794,
+          1.0655499696731567
+        ]
+      ]
+    },
+    {
+      "name": "Declassified typed page.002",
+      "group": "cia",
+      "faces": 188,
+      "material": "Centuries of foxing in rag paper",
+      "bounds": [
+        [
+          -0.3182779848575592,
+          -2.981170892715454,
+          1.065850019454956
+        ],
+        [
+          -0.09172201156616211,
+          -2.630829095840454,
+          1.067349910736084
+        ]
+      ]
+    },
+    {
+      "name": "Black archival redaction",
+      "group": "cia",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.2615976333618164,
+          -2.960685968399048,
+          1.0676499605178833
+        ],
+        [
+          -0.16640235483646393,
+          -2.9493138790130615,
+          1.0683499574661255
+        ]
+      ]
+    },
+    {
+      "name": "Black archival redaction.001",
+      "group": "cia",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.2620890438556671,
+          -2.9293735027313232,
+          1.0676499605178833
+        ],
+        [
+          -0.11191095411777496,
+          -2.9166266918182373,
+          1.0683499574661255
+        ]
+      ]
+    },
+    {
+      "name": "Black archival redaction.002",
+      "group": "cia",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.28908905386924744,
+          -2.8973734378814697,
+          1.0676499605178833
+        ],
+        [
+          -0.1389109492301941,
+          -2.884626626968384,
+          1.0683499574661255
+        ]
+      ]
+    },
+    {
+      "name": "Black archival redaction.003",
+      "group": "cia",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.23459765315055847,
+          -2.8646860122680664,
+          1.0676499605178833
+        ],
+        [
+          -0.1394023597240448,
+          -2.85331392288208,
+          1.0683499574661255
+        ]
+      ]
+    },
+    {
+      "name": "Black archival redaction.004",
+      "group": "cia",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.28908905386924744,
+          -2.8333733081817627,
+          1.0676499605178833
+        ],
+        [
+          -0.1389109492301941,
+          -2.8206264972686768,
+          1.0683499574661255
+        ]
+      ]
+    },
+    {
+      "name": "Black archival redaction.005",
+      "group": "cia",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.2620890438556671,
+          -2.8013734817504883,
+          1.0676499605178833
+        ],
+        [
+          -0.11191095411777496,
+          -2.7886266708374023,
+          1.0683499574661255
+        ]
+      ]
+    },
+    {
+      "name": "Black archival redaction.006",
+      "group": "cia",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.2615976333618164,
+          -2.768686056137085,
+          1.0676499605178833
+        ],
+        [
+          -0.16640235483646393,
+          -2.7573139667510986,
+          1.0683499574661255
+        ]
+      ]
+    },
+    {
+      "name": "Archive folder heading",
+      "group": "cia",
+      "faces": 272,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.2537440061569214,
+          -2.709415912628174,
+          1.068350076675415
+        ],
+        [
+          -0.15695199370384216,
+          -2.6926159858703613,
+          1.0686500072479248
+        ]
+      ]
+    },
+    {
+      "name": "Folder brass clasp",
+      "group": "cia",
+      "faces": 188,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          -0.2750000059604645,
+          -2.642500162124634,
+          1.0619999170303345
+        ],
+        [
+          -0.13500000536441803,
+          -2.637500047683716,
+          1.0670000314712524
+        ]
+      ]
+    },
+    {
+      "name": "Artifact felt-lined tray.001",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.3474999964237213,
+          -1.7599999904632568,
+          1.0299999713897705
+        ],
+        [
+          -0.0625,
+          -1.2400000095367432,
+          1.0439999103546143
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine timber lip.002",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.34700000286102295,
+          -1.75600004196167,
+          1.0350000858306885
+        ],
+        [
+          -0.06299999356269836,
+          -1.74399995803833,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine timber lip.003",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.34700000286102295,
+          -1.25600004196167,
+          1.0350000858306885
+        ],
+        [
+          -0.06299999356269836,
+          -1.24399995803833,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine side lip.002",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.34700000286102295,
+          -1.7450000047683716,
+          1.0350000858306885
+        ],
+        [
+          -0.3349999785423279,
+          -1.2549999952316284,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine side lip.003",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.07499999552965164,
+          -1.7450000047683716,
+          1.0350000858306885
+        ],
+        [
+          -0.06300000101327896,
+          -1.2549999952316284,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Curiosity label brass mount.001",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          -0.38850000500679016,
+          -1.6399999856948853,
+          0.9040000438690186
+        ],
+        [
+          -0.37950000166893005,
+          -1.3600000143051147,
+          0.9639999866485596
+        ]
+      ]
+    },
+    {
+      "name": "Curiosity engraved label PROTOTYPES",
+      "group": "darpa",
+      "faces": 404,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.3901499807834625,
+          -1.5537840127944946,
+          0.9284380078315735
+        ],
+        [
+          -0.389849990606308,
+          -1.4469000101089478,
+          0.9410380125045776
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.006",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3333737552165985,
+          -1.6741825342178345,
+          0.531499981880188
+        ],
+        [
+          -0.0766262412071228,
+          -1.3258174657821655,
+          0.5364999771118164
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.007",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3333737552165985,
+          -1.6741825342178345,
+          0.5634999871253967
+        ],
+        [
+          -0.0766262412071228,
+          -1.3258174657821655,
+          0.5684999823570251
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.003",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          -0.3272024691104889,
+          -1.668975591659546,
+          0.5365000367164612
+        ],
+        [
+          -0.08279752731323242,
+          -1.331024408340454,
+          0.5634999871253967
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.008",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3254287838935852,
+          -1.642292857170105,
+          0.5690000057220459
+        ],
+        [
+          -0.08457120507955551,
+          -1.2877072095870972,
+          0.5740000009536743
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.009",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3254287838935852,
+          -1.642292857170105,
+          0.6010000109672546
+        ],
+        [
+          -0.08457120507955551,
+          -1.2877072095870972,
+          0.6060000061988831
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.004",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          -0.319374144077301,
+          -1.637227177619934,
+          0.5740000009536743
+        ],
+        [
+          -0.09062584489583969,
+          -1.292772889137268,
+          0.6009999513626099
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.010",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3218562602996826,
+          -1.6834731101989746,
+          0.6065000295639038
+        ],
+        [
+          -0.0881437435746193,
+          -1.3165268898010254,
+          0.6115000247955322
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.011",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3218562602996826,
+          -1.6834731101989746,
+          0.6384999752044678
+        ],
+        [
+          -0.0881437435746193,
+          -1.3165268898010254,
+          0.6434999704360962
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.005",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          -0.3157917559146881,
+          -1.6783955097198486,
+          0.6115000247955322
+        ],
+        [
+          -0.0942082405090332,
+          -1.3216044902801514,
+          0.6384999752044678
+        ]
+      ]
+    },
+    {
+      "name": "Experimental instrument enclosure",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.3240000009536743,
+          -1.6549999713897705,
+          1.0440000295639038
+        ],
+        [
+          -0.085999995470047,
+          -1.3450000286102295,
+          1.1239999532699585
+        ]
+      ]
+    },
+    {
+      "name": "Instrument engraved control plate",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -0.3100000023841858,
+          -1.6380000114440918,
+          1.1239999532699585
+        ],
+        [
+          -0.10000000149011612,
+          -1.3619999885559082,
+          1.1339999437332153
+        ]
+      ]
+    },
+    {
+      "name": "Instrument induction coil",
+      "group": "darpa",
+      "faces": 384,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          -0.25600001215934753,
+          -1.63100004196167,
+          1.1348038911819458
+        ],
+        [
+          -0.15399999916553497,
+          -1.5290000438690186,
+          1.1451960802078247
+        ]
+      ]
+    },
+    {
+      "name": "Instrument coil core",
+      "group": "darpa",
+      "faces": 380,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -0.23000000417232513,
+          -1.6050000190734863,
+          1.1340000629425049
+        ],
+        [
+          -0.17999999225139618,
+          -1.5550000667572021,
+          1.1640000343322754
+        ]
+      ]
+    },
+    {
+      "name": "Instrument induction coil.001",
+      "group": "darpa",
+      "faces": 384,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          -0.25600001215934753,
+          -1.4759999513626099,
+          1.1348038911819458
+        ],
+        [
+          -0.15399999916553497,
+          -1.3739999532699585,
+          1.1451960802078247
+        ]
+      ]
+    },
+    {
+      "name": "Instrument coil core.001",
+      "group": "darpa",
+      "faces": 380,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -0.23000000417232513,
+          -1.4499999284744263,
+          1.1340000629425049
+        ],
+        [
+          -0.17999999225139618,
+          -1.399999976158142,
+          1.1640000343322754
+        ]
+      ]
+    },
+    {
+      "name": "Instrument slotted fastener",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          -0.28700000047683716,
+          -1.61899995803833,
+          1.1340000629425049
+        ],
+        [
+          -0.26899999380111694,
+          -1.6010000705718994,
+          1.1419999599456787
+        ]
+      ]
+    },
+    {
+      "name": "Instrument slotted fastener.001",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          -0.14100000262260437,
+          -1.61899995803833,
+          1.1340000629425049
+        ],
+        [
+          -0.12299999594688416,
+          -1.6010000705718994,
+          1.1419999599456787
+        ]
+      ]
+    },
+    {
+      "name": "Instrument signal loop",
+      "group": "darpa",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          -0.2835000157356262,
+          -1.403499960899353,
+          1.1339998245239258
+        ],
+        [
+          -0.27649998664855957,
+          -1.3964999914169312,
+          1.2699999809265137
+        ]
+      ]
+    },
+    {
+      "name": "Instrument upper aerial loop",
+      "group": "darpa",
+      "faces": 384,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          -0.32100000977516174,
+          -1.4025980234146118,
+          1.2089999914169312
+        ],
+        [
+          -0.23900000751018524,
+          -1.3974019289016724,
+          1.2910000085830688
+        ]
+      ]
+    },
+    {
+      "name": "Artifact felt-lined tray.002",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.3474999964237213,
+          -0.4300000071525574,
+          1.0299999713897705
+        ],
+        [
+          -0.0625,
+          0.08999998867511749,
+          1.0439999103546143
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine timber lip.004",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.34700000286102295,
+          -0.4259999990463257,
+          1.0350000858306885
+        ],
+        [
+          -0.06299999356269836,
+          -0.4139999747276306,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine timber lip.005",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.34700000286102295,
+          0.07400000095367432,
+          1.0350000858306885
+        ],
+        [
+          -0.06299999356269836,
+          0.085999995470047,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine side lip.004",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.34700000286102295,
+          -0.4150000214576721,
+          1.0350000858306885
+        ],
+        [
+          -0.3349999785423279,
+          0.07500000298023224,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine side lip.005",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.07499999552965164,
+          -0.4150000214576721,
+          1.0350000858306885
+        ],
+        [
+          -0.06300000101327896,
+          0.07500000298023224,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Curiosity label brass mount.002",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          -0.38850000500679016,
+          -0.3100000023841858,
+          0.9040000438690186
+        ],
+        [
+          -0.37950000166893005,
+          -0.030000001192092896,
+          0.9639999866485596
+        ]
+      ]
+    },
+    {
+      "name": "Curiosity engraved label TIME",
+      "group": "time-slips",
+      "faces": 140,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.3901499807834625,
+          -0.18869300186634064,
+          0.928600013256073
+        ],
+        [
+          -0.389849990606308,
+          -0.15109099447727203,
+          0.9408760070800781
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.012",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3333737552165985,
+          -0.3441825211048126,
+          0.531499981880188
+        ],
+        [
+          -0.0766262412071228,
+          0.004182510543614626,
+          0.5364999771118164
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.013",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3333737552165985,
+          -0.3441825211048126,
+          0.5634999871253967
+        ],
+        [
+          -0.0766262412071228,
+          0.004182510543614626,
+          0.5684999823570251
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.006",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          -0.3272024691104889,
+          -0.33897560834884644,
+          0.5365000367164612
+        ],
+        [
+          -0.08279752731323242,
+          -0.0010243873111903667,
+          0.5634999871253967
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.014",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3254287838935852,
+          -0.31229281425476074,
+          0.5690000057220459
+        ],
+        [
+          -0.08457120507955551,
+          0.04229281470179558,
+          0.5740000009536743
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.015",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3254287838935852,
+          -0.31229281425476074,
+          0.6010000109672546
+        ],
+        [
+          -0.08457120507955551,
+          0.04229281470179558,
+          0.6060000061988831
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.007",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          -0.319374144077301,
+          -0.30722713470458984,
+          0.5740000009536743
+        ],
+        [
+          -0.09062584489583969,
+          0.03722713142633438,
+          0.6009999513626099
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.016",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3218562602996826,
+          -0.35347306728363037,
+          0.6065000295639038
+        ],
+        [
+          -0.0881437435746193,
+          0.01347307488322258,
+          0.6115000247955322
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.017",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          -0.3218562602996826,
+          -0.35347306728363037,
+          0.6384999752044678
+        ],
+        [
+          -0.0881437435746193,
+          0.01347307488322258,
+          0.6434999704360962
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.008",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          -0.3157917559146881,
+          -0.3483954966068268,
+          0.6115000247955322
+        ],
+        [
+          -0.0942082405090332,
+          0.008395498618483543,
+          0.6384999752044678
+        ]
+      ]
+    },
+    {
+      "name": "Mantel clock foot",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          -0.3310000002384186,
+          -0.32999998331069946,
+          1.0440000295639038
+        ],
+        [
+          -0.07899999618530273,
+          -0.01000000536441803,
+          1.0709999799728394
+        ]
+      ]
+    },
+    {
+      "name": "Time cabinet round body",
+      "group": "time-slips",
+      "faces": 508,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          -0.2510000169277191,
+          -0.28200000524520874,
+          1.0640000104904175
+        ],
+        [
+          -0.1589999943971634,
+          -0.057999998331069946,
+          1.2879999876022339
+        ]
+      ]
+    },
+    {
+      "name": "Time cabinet ivory dial",
+      "group": "time-slips",
+      "faces": 508,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          -0.257999986410141,
+          -0.2670000195503235,
+          1.0789999961853027
+        ],
+        [
+          -0.25200000405311584,
+          -0.0729999989271164,
+          1.2730000019073486
+        ]
+      ]
+    },
+    {
+      "name": "Time cabinet brass bezel",
+      "group": "time-slips",
+      "faces": 384,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          -0.2633301317691803,
+          -0.2750000059604645,
+          1.0709999799728394
+        ],
+        [
+          -0.2546698749065399,
+          -0.06499999761581421,
+          1.281000018119812
+        ]
+      ]
+    },
+    {
+      "name": "Clock engraved hour mark",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26170000433921814,
+          -0.17170000076293945,
+          1.2549999952316284
+        ],
+        [
+          -0.25829997658729553,
+          -0.16830000281333923,
+          1.2640000581741333
+        ]
+      ]
+    },
+    {
+      "name": "Clock engraved hour mark.001",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26170000433921814,
+          -0.13197225332260132,
+          1.2435660362243652
+        ],
+        [
+          -0.25829997658729553,
+          -0.12452775985002518,
+          1.2530603408813477
+        ]
+      ]
+    },
+    {
+      "name": "Clock engraved hour mark.002",
+      "group": "time-slips",
+      "faces": 444,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26170000433921814,
+          -0.10243400186300278,
+          1.214027762413025
+        ],
+        [
+          -0.25829997658729553,
+          -0.09293975681066513,
+          1.2214723825454712
+        ]
+      ]
+    },
+    {
+      "name": "Clock engraved hour mark.003",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26170000433921814,
+          -0.09100000560283661,
+          1.174299955368042
+        ],
+        [
+          -0.25829997658729553,
+          -0.0820000022649765,
+          1.1777000427246094
+        ]
+      ]
+    },
+    {
+      "name": "Clock engraved hour mark.004",
+      "group": "time-slips",
+      "faces": 444,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26170000433921814,
+          -0.10243400186300278,
+          1.1305276155471802
+        ],
+        [
+          -0.25829997658729553,
+          -0.09293975681066513,
+          1.1379722356796265
+        ]
+      ]
+    },
+    {
+      "name": "Clock engraved hour mark.005",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26170000433921814,
+          -0.13197225332260132,
+          1.0989396572113037
+        ],
+        [
+          -0.25829997658729553,
+          -0.12452775985002518,
+          1.1084339618682861
+        ]
+      ]
+    },
+    {
+      "name": "Clock engraved hour mark.006",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26170000433921814,
+          -0.17170000076293945,
+          1.087999939918518
+        ],
+        [
+          -0.25829997658729553,
+          -0.16830000281333923,
+          1.097000002861023
+        ]
+      ]
+    },
+    {
+      "name": "Clock engraved hour mark.007",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26170000433921814,
+          -0.2154722511768341,
+          1.0989396572113037
+        ],
+        [
+          -0.25829997658729553,
+          -0.20802775025367737,
+          1.1084339618682861
+        ]
+      ]
+    },
+    {
+      "name": "Clock engraved hour mark.008",
+      "group": "time-slips",
+      "faces": 444,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26170000433921814,
+          -0.24706023931503296,
+          1.1305276155471802
+        ],
+        [
+          -0.25829997658729553,
+          -0.2375659942626953,
+          1.1379722356796265
+        ]
+      ]
+    },
+    {
+      "name": "Clock engraved hour mark.009",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26170000433921814,
+          -0.257999986410141,
+          1.174299955368042
+        ],
+        [
+          -0.25829997658729553,
+          -0.24899998307228088,
+          1.1777000427246094
+        ]
+      ]
+    },
+    {
+      "name": "Clock engraved hour mark.010",
+      "group": "time-slips",
+      "faces": 444,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26170000433921814,
+          -0.24706023931503296,
+          1.214027762413025
+        ],
+        [
+          -0.25829997658729553,
+          -0.2375659942626953,
+          1.2214723825454712
+        ]
+      ]
+    },
+    {
+      "name": "Clock engraved hour mark.011",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26170000433921814,
+          -0.2154722511768341,
+          1.2435660362243652
+        ],
+        [
+          -0.25829997658729553,
+          -0.20802775025367737,
+          1.2530603408813477
+        ]
+      ]
+    },
+    {
+      "name": "Clock minute hand",
+      "group": "time-slips",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.26600000262260437,
+          -0.22334109246730804,
+          1.1745163202285767
+        ],
+        [
+          -0.2619999945163727,
+          -0.16865892708301544,
+          1.224483847618103
+        ]
+      ]
+    },
+    {
+      "name": "Clock hour hand",
+      "group": "time-slips",
+      "faces": 316,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          -0.2699488699436188,
+          -0.17156289517879486,
+          1.173499345779419
+        ],
+        [
+          -0.2640511095523834,
+          -0.13643710315227509,
+          1.198500633239746
+        ]
+      ]
+    },
+    {
+      "name": "Clock hand pivot",
+      "group": "time-slips",
+      "faces": 444,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          -0.2719999849796295,
+          -0.1770000010728836,
+          1.1690000295639038
+        ],
+        [
+          -0.26600000262260437,
+          -0.16300000250339508,
+          1.1829999685287476
+        ]
+      ]
+    },
+    {
+      "name": "Artifact felt-lined tray.003",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.0625,
+          -3.0899999141693115,
+          1.0299999713897705
+        ],
+        [
+          0.3474999964237213,
+          -2.569999933242798,
+          1.0439999103546143
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine timber lip.006",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.06299999356269836,
+          -3.0859999656677246,
+          1.0350000858306885
+        ],
+        [
+          0.34700000286102295,
+          -3.0739998817443848,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine timber lip.007",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.06299999356269836,
+          -2.5859999656677246,
+          1.0350000858306885
+        ],
+        [
+          0.34700000286102295,
+          -2.5739998817443848,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine side lip.006",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.06300000101327896,
+          -3.0749998092651367,
+          1.0350000858306885
+        ],
+        [
+          0.07499999552965164,
+          -2.5850000381469727,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine side lip.007",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.3349999785423279,
+          -3.0749998092651367,
+          1.0350000858306885
+        ],
+        [
+          0.34700000286102295,
+          -2.5850000381469727,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Curiosity label brass mount.003",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          0.37950000166893005,
+          -2.9700000286102295,
+          0.9040000438690186
+        ],
+        [
+          0.38850000500679016,
+          -2.68999981880188,
+          0.9639999866485596
+        ]
+      ]
+    },
+    {
+      "name": "Curiosity engraved label SKY FILES",
+      "group": "ufo",
+      "faces": 272,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.389849990606308,
+          -2.8667469024658203,
+          0.9284380078315735
+        ],
+        [
+          0.3901499807834625,
+          -2.7931089401245117,
+          0.9410380125045776
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.018",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.0766262412071228,
+          -3.0041823387145996,
+          0.531499981880188
+        ],
+        [
+          0.3333737552165985,
+          -2.6558175086975098,
+          0.5364999771118164
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.019",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.0766262412071228,
+          -3.0041823387145996,
+          0.5634999871253967
+        ],
+        [
+          0.3333737552165985,
+          -2.6558175086975098,
+          0.5684999823570251
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.009",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          0.08279752731323242,
+          -2.9989755153656006,
+          0.5365000367164612
+        ],
+        [
+          0.3272024691104889,
+          -2.661024332046509,
+          0.5634999871253967
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.020",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.08457120507955551,
+          -2.972292900085449,
+          0.5690000057220459
+        ],
+        [
+          0.3254287838935852,
+          -2.6177072525024414,
+          0.5740000009536743
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.021",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.08457120507955551,
+          -2.972292900085449,
+          0.6010000109672546
+        ],
+        [
+          0.3254287838935852,
+          -2.6177072525024414,
+          0.6060000061988831
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.010",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          0.09062584489583969,
+          -2.9672272205352783,
+          0.5740000009536743
+        ],
+        [
+          0.319374144077301,
+          -2.6227729320526123,
+          0.6009999513626099
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.022",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.0881437435746193,
+          -3.0134730339050293,
+          0.6065000295639038
+        ],
+        [
+          0.3218562602996826,
+          -2.64652681350708,
+          0.6115000247955322
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.023",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.0881437435746193,
+          -3.0134730339050293,
+          0.6384999752044678
+        ],
+        [
+          0.3218562602996826,
+          -2.64652681350708,
+          0.6434999704360962
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.011",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          0.0942082405090332,
+          -3.0083954334259033,
+          0.6115000247955322
+        ],
+        [
+          0.3157917559146881,
+          -2.651604413986206,
+          0.6384999752044678
+        ]
+      ]
+    },
+    {
+      "name": "Sky observations folder",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.07466462254524231,
+          -3.0480573177337646,
+          1.0440000295639038
+        ],
+        [
+          0.335335373878479,
+          -2.6119425296783447,
+          1.0640000104904175
+        ]
+      ]
+    },
+    {
+      "name": "Aged sky-observation card",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          0.10386886447668076,
+          -3.0089852809906006,
+          1.064250111579895
+        ],
+        [
+          0.30613112449645996,
+          -2.9110147953033447,
+          1.065750002861023
+        ]
+      ]
+    },
+    {
+      "name": "Observation card sighting diagram",
+      "group": "ufo",
+      "faces": 384,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.17880000174045563,
+          -2.9862000942230225,
+          1.0659607648849487
+        ],
+        [
+          0.23119999468326569,
+          -2.933799982070923,
+          1.0680392980575562
+        ]
+      ]
+    },
+    {
+      "name": "Aged sky-observation card.001",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          0.10386886447668076,
+          -2.8989851474761963,
+          1.064250111579895
+        ],
+        [
+          0.30613112449645996,
+          -2.8010146617889404,
+          1.065750002861023
+        ]
+      ]
+    },
+    {
+      "name": "Observation card sighting diagram.001",
+      "group": "ufo",
+      "faces": 384,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.17880000174045563,
+          -2.876199960708618,
+          1.0659607648849487
+        ],
+        [
+          0.23119999468326569,
+          -2.8237998485565186,
+          1.0680392980575562
+        ]
+      ]
+    },
+    {
+      "name": "Aged sky-observation card.002",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          0.10386886447668076,
+          -2.788985252380371,
+          1.064250111579895
+        ],
+        [
+          0.30613112449645996,
+          -2.6910147666931152,
+          1.065750002861023
+        ]
+      ]
+    },
+    {
+      "name": "Observation card sighting diagram.002",
+      "group": "ufo",
+      "faces": 384,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.17880000174045563,
+          -2.766200065612793,
+          1.0659607648849487
+        ],
+        [
+          0.23119999468326569,
+          -2.7137999534606934,
+          1.0680392980575562
+        ]
+      ]
+    },
+    {
+      "name": "Small aerial model stand",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 03",
+      "bounds": [
+        [
+          0.15000000596046448,
+          -2.7699999809265137,
+          1.065750002861023
+        ],
+        [
+          0.25999999046325684,
+          -2.6599998474121094,
+          1.0907500982284546
+        ]
+      ]
+    },
+    {
+      "name": "Aerial model display pin",
+      "group": "ufo",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          0.2019999921321869,
+          -2.7179999351501465,
+          1.090749979019165
+        ],
+        [
+          0.20800000429153442,
+          -2.7119998931884766,
+          1.184999942779541
+        ]
+      ]
+    },
+    {
+      "name": "Archived unidentified craft model",
+      "group": "ufo",
+      "faces": 360,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          0.12399996072053909,
+          -2.7960000038146973,
+          1.1700000762939453
+        ],
+        [
+          0.28600001335144043,
+          -2.633999824523926,
+          1.2100000381469727
+        ]
+      ]
+    },
+    {
+      "name": "Craft model raised dome",
+      "group": "ufo",
+      "faces": 360,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          0.17099997401237488,
+          -2.748999834060669,
+          1.1859999895095825
+        ],
+        [
+          0.23900000751018524,
+          -2.680999994277954,
+          1.224000096321106
+        ]
+      ]
+    },
+    {
+      "name": "Artifact felt-lined tray.004",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.0625,
+          -1.7599999904632568,
+          1.0299999713897705
+        ],
+        [
+          0.3474999964237213,
+          -1.2400000095367432,
+          1.0439999103546143
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine timber lip.008",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.06299999356269836,
+          -1.75600004196167,
+          1.0350000858306885
+        ],
+        [
+          0.34700000286102295,
+          -1.74399995803833,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine timber lip.009",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.06299999356269836,
+          -1.25600004196167,
+          1.0350000858306885
+        ],
+        [
+          0.34700000286102295,
+          -1.24399995803833,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine side lip.008",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.06300000101327896,
+          -1.7450000047683716,
+          1.0350000858306885
+        ],
+        [
+          0.07499999552965164,
+          -1.2549999952316284,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine side lip.009",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.3349999785423279,
+          -1.7450000047683716,
+          1.0350000858306885
+        ],
+        [
+          0.34700000286102295,
+          -1.2549999952316284,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Curiosity label brass mount.004",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          0.37950000166893005,
+          -1.6399999856948853,
+          0.9040000438690186
+        ],
+        [
+          0.38850000500679016,
+          -1.3600000143051147,
+          0.9639999866485596
+        ]
+      ]
+    },
+    {
+      "name": "Curiosity engraved label MANUSCRIPTS",
+      "group": "ciphers",
+      "faces": 460,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.389849990606308,
+          -1.5574469566345215,
+          0.9284380078315735
+        ],
+        [
+          0.3901499807834625,
+          -1.4418150186538696,
+          0.9410380125045776
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.024",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.0766262412071228,
+          -1.6741825342178345,
+          0.531499981880188
+        ],
+        [
+          0.3333737552165985,
+          -1.3258174657821655,
+          0.5364999771118164
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.025",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.0766262412071228,
+          -1.6741825342178345,
+          0.5634999871253967
+        ],
+        [
+          0.3333737552165985,
+          -1.3258174657821655,
+          0.5684999823570251
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.012",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          0.08279752731323242,
+          -1.668975591659546,
+          0.5365000367164612
+        ],
+        [
+          0.3272024691104889,
+          -1.331024408340454,
+          0.5634999871253967
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.026",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.08457120507955551,
+          -1.642292857170105,
+          0.5690000057220459
+        ],
+        [
+          0.3254287838935852,
+          -1.2877072095870972,
+          0.5740000009536743
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.027",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.08457120507955551,
+          -1.642292857170105,
+          0.6010000109672546
+        ],
+        [
+          0.3254287838935852,
+          -1.2877072095870972,
+          0.6060000061988831
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.013",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          0.09062584489583969,
+          -1.637227177619934,
+          0.5740000009536743
+        ],
+        [
+          0.319374144077301,
+          -1.292772889137268,
+          0.6009999513626099
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.028",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.0881437435746193,
+          -1.6834731101989746,
+          0.6065000295639038
+        ],
+        [
+          0.3218562602996826,
+          -1.3165268898010254,
+          0.6115000247955322
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.029",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.0881437435746193,
+          -1.6834731101989746,
+          0.6384999752044678
+        ],
+        [
+          0.3218562602996826,
+          -1.3165268898010254,
+          0.6434999704360962
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.014",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          0.0942082405090332,
+          -1.6783955097198486,
+          0.6115000247955322
+        ],
+        [
+          0.3157917559146881,
+          -1.3216044902801514,
+          0.6384999752044678
+        ]
+      ]
+    },
+    {
+      "name": "Manuscript leather slipcase",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Ox-blood leather",
+      "bounds": [
+        [
+          0.07670599222183228,
+          -1.6985867023468018,
+          1.0439999103546143
+        ],
+        [
+          0.33329400420188904,
+          -1.3014132976531982,
+          1.0789999961853027
+        ]
+      ]
+    },
+    {
+      "name": "Mysterious manuscript loose leaf",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Centuries of foxing in rag paper",
+      "bounds": [
+        [
+          0.08930050581693649,
+          -1.6782357692718506,
+          1.0794000625610352
+        ],
+        [
+          0.3206994831562042,
+          -1.3217642307281494,
+          1.0806000232696533
+        ]
+      ]
+    },
+    {
+      "name": "Mysterious manuscript loose leaf.001",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Centuries of foxing in rag paper",
+      "bounds": [
+        [
+          0.08930050581693649,
+          -1.6752357482910156,
+          1.0809000730514526
+        ],
+        [
+          0.3206994831562042,
+          -1.3187642097473145,
+          1.0821000337600708
+        ]
+      ]
+    },
+    {
+      "name": "Mysterious manuscript loose leaf.002",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Centuries of foxing in rag paper",
+      "bounds": [
+        [
+          0.08930050581693649,
+          -1.6722357273101807,
+          1.0823999643325806
+        ],
+        [
+          0.3206994831562042,
+          -1.3157641887664795,
+          1.0835999250411987
+        ]
+      ]
+    },
+    {
+      "name": "Mysterious manuscript loose leaf.003",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Centuries of foxing in rag paper",
+      "bounds": [
+        [
+          0.08930050581693649,
+          -1.6692358255386353,
+          1.083899974822998
+        ],
+        [
+          0.3206994831562042,
+          -1.312764286994934,
+          1.0850999355316162
+        ]
+      ]
+    },
+    {
+      "name": "Mysterious manuscript loose leaf.004",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Centuries of foxing in rag paper",
+      "bounds": [
+        [
+          0.08930050581693649,
+          -1.6662358045578003,
+          1.0853999853134155
+        ],
+        [
+          0.3206994831562042,
+          -1.3097642660140991,
+          1.0865999460220337
+        ]
+      ]
+    },
+    {
+      "name": "Manuscript indecipherable figure",
+      "group": "ciphers",
+      "faces": 148,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.17199203372001648,
+          -1.6253103017807007,
+          1.0870500802993774
+        ],
+        [
+          0.2380284070968628,
+          -1.613541841506958,
+          1.0873500108718872
+        ]
+      ]
+    },
+    {
+      "name": "Manuscript indecipherable figure.001",
+      "group": "ciphers",
+      "faces": 168,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.16791287064552307,
+          -1.593433141708374,
+          1.0870500802993774
+        ],
+        [
+          0.24212156236171722,
+          -1.5814194679260254,
+          1.0873500108718872
+        ]
+      ]
+    },
+    {
+      "name": "Manuscript indecipherable figure.002",
+      "group": "ciphers",
+      "faces": 148,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.17199203372001648,
+          -1.5613102912902832,
+          1.0870500802993774
+        ],
+        [
+          0.2380284070968628,
+          -1.5495418310165405,
+          1.0873500108718872
+        ]
+      ]
+    },
+    {
+      "name": "Manuscript indecipherable figure.003",
+      "group": "ciphers",
+      "faces": 168,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.16791287064552307,
+          -1.5294331312179565,
+          1.0870500802993774
+        ],
+        [
+          0.24212156236171722,
+          -1.517419457435608,
+          1.0873500108718872
+        ]
+      ]
+    },
+    {
+      "name": "Manuscript indecipherable figure.004",
+      "group": "ciphers",
+      "faces": 148,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.17199203372001648,
+          -1.4973102807998657,
+          1.0870500802993774
+        ],
+        [
+          0.2380284070968628,
+          -1.485541820526123,
+          1.0873500108718872
+        ]
+      ]
+    },
+    {
+      "name": "Manuscript indecipherable figure.005",
+      "group": "ciphers",
+      "faces": 168,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.16791287064552307,
+          -1.465433120727539,
+          1.0870500802993774
+        ],
+        [
+          0.24212156236171722,
+          -1.4534194469451904,
+          1.0873500108718872
+        ]
+      ]
+    },
+    {
+      "name": "Manuscript indecipherable figure.006",
+      "group": "ciphers",
+      "faces": 148,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.17199203372001648,
+          -1.4333102703094482,
+          1.0870500802993774
+        ],
+        [
+          0.2380284070968628,
+          -1.4215418100357056,
+          1.0873500108718872
+        ]
+      ]
+    },
+    {
+      "name": "Manuscript indecipherable figure.007",
+      "group": "ciphers",
+      "faces": 168,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.16791287064552307,
+          -1.4014331102371216,
+          1.0870500802993774
+        ],
+        [
+          0.24212156236171722,
+          -1.389419436454773,
+          1.0873500108718872
+        ]
+      ]
+    },
+    {
+      "name": "Manuscript wax seal",
+      "group": "ciphers",
+      "faces": 316,
+      "material": "Ox-blood leather",
+      "bounds": [
+        [
+          0.23899999260902405,
+          -1.3890000581741333,
+          1.0870000123977661
+        ],
+        [
+          0.2809999883174896,
+          -1.347000002861023,
+          1.09499990940094
+        ]
+      ]
+    },
+    {
+      "name": "Manuscript seal cord",
+      "group": "ciphers",
+      "faces": 188,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          0.14438889920711517,
+          -1.3693982362747192,
+          1.0865004062652588
+        ],
+        [
+          0.26061108708381653,
+          -1.3186019659042358,
+          1.0924994945526123
+        ]
+      ]
+    },
+    {
+      "name": "Artifact felt-lined tray.005",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.0625,
+          -0.4300000071525574,
+          1.0299999713897705
+        ],
+        [
+          0.3474999964237213,
+          0.08999998867511749,
+          1.0439999103546143
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine timber lip.010",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.06299999356269836,
+          -0.4259999990463257,
+          1.0350000858306885
+        ],
+        [
+          0.34700000286102295,
+          -0.4139999747276306,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine timber lip.011",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.06299999356269836,
+          0.07400000095367432,
+          1.0350000858306885
+        ],
+        [
+          0.34700000286102295,
+          0.085999995470047,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine side lip.010",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.06300000101327896,
+          -0.4150000214576721,
+          1.0350000858306885
+        ],
+        [
+          0.07499999552965164,
+          0.07500000298023224,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Tray fine side lip.011",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.3349999785423279,
+          -0.4150000214576721,
+          1.0350000858306885
+        ],
+        [
+          0.34700000286102295,
+          0.07500000298023224,
+          1.059000015258789
+        ]
+      ]
+    },
+    {
+      "name": "Curiosity label brass mount.005",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          0.37950000166893005,
+          -0.3100000023841858,
+          0.9040000438690186
+        ],
+        [
+          0.38850000500679016,
+          -0.030000001192092896,
+          0.9639999866485596
+        ]
+      ]
+    },
+    {
+      "name": "Curiosity engraved label ODDITIES",
+      "group": "artifacts",
+      "faces": 252,
+      "material": "Old ebony joinery",
+      "bounds": [
+        [
+          0.389849990606308,
+          -0.2086549997329712,
+          0.9284380078315735
+        ],
+        [
+          0.3901499807834625,
+          -0.1311109960079193,
+          0.9410380125045776
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.030",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.0766262412071228,
+          -0.3441825211048126,
+          0.531499981880188
+        ],
+        [
+          0.3333737552165985,
+          0.004182510543614626,
+          0.5364999771118164
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.031",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.0766262412071228,
+          -0.3441825211048126,
+          0.5634999871253967
+        ],
+        [
+          0.3333737552165985,
+          0.004182510543614626,
+          0.5684999823570251
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.015",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          0.08279752731323242,
+          -0.33897560834884644,
+          0.5365000367164612
+        ],
+        [
+          0.3272024691104889,
+          -0.0010243873111903667,
+          0.5634999871253967
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.032",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.08457120507955551,
+          -0.31229281425476074,
+          0.5690000057220459
+        ],
+        [
+          0.3254287838935852,
+          0.04229281470179558,
+          0.5740000009536743
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.033",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.08457120507955551,
+          -0.31229281425476074,
+          0.6010000109672546
+        ],
+        [
+          0.3254287838935852,
+          0.04229281470179558,
+          0.6060000061988831
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.016",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          0.09062584489583969,
+          -0.30722713470458984,
+          0.5740000009536743
+        ],
+        [
+          0.319374144077301,
+          0.03722713142633438,
+          0.6009999513626099
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.034",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.0881437435746193,
+          -0.35347306728363037,
+          0.6065000295639038
+        ],
+        [
+          0.3218562602996826,
+          0.01347307488322258,
+          0.6115000247955322
+        ]
+      ]
+    },
+    {
+      "name": "Lower shelf cloth book cover.035",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Book cloth 01",
+      "bounds": [
+        [
+          0.0881437435746193,
+          -0.35347306728363037,
+          0.6384999752044678
+        ],
+        [
+          0.3218562602996826,
+          0.01347307488322258,
+          0.6434999704360962
+        ]
+      ]
+    },
+    {
+      "name": "Lower volume warm page block.017",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Antique paper",
+      "bounds": [
+        [
+          0.0942082405090332,
+          -0.3483954966068268,
+          0.6115000247955322
+        ],
+        [
+          0.3157917559146881,
+          0.008395498618483543,
+          0.6384999752044678
+        ]
+      ]
+    },
+    {
+      "name": "Curious artifact fitted timber base",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Walnut \u2022 patina 06",
+      "bounds": [
+        [
+          0.08999999612569809,
+          -0.3100000023841858,
+          1.0439999103546143
+        ],
+        [
+          0.3199999928474426,
+          -0.030000001192092896,
+          1.0720000267028809
+        ]
+      ]
+    },
+    {
+      "name": "Artifact central pedestal",
+      "group": "artifacts",
+      "faces": 380,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          0.15000000596046448,
+          -0.22499999403953552,
+          1.0720000267028809
+        ],
+        [
+          0.25999999046325684,
+          -0.11500000208616257,
+          1.121999979019165
+        ]
+      ]
+    },
+    {
+      "name": "Timeworn stone fragment",
+      "group": "artifacts",
+      "faces": 360,
+      "material": "Damp soot-blackened cellar stone",
+      "bounds": [
+        [
+          0.14299997687339783,
+          -0.24500001966953278,
+          1.0950000286102295
+        ],
+        [
+          0.2670000195503235,
+          -0.0949999988079071,
+          1.2369999885559082
+        ]
+      ]
+    },
+    {
+      "name": "Artifact brass meridian",
+      "group": "artifacts",
+      "faces": 384,
+      "material": "Tarnished old brass",
+      "bounds": [
+        [
+          0.18493260443210602,
+          -0.2778640389442444,
+          1.059499979019165
+        ],
+        [
+          0.2250673919916153,
+          -0.062135960906744,
+          1.2764999866485596
+        ]
+      ]
+    },
+    {
+      "name": "Artifact oblique brass orbit",
+      "group": "artifacts",
+      "faces": 384,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          0.09072834998369217,
+          -0.24219340085983276,
+          1.0736503601074219
+        ],
+        [
+          0.31927165389060974,
+          -0.09780661016702652,
+          1.2623496055603027
+        ]
+      ]
+    },
+    {
+      "name": "Artifact anchored cradle",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          0.20099999010562897,
+          -0.2777131199836731,
+          1.0690608024597168
+        ],
+        [
+          0.20900000631809235,
+          -0.2040368765592575,
+          1.137939214706421
+        ]
+      ]
+    },
+    {
+      "name": "Artifact anchored cradle.001",
+      "group": "artifacts",
+      "faces": 188,
+      "material": "Oxidized bronze",
+      "bounds": [
+        [
+          0.20100000500679016,
+          -0.13596311211585999,
+          1.0690608024597168
+        ],
+        [
+          0.20899999141693115,
+          -0.062286876142024994,
+          1.137939214706421
+        ]
+      ]
+    }
+  ],
+  "new_static_mesh": "CenterCuriosityShelf",
+  "new_vertices": 26298,
+  "new_triangles": 47616,
+  "original_uv_hashes": [
+    "c49e1d20ef0eb63560b232548521a0b5911e515e73796440c5ce27fd0396d206",
+    "c49e1d20ef0eb63560b232548521a0b5911e515e73796440c5ce27fd0396d206",
+    "4fb1e6d33c59cb616b11d1bab8184f67244de2fe85498cf85685f3592f1e1c93"
+  ],
+  "old_uvs_preserved": true,
+  "hero_hinge_preserved": true,
+  "shelf_footprint_blender": [
+    [
+      -0.38,
+      -3.5
+    ],
+    [
+      0.38,
+      0.5
+    ]
+  ],
+  "review_cameras": {
+    "west": [
+      [
+        -1.17,
+        -2.5,
+        1.62
+      ],
+      [
+        -0.12,
+        -1.5,
+        1.08
+      ]
+    ],
+    "east": [
+      [
+        1.17,
+        -2.5,
+        1.62
+      ],
+      [
+        0.12,
+        -1.5,
+        1.08
+      ]
+    ],
+    "bottles_west": [
+      [
+        -1.4,
+        -1.25,
+        1.64
+      ],
+      [
+        -2.6,
+        -0.8,
+        1.33
+      ]
+    ],
+    "bottles_east": [
+      [
+        1.3,
+        -2.05,
+        1.67
+      ],
+      [
+        2.55,
+        -0.85,
+        1.32
+      ]
+    ]
+  },
+  "contact_verification": {
+    "bottles_checked": 19,
+    "caps_moved": 19,
+    "labels_moved": 14,
+    "maximum_bottle_gap_m": 0.0006000995635986328,
+    "shelf_feet_checked": 6,
+    "map_stack_gap_m": 0.000500023365020752,
+    "globe_stack_gap_m": 5.960464477539063e-08,
+    "new_curiosity_base_checks": [
+      {
+        "group": "cia",
+        "base": "Creased archive folder",
+        "gap_m": 2.95639037695139e-08
+      },
+      {
+        "group": "darpa",
+        "base": "Experimental instrument enclosure",
+        "gap_m": 2.95639037695139e-08
+      },
+      {
+        "group": "time-slips",
+        "base": "Mantel clock foot",
+        "gap_m": 2.95639037695139e-08
+      },
+      {
+        "group": "ufo",
+        "base": "Sky observations folder",
+        "gap_m": 2.95639037695139e-08
+      },
+      {
+        "group": "ciphers",
+        "base": "Manuscript leather slipcase",
+        "gap_m": -8.964538578126735e-08
+      },
+      {
+        "group": "artifacts",
+        "base": "Curious artifact fitted timber base",
+        "gap_m": -8.964538578126735e-08
+      }
+    ]
+  }
+}

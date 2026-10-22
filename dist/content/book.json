@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "title": "The Legacy AI Solutions Book of Immutable Truths",
+  "author": "Douglas",
+  "collection": "Legacy AI / Floyd's Labs Standards & Practices",
+  "description": "An ongoing book of the author's principles for building software that cares for everyone who arrives.",
+  "chapters": [
+    {
+      "id": "what-software-owes-you",
+      "number": 1,
+      "title": "What Software Owes You",
+      "subtitle": "or, Douglas’s Oath To This Work",
+      "source": "oath.txt",
+      "sha256": "1460bd439dbe372c738c25c716bb858821c3fa6adde8ec545b27a10ac29d7193"
+    }
+  ]
+}

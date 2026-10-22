@@ -1,0 +1,609 @@
+{
+  "version": 1,
+  "node": "CenterCuriosityShelf",
+  "uv_channel": 2,
+  "scale": 32.0,
+  "illuminationScale": 32.0,
+  "resolution": 4096,
+  "encoding": "RGBM_SQRT",
+  "decode": "(rgb * alpha)^2 * illuminationScale; all channels are non-color data",
+  "file": "curiosity-lightmap.png",
+  "source": "Cycles diffuse direct + indirect, color disabled",
+  "samples": 1024,
+  "dynamic_cover_excluded": true,
+  "volume_excluded": true,
+  "complete_static_scene_visible": true,
+  "atlas_inter_island_gap_pixels": 8,
+  "bake_extension_pixels": 3,
+  "static_runtime_diffuse_lights_must_be_disabled": true,
+  "statistics": {
+    "max_linear_occupied": 16.60662269592285,
+    "mean_linear_occupied": 0.43652549386024475,
+    "linear_percentiles_occupied": {
+      "p01": 0.0,
+      "p50": 0.0943770632147789,
+      "p95": 1.9833480715751648,
+      "p9999": 9.125560449123885
+    },
+    "channels_clipped": 0,
+    "fraction_occupied_channels_clipped": 0.0,
+    "nonfinite_channels": 0,
+    "negative_channels_clamped": 0,
+    "black_pixels_including_unused_atlas": 10824139,
+    "max_abs_decode_error_occupied": 0.06439912191493136,
+    "mean_abs_decode_error_occupied": 0.0010841431474615199,
+    "mean_abs_decode_error_shadow_channels": 6.877016881742245e-05,
+    "minimum_positive_decoded_occupied": 7.568141730009204e-09,
+    "total_pixels": 16777216,
+    "bytes": 16363562,
+    "occupied_texels": 5707972,
+    "atlas_coverage_fraction": 0.340221643447876,
+    "interior_overlap_texels": 0,
+    "degenerate_uv_triangles": 130,
+    "positive_area_degenerate_uv_faces": [],
+    "conflicting_faces": [],
+    "collision_triangle_pair_count": 0,
+    "uv_loops_checked": 1162212,
+    "nonfinite_uv_loops": 0,
+    "out_of_bounds_uv_loops": 0,
+    "invalid_uv_faces": [],
+    "nonfinite_uv_faces": [],
+    "out_of_bounds_uv_faces": [],
+    "uv_min": [
+      0.0019530376885086298,
+      0.0019530956633388996
+    ],
+    "uv_max": [
+      0.9949362277984619,
+      0.9980408549308777
+    ],
+    "invalid_uv_examples": [],
+    "collision_examples": []
+  },
+  "sha256": "2c87308b86586bbea435cc64868077a66a214d3b6c38511e30f5ce4279648cc6",
+  "texel_density": {
+    "major_wood_triangles": 196,
+    "major_wood_area_m2": 42.60109653881689,
+    "texels_per_metre_min": 317.915393506005,
+    "texels_per_metre_p10": 318.1048403692454,
+    "texels_per_metre_median": 320.3046654040261,
+    "required_p10": 256,
+    "measurement": "Wood triangles >=0.02m2 with minimum altitude >=0.03m; UV area / world area"
+  },
+  "export": {
+    "path": "dist/assets/bookstore-depth.gltf",
+    "bytes": 163663,
+    "sha256": "7ac4d841b460d66d3e971917d7bbc934cc341c4529095a6699488e04059af936",
+    "format": "gltf",
+    "total_bytes": 77968555,
+    "files": [
+      {
+        "path": "dist/assets/bookstore-depth.gltf",
+        "bytes": 163663,
+        "sha256": "7ac4d841b460d66d3e971917d7bbc934cc341c4529095a6699488e04059af936"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-001.bin",
+        "bytes": 7660832,
+        "sha256": "6b66994852fff675e62ac5f16112e0f62c6f7e821341c3db9606e176bb9e3928"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-002.bin",
+        "bytes": 8375464,
+        "sha256": "204a20878faa375ec9cc90f0ef442b8405a40b3d9041eff57105184a0af247d3"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-003.bin",
+        "bytes": 8304188,
+        "sha256": "423e3487fd268849d64298ceeec7bc1011f2f9f7e4810e7c56a9b6d43670b8e9"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-004.bin",
+        "bytes": 8042608,
+        "sha256": "a929a93297d865634778cc40c81e757c06df7df0dfd99e7da7ccd6214ec8a320"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-005.bin",
+        "bytes": 7044368,
+        "sha256": "f3f6f94265976b631aa894cea076ed42352c953613720207b83b451c3fe00321"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-006.bin",
+        "bytes": 7725564,
+        "sha256": "2d1adbe1fd3a5d8458d1cf7b8665a8585a7a6e3bfe79133e67a496ea66d31225"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-007.bin",
+        "bytes": 7468312,
+        "sha256": "3f44ac2d01ec09d986a7a0283c5e4053139d81834ec6eb26b0d83ed204a57d8b"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-008.bin",
+        "bytes": 8224760,
+        "sha256": "4d7c9d8be23ebc0e3a5b94675826febfa76c8ab8ca729371c52e1fdd58beb4a8"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-009.bin",
+        "bytes": 8316984,
+        "sha256": "a3782ccd2aaf19e5f7a2d676d7e5c7b9c8cec09ede498f71d0ea79af9bfe1f88"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-010.bin",
+        "bytes": 6641812,
+        "sha256": "bdf57388854ef8fda09bb6bfa9c5d274e08e7feda58ff3a78b86cc7c9b721e7e"
+      }
+    ],
+    "buffer_parts": 10,
+    "max_part_bytes": 8388608,
+    "buffer_views_verified": 535,
+    "geometry_bytes_preserved": true,
+    "source_glb": {
+      "path": "art/bookstore-depth.glb",
+      "bytes": 77968668,
+      "sha256": "d1b50e7f2301c960aba82b2c7407d342a4f1896cf1b348da15d845678b79c6cc"
+    },
+    "static_primitives": 55,
+    "static_nodes": {
+      "OldCuriosityShop": 55,
+      "CenterCuriosityShelf": 24
+    },
+    "required_texcoords": [
+      0,
+      1,
+      2
+    ],
+    "hinge_preserved": true,
+    "explicit_base_color_factors": {
+      "Old ebony joinery / delivery": [
+        0.03200000151991844,
+        0.020999999716877937,
+        0.017000000923871994,
+        1.0
+      ],
+      "Walnut \u2022 patina 03 / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Rusted iron / delivery": [
+        0.07500000298023224,
+        0.041999999433755875,
+        0.023000000044703484,
+        1.0
+      ],
+      "Walnut \u2022 patina 07 / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Walnut \u2022 patina 00 / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Walnut \u2022 patina 04 / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Walnut \u2022 patina 08 / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Walnut \u2022 patina 01 / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Walnut \u2022 patina 05 / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Walnut \u2022 patina 06 / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Walnut \u2022 patina 02 / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Damp grey green plaster / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Exposed old brick / delivery": [
+        0.0949999988079071,
+        0.04800000041723251,
+        0.032999999821186066,
+        1.0
+      ],
+      "Dusty canvas / delivery": [
+        0.11500000208616257,
+        0.10400000214576721,
+        0.07500000298023224,
+        1.0
+      ],
+      "Book cloth 05 / delivery": [
+        0.2199999988079071,
+        0.10999999940395355,
+        0.054999999701976776,
+        1.0
+      ],
+      "Antique paper / delivery": [
+        0.5099999904632568,
+        0.4000000059604645,
+        0.2549999952316284,
+        1.0
+      ],
+      "Tarnished old brass / delivery": [
+        0.2199999988079071,
+        0.1599999964237213,
+        0.07199999690055847,
+        1.0
+      ],
+      "Book cloth 03 / delivery": [
+        0.11999999731779099,
+        0.10000000149011612,
+        0.05999999865889549,
+        1.0
+      ],
+      "Book cloth 06 / delivery": [
+        0.10999999940395355,
+        0.03999999910593033,
+        0.04399999976158142,
+        1.0
+      ],
+      "Ox-blood leather / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Book cloth 04 / delivery": [
+        0.054999999701976776,
+        0.06499999761581421,
+        0.09000000357627869,
+        1.0
+      ],
+      "Book cloth 09 / delivery": [
+        0.14000000059604645,
+        0.11999999731779099,
+        0.0949999988079071,
+        1.0
+      ],
+      "Faded linen / delivery": [
+        0.5600000023841858,
+        0.44999998807907104,
+        0.28999999165534973,
+        1.0
+      ],
+      "Book cloth 00 / delivery": [
+        0.1599999964237213,
+        0.03200000151991844,
+        0.02500000037252903,
+        1.0
+      ],
+      "Book cloth 07 / delivery": [
+        0.2199999988079071,
+        0.18000000715255737,
+        0.12999999523162842,
+        1.0
+      ],
+      "Book cloth 01 / delivery": [
+        0.09000000357627869,
+        0.10499999672174454,
+        0.07199999690055847,
+        1.0
+      ],
+      "Book cloth 08 / delivery": [
+        0.06499999761581421,
+        0.03999999910593033,
+        0.03500000014901161,
+        1.0
+      ],
+      "Book cloth 02 / delivery": [
+        0.06499999761581421,
+        0.11999999731779099,
+        0.10999999940395355,
+        1.0
+      ],
+      "Oxidized bronze / delivery": [
+        0.11999999731779099,
+        0.10499999672174454,
+        0.054999999701976776,
+        1.0
+      ],
+      "Dust-darkened globe / delivery": [
+        0.10499999672174454,
+        0.125,
+        0.08500000089406967,
+        1.0
+      ],
+      "Almost invisible cobwebs / delivery": [
+        0.25,
+        0.25,
+        0.20000000298023224,
+        1.0
+      ],
+      "Damp soot-blackened cellar stone / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Crumbling lime plaster / delivery": [
+        0.11500000208616257,
+        0.11400000005960464,
+        0.08399999886751175,
+        1.0
+      ],
+      "Centuries of foxing in rag paper / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Faded charcoal ink / delivery": [
+        0.054999999701976776,
+        0.04699999839067459,
+        0.02800000086426735,
+        1.0
+      ],
+      "Faded madder hanging cloth / delivery": [
+        0.12999999523162842,
+        0.05700000002980232,
+        0.03500000014901161,
+        1.0
+      ],
+      "Stained hemp rope / delivery": [
+        0.10000000149011612,
+        0.08299999684095383,
+        0.04699999839067459,
+        1.0
+      ],
+      "Indigo cloth worn almost grey / delivery": [
+        0.04600000008940697,
+        0.06199999898672104,
+        0.061000000685453415,
+        1.0
+      ],
+      "Old unglazed pottery / delivery": [
+        0.15000000596046448,
+        0.0729999989271164,
+        0.03700000047683716,
+        1.0
+      ],
+      "Copper green patina / delivery": [
+        0.04500000178813934,
+        0.08399999886751175,
+        0.06599999964237213,
+        1.0
+      ],
+      "Desiccated cracked leather / delivery": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Uneven darkened leaf 05 / delivery": [
+        0.4000000059604645,
+        0.3149999976158142,
+        0.1850000023841858,
+        1.0
+      ],
+      "Uneven darkened leaf 03 / delivery": [
+        0.35199999809265137,
+        0.2750000059604645,
+        0.15700000524520874,
+        1.0
+      ],
+      "Uneven darkened leaf 07 / delivery": [
+        0.4480000138282776,
+        0.35499998927116394,
+        0.21299999952316284,
+        1.0
+      ],
+      "Uneven darkened leaf 00 / delivery": [
+        0.2800000011920929,
+        0.2150000035762787,
+        0.11500000208616257,
+        1.0
+      ],
+      "Uneven darkened leaf 02 / delivery": [
+        0.328000009059906,
+        0.2549999952316284,
+        0.14300000667572021,
+        1.0
+      ],
+      "Uneven darkened leaf 06 / delivery": [
+        0.42399999499320984,
+        0.33500000834465027,
+        0.19900000095367432,
+        1.0
+      ],
+      "Uneven darkened leaf 01 / delivery": [
+        0.30399999022483826,
+        0.23499999940395355,
+        0.1289999932050705,
+        1.0
+      ],
+      "Uneven darkened leaf 04 / delivery": [
+        0.37599998712539673,
+        0.29499998688697815,
+        0.17100000381469727,
+        1.0
+      ],
+      "Uneven darkened leaf 08 / delivery": [
+        0.47200000286102295,
+        0.375,
+        0.22699999809265137,
+        1.0
+      ],
+      "Exposed abraded rawhide / delivery": [
+        0.11500000208616257,
+        0.07000000029802322,
+        0.029999999329447746,
+        1.0
+      ],
+      "Almost vanished gilt / delivery": [
+        0.10499999672174454,
+        0.06499999761581421,
+        0.02199999988079071,
+        1.0
+      ],
+      "Threadbare burgundy rug / delivery": [
+        0.11500000208616257,
+        0.02199999988079071,
+        0.027000000700354576,
+        1.0
+      ],
+      "Amber blown glass / delivery": [
+        0.8500000238418579,
+        0.4699999988079071,
+        0.1599999964237213,
+        1.0
+      ],
+      "Warm lamp glow / delivery": [
+        1.0,
+        0.6800000071525574,
+        0.2800000011920929,
+        1.0
+      ],
+      "Almost vanished gilt / delivery.001": [
+        0.10499999672174454,
+        0.06499999761581421,
+        0.02199999988079071,
+        1.0
+      ],
+      "Old ebony joinery / delivery.001": [
+        0.03200000151991844,
+        0.020999999716877937,
+        0.017000000923871994,
+        1.0
+      ],
+      "Exposed abraded rawhide / delivery.001": [
+        0.11500000208616257,
+        0.07000000029802322,
+        0.029999999329447746,
+        1.0
+      ],
+      "Blackened repair thread / delivery": [
+        0.15000000596046448,
+        0.12300000339746475,
+        0.07100000232458115,
+        1.0
+      ],
+      "Surviving worn title impression / delivery": [
+        0.30000001192092896,
+        0.20999999344348907,
+        0.10000000149011612,
+        1.0
+      ],
+      "Desiccated cracked leather / delivery.001": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Dusty bottle 02 / delivery": [
+        0.05700000002980232,
+        0.0729999989271164,
+        0.07000000029802322,
+        1.0
+      ],
+      "Dusty bottle 00 / delivery": [
+        0.03500000014901161,
+        0.06499999761581421,
+        0.0430000014603138,
+        1.0
+      ],
+      "Dusty bottle 03 / delivery": [
+        0.11999999731779099,
+        0.09600000083446503,
+        0.06400000303983688,
+        1.0
+      ],
+      "Dusty bottle 01 / delivery": [
+        0.09000000357627869,
+        0.054999999701976776,
+        0.02199999988079071,
+        1.0
+      ],
+      "Warm ivory shelf diffuser / delivery": [
+        0.5799999833106995,
+        0.4300000071525574,
+        0.25999999046325684,
+        1.0
+      ],
+      "Brushed silver display metal / delivery": [
+        0.47999998927116394,
+        0.5099999904632568,
+        0.5400000214576721,
+        1.0
+      ],
+      "Faded red display enamel / delivery": [
+        0.3100000023841858,
+        0.03500000014901161,
+        0.02199999988079071,
+        1.0
+      ],
+      "Indigo painted display enamel / delivery": [
+        0.02500000037252903,
+        0.08500000089406967,
+        0.14000000059604645,
+        1.0
+      ],
+      "Clear display glass / delivery": [
+        0.8799999952316284,
+        0.9700000286102295,
+        0.9800000190734863,
+        1.0
+      ],
+      "Verdigris botanical enamel / delivery": [
+        0.07999999821186066,
+        0.1899999976158142,
+        0.10499999672174454,
+        1.0
+      ],
+      "Terracotta replica pottery / delivery": [
+        0.3499999940395355,
+        0.11500000208616257,
+        0.04800000041723251,
+        1.0
+      ],
+      "Aged ivory appliance shell / delivery": [
+        0.5799999833106995,
+        0.5099999904632568,
+        0.3700000047683716,
+        1.0
+      ],
+      "Vortex pale water / delivery": [
+        0.25999999046325684,
+        0.5699999928474426,
+        0.6299999952316284,
+        1.0
+      ],
+      "Black steel archive case / delivery": [
+        0.02500000037252903,
+        0.029999999329447746,
+        0.03500000014901161,
+        1.0
+      ]
+    }
+  }
+}

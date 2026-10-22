@@ -1,0 +1,44 @@
+{
+  "generator": "art/build_material_textures.py",
+  "seed": 445,
+  "resolution": 512,
+  "lighting": "None: these encode only colour, surface height and roughness.",
+  "wood_finish": {
+    "default": "dry weathered timber",
+    "roughness_range": [
+      0.78,
+      0.97
+    ],
+    "finished_wood": "The runtime scales the same wear map only for explicitly finished materials."
+  },
+  "tile_metres": {
+    "wood": [
+      0.24,
+      1.6
+    ],
+    "mineral": [
+      0.6,
+      0.6
+    ],
+    "cloth": [
+      0.08,
+      0.08
+    ],
+    "paper": [
+      0.18,
+      0.18
+    ],
+    "leather": [
+      0.18,
+      0.18
+    ],
+    "metal": [
+      0.24,
+      0.24
+    ],
+    "glass": [
+      0.3,
+      0.3
+    ]
+  }
+}

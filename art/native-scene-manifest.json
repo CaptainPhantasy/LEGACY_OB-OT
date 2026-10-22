@@ -1,0 +1,21 @@
+{
+  "published_sites_version": 9,
+  "published_source_commit": "945d960b852455e105146fa99a9449ed99952da9",
+  "blender_version": "4.5.7",
+  "scenes": [
+    {
+      "path": "art/room-curiosities.blend",
+      "bytes": 176119682,
+      "sha256": "bbc4ed0921a9a0609edf2b24ffb3cff544742710a7c621b88c853b7904ceaa38",
+      "storage": "Git LFS",
+      "packed_file_images": 19
+    },
+    {
+      "path": "art/room-rabbit-holes.blend",
+      "bytes": 189103426,
+      "sha256": "3681d8acb6d0ca79164aa9a5f861797fede0c021eb631c21a223289bb3db18ce",
+      "storage": "Git LFS",
+      "packed_file_images": 19
+    }
+  ]
+}
