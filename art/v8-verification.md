@@ -1,0 +1,19 @@
+# Center shelf and grounded curiosities — v8
+
+Verified on 2026-10-22 against the final exported files.
+
+- Added a two-sided, three-bay wooden shelf down the main aisle, six displays, lower book storage, fitted feet and rounded edges. Camera routes pass around its ends and preserve side-aisle clearance.
+- Added 22 verified links across CIA records, DARPA, time slips, UFO archives, ciphers and unusual artifacts. The shop now has 12 groups and 40 links. All original 18 link titles, descriptions and destinations remain byte-for-byte equivalent. Source checks and classifications are recorded in `curiosity-link-checks-v8.md`.
+- Grounded 19 bottles and rebuilt their intersecting body/shoulder/neck shells as continuous closed profiles, with 14 curved labels and all 19 original corks retained. Bottle support gaps are at most 0.6001 mm. The old black shoulder wedges are absent in the inspected native and exported close-ups.
+- Grounded all three rolled-map bundles and fitted their ties. The final back-room correction changed exactly 360 vertices; its tie rests 0.4 mm above the measured floor. The earlier two floor bundles were corrected by the same method.
+- Preserved the hero book and its hinge. The bottle replacement removed 3,552 old faces; all 250,443 remaining original room faces retain their UV/material correspondence. The later bundle correction preserves topology and every UV layer. See `curiosity-geometry-report.json`, `bottle-profile-repair-report.json`, `bottle-profile-verification.json` and `third-map-grounding-report.json` for the separate scopes of these proofs.
+- Baked both static atlases at 4096 × 4096 and 1,024 samples in Cycles, with the complete static scene visible for mutual shadows. Both have zero overlapping interior texels, invalid UV coordinates, nonfinite channels or clipped channels. Shelf major-wood density is approximately 396 texels per metre. Both PNGs remain under 25 MiB.
+- Verified all six binary chunks, every export-manifest file hash, both lightmap hashes and dimensions, and the simple-view poster's exact match to its native render. The export has 75 material entries: all 65 prior material names plus ten delivery copies for the second static node.
+- Ran `node --test --test-reporter=spec scripts/room-*.test.mjs`: **25 passed, 0 failed, 0 skipped**. Also checked syntax for all four changed runtime modules and ran `git diff --check`.
+- Inspected all 14 final exported stills: entrance, aisle, both shelf fronts and faces, both bottle rows, maps, globe, the book at table/close/open views, and the back-room floor bundle. Inspected the final 1,920-pixel native entrance render as well. Transferred stills match the inspected image hashes.
+
+The managed Sites preview service was unavailable (`sites-previewd` mailbox missing). These checks cover native geometry, exported geometry, lighting data, code behavior and rendered stills. They do not claim live browser layout, WebGL shader, animation smoothness or device performance testing. Export review renders show decoded baked diffuse lighting; runtime reflections and specular shading are outside that render check.
+
+The book manifest and `dist/content/oath.txt` are unchanged from v7. The oath SHA-256 remains `1460bd439dbe372c738c25c716bb858821c3fa6adde8ec545b27a10ac29d7193`. Original native checkpoints and prior renders were retained in quarantine; the previous v7 delivery report is retained at `rendering.quarantine/room-depth-report-v7-before-curiosities.json`.
+
+For a fresh rebuild, run `ground-and-add-curiosities.py`, then `repair-bottle-profiles.py` (now includes all three bundles), then `build-room-depth.py` with the `atlas-shelf`, `bake`, `review` and `beauty` stages and `--native-file art/room-curiosities.blend`. `ground-third-map-bundle.py` records the bounded correction to the intermediate checkpoint; it is not needed after a fresh full repair.

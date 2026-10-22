@@ -3834,12 +3834,14 @@
     ],
     "samples_ceiling": 1024,
     "depth_of_field": true,
-    "viewed_by_agent": false,
+    "viewed_by_agent": true,
     "previous_images_retained": [
       "art/rendering.quarantine/room-depth-beauty-entrance-e661057bcd9de02e.png",
       "art/rendering.quarantine/poster-depth-e661057bcd9de02e.png"
     ],
-    "poster": "dist/assets/poster-depth.png"
+    "poster": "dist/assets/poster-depth.png",
+    "viewed_at_utc": "2026-10-22T11:50:56.770390+00:00",
+    "inspection_scope": "Visual inspection of the rendered stills; not a live browser or GPU shader test."
   },
   "bake": {
     "version": 1,
@@ -4383,7 +4385,7 @@
     ],
     "samples_ceiling": 64,
     "depth_of_field": false,
-    "viewed_by_agent": false,
+    "viewed_by_agent": true,
     "previous_images_retained": [
       "art/rendering.quarantine/room-depth-export-review-table-f39b42750f55df22.png",
       "art/rendering.quarantine/room-depth-export-review-close-2bbcfade57458aa4.png",
@@ -4399,7 +4401,9 @@
       "art/rendering.quarantine/room-depth-export-review-maps-9e1feaacd22ba550.png",
       "art/rendering.quarantine/room-depth-export-review-globe-31238efb59b06fda.png"
     ],
-    "poster": null
+    "poster": null,
+    "viewed_at_utc": "2026-10-22T11:50:56.770390+00:00",
+    "inspection_scope": "Visual inspection of the rendered stills; not a live browser or GPU shader test."
   },
   "export_review_mode": "Clean GLB reimport; static base color multiplied by decoded baked illumination. Moving cover uses native direct lights. Runtime specular/reflections and browser shaders are not tested by this image.",
   "export_only": {
@@ -6273,5 +6277,26 @@
         }
       }
     }
-  ]
+  ],
+  "v8_final_verification": {
+    "checked_at_utc": "2026-10-22T11:50:56.770390+00:00",
+    "room_tests_passed": 25,
+    "room_tests_failed": 0,
+    "export_review_images_inspected": 14,
+    "native_entrance_poster_inspected": true,
+    "new_links": 22,
+    "total_links": 40,
+    "shelf_displays": 6,
+    "continuous_bottles": 19,
+    "grounded_map_bundles": 3,
+    "material_count": 75,
+    "original_material_names_retained": 65,
+    "additional_delivery_material_copies": 10,
+    "binary_chunks": 6,
+    "image_sha256_matched_inspected_stills": true,
+    "both_4k_1024_sample_atlases_verified": true,
+    "book_text_unchanged": true,
+    "browser_preview_available": false,
+    "browser_limitation": "Managed Sites preview service mailbox unavailable; no live WebGL, DOM, or device performance validation claimed."
+  }
 }
