@@ -16,12 +16,24 @@ const { GLTFLoader } = await import('../dist/vendor/loaders/GLTFLoader.js');
 const layout = JSON.parse(await readFile(new URL('../dist/assets/rabbit-hole-layout.json', import.meta.url), 'utf8'));
 const items = curiosities.filter(item => item.shelf).map(item => ({ ...item,
   ...layout.items.find(display => display.id === item.id) }));
+// The same free image areas used by the responsive card/footer layout. Include
+// the joystick's horizontal clearance in landscape and top/bottom safe areas.
+const inspectionViewports = [
+  { width: 1440, height: 900, top: 134, bottom: 814, left: 20, right: 1064, cardTop: 132, cardLeft: 1084, footerTop: 826 },
+  { width: 390, height: 844, top: 157, bottom: 320, left: 20, right: 370, cardTop: 340, cardLeft: 12, footerTop: 728 },
+  { width: 320, height: 568, top: 110, bottom: 220, left: 20, right: 300, cardTop: 240, cardLeft: 12, footerTop: 486 },
+  { width: 768, height: 1024, top: 142, bottom: 480, left: 20, right: 748, cardTop: 500, cardLeft: 64, footerTop: 930 },
+  { width: 1024, height: 768, top: 154, bottom: 662, left: 162, right: 648, cardTop: 152, cardLeft: 668, footerTop: 674 },
+  { width: 844, height: 390, top: 118, bottom: 296, left: 163, right: 468, cardTop: 101, cardLeft: 488, footerTop: 308 },
+  { width: 844, height: 390, top: 118, bottom: 296, left: 134, right: 437, cardTop: 101, cardLeft: 457, footerTop: 308 },
+  { width: 960, height: 600, top: 154, bottom: 494, left: 162, right: 584, cardTop: 152, cardLeft: 604, footerTop: 506 },
+];
 
 function corners(bounds) {
   return Array.from({ length: 8 }, (_, corner) => new THREE.Vector3(
     ...[0, 1, 2].map(axis => bounds[(corner >> axis) & 1][axis])));
 }
-function makeCamera(item, viewport = { width: 1440, height: 900, top: 120, bottom: 580 }) {
+function makeCamera(item, viewport = inspectionViewports[0]) {
   const framing = shelfFraming(item, viewport);
   assert.ok(Number.isFinite(framing.fov), `${item.id}: finite fitted field of view`);
   const camera = new THREE.PerspectiveCamera(framing.fov, viewport.width / viewport.height, .04, 60);
@@ -90,13 +102,8 @@ test('the final measured display layout agrees with the catalog and the solid sh
   }
 });
 
-test('all twenty actual objects and plaques fit above or beside the card on desktop and phone', () => {
-  for (const viewport of [
-    { width: 1440, height: 900, top: 150, bottom: 389 },
-    { width: 390, height: 844, top: 115, bottom: 370 },
-    { width: 320, height: 568, top: 115, bottom: 240 },
-    { width: 844, height: 390, top: 135, bottom: 280, left: 20, right: 468 },
-  ]) {
+test('all twenty actual objects and plaques fit above or beside the card on desktop, tablet and phone', () => {
+  for (const viewport of inspectionViewports) {
     for (const item of items) {
       const { camera, framing } = makeCamera(item, viewport);
       assert.equal(framing.bottom, viewport.bottom, 'The fit must not enlarge the free band under the card');
@@ -177,24 +184,18 @@ test('the real waypoint updater keeps one focused label and limits discovery mar
     }));
     const spots = Object.fromEntries(curiosities.map(item => [item.id, new THREE.Vector3(...item.position)]));
     spots.table = new THREE.Vector3(0, 1.14, -4.92);
-    const landscape = viewport.width > 600 && viewport.height < 600;
     const panel = { hidden: !inspecting, getBoundingClientRect: () => ({
-      top: landscape ? 101 : viewport.bottom + 20, left: landscape ? viewport.right + 20 : 12,
+      top: viewport.cardTop, left: viewport.cardLeft,
     }) };
     const context = vm.createContext({
       $: selector => selector === '#waypoints' ? { hidden: false } : selector === '#shelf-panel' ? panel :
-        selector === '.shop-footer' ? { getBoundingClientRect: () => ({ top: viewport.bottom + 12 }) } : null,
+        selector === '.shop-footer' ? { getBoundingClientRect: () => ({ top: viewport.footerTop }) } : null,
       $$: () => buttons, curiosities: curiosities.map(c => items.find(item => item.id === c.id) || c), spots, camera, place, innerWidth: viewport.width, innerHeight: viewport.height,
     });
     vm.runInContext(app.slice(start, end), context);context.updateWaypoints();
     return buttons.filter(button => button.attributes['aria-hidden'] === 'false');
   }
-  for (const viewport of [
-    { width: 1440, height: 900, top: 150, bottom: 389 },
-    { width: 390, height: 844, top: 115, bottom: 370 },
-    { width: 320, height: 568, top: 115, bottom: 240 },
-    { width: 844, height: 390, top: 135, bottom: 280, left: 20, right: 468 },
-  ]) {
+  for (const viewport of inspectionViewports) {
     for (const item of items) {
       const { camera } = makeCamera(item, viewport);
       const visible = update(camera, viewport, item.id, true);

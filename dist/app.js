@@ -1,11 +1,19 @@
 import * as THREE from 'three';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
-import { ShopSound } from './sound.js';
+import { ShopSound } from './sound.js?scene=shop-hours-1';
+import { setupImmersive } from './immersive.js';
+import { shopTime, solarLight } from './shop-time.js';
+import { ShopClosing, OWNER_LINE } from './shop-closing.js';
+import { setupClosingUI } from './shop-closing-ui.js';
+import { ShopStorefront, ENTRANCE_THRESHOLD, EXIT_POSITION } from './shop-storefront.js?scene=render-review-1';
+import { RoomVisibility } from './room-visibility.js';
+import { appendPath, SHOP_HIDE_POSITION } from './shop-navigation.js';
 import { PhysicalPageTurn } from './page-physics.js';
-import { RoomAtmosphere } from './room-atmosphere.js';
-import { RoomLook } from './room-look.js?scene=natural-motion-1';
+import { RoomAtmosphere } from './room-atmosphere.js?scene=render-review-1';
+import { RoomLook } from './room-look.js?scene=smooth-touch-1';
+import { RoomTouchStick } from './room-touch.js?scene=smooth-touch-1';
 import { RoomMovement, createRoomCollision } from './room-movement.js?scene=natural-motion-1';
-import { RoomRadiance } from './room-radiance.js?scene=rabbit-holes-1';
+import { RoomRadiance } from './room-radiance.js?scene=render-review-1';
 import { enhanceMaterials } from './room-materials.js?scene=rabbit-holes-1';
 import { applyRoomLightmap, updateRoomRevelation } from './room-lightmap.js?scene=rabbit-holes-1';
 import { ROOM_POSES, sampleRoomPath } from './room-path.js?scene=rabbit-holes-1';
@@ -21,18 +29,26 @@ const persist=()=>{try{localStorage.setItem(key,JSON.stringify(saved));}catch{ca
 const announce=t=>{$('#announcement').textContent=t;};
 let gentle=saved.gentle??matchMedia('(prefers-reduced-motion: reduce)').matches;
 let bright=!!saved.bright, simple=false, place='entrance', busy=false, hasOpened=!!saved.opened;
-let scene,renderer,camera,room,hinge,hingeStart,mixer,openAction,magicLight,atmosphere,radiance;
+let scene,renderer,camera,room,hinge,hingeStart,mixer,openAction,magicLight,atmosphere,radiance,storefront,roomVisibility;
 let revealAt=0,renderReady=false,move=null,closing=null,lastFrame=performance.now(),time=0,dragging=false,dragPointer=null,dragX=0,dragY=0,openingToken=0,pointerTravel=0;
 let pose=new THREE.Vector3(0,1.6,6.6),focus=new THREE.Vector3(0,1.25,-5.4);
 const roomLook=new RoomLook(),lookTarget=new THREE.Vector3(),walkPoint=[0,0,0];
-const movement=new RoomMovement(),walkingKeys=new Set(),touchDirections=new Map();
+const movement=new RoomMovement(),walkingKeys=new Set(),touchStick=new RoomTouchStick();
+let stickPointer=null,stickCenterX=0,stickCenterY=0,stickRadius=1,dragTouch=false;
 let freeExploring=false,dragTurning=false,walkedDistance=0,lastWalkingStep=0;
 const audio=new ShopSound();
+const immersive=setupImmersive({announce});
+let closingStorage;try{closingStorage=localStorage;}catch{}
+const shopClosing=new ShopClosing({storage:closingStorage});
+let shopStatus=shopClosing.snapshot(),solarState=solarLight(),solarUpdated=0,shopLightLevel=shopStatus.lightsOff?0:1;
+let darkExploring=false,storyJourney=0,entryPending=false;
+const closingUI=setupClosingUI({leave:leaveShop,hide:hideInShop,explore:exploreAfterDark,replay:async()=>{await toggleSound(true);audio.ownerCall();}});
+const introCopy={eyebrow:$('#intro .eyebrow').innerHTML,title:$('#intro h1').innerHTML,description:$('#intro > p').innerHTML,note:$('#intro .keeper-note').textContent};
 const listenerDirection=new THREE.Vector3();
 let soundCaptions=!!saved.soundCaptions,captionTimer;
 $('#captions-setting').checked=soundCaptions;
 $('#captions-setting').onchange=e=>{soundCaptions=e.target.checked;saved.soundCaptions=soundCaptions;persist();$('#sound-caption').hidden=!soundCaptions;$('#sound-caption').textContent=soundCaptions?'Sounds will be described here when they happen.':'';};
-document.addEventListener('shop-sound',e=>{const name=e.detail.name;const words={steps:'Your footsteps on the worn boards.',page:'A dry leaf of paper turns.',leather:'The old leather creaks.',bus:'A city bus sounds far away, above the cellar.'};const el=$('#book-reader').open?$('#reader-sound-caption'):$('#sound-caption');el.dataset.lastSound=name;el.dataset.soundTime=String(Date.now());if(!soundCaptions)return;clearTimeout(captionTimer);el.textContent=words[name]||'';el.hidden=false;captionTimer=setTimeout(()=>el.hidden=true,name==='bus'?6000:3500);});
+document.addEventListener('shop-sound',e=>{const name=e.detail.name;const words={steps:'Your footsteps on the worn boards.',page:'A dry leaf of paper turns.',leather:'The old leather creaks.',bus:'A city bus sounds outside the shop.',owner:OWNER_LINE};const el=$('#book-reader').open?$('#reader-sound-caption'):$('#sound-caption');el.dataset.lastSound=name;el.dataset.soundTime=String(Date.now());if(!soundCaptions)return;clearTimeout(captionTimer);el.textContent=words[name]||'';el.hidden=false;captionTimer=setTimeout(()=>el.hidden=true,name==='bus'?6000:3500);});
 const poses={...ROOM_POSES};
 const spots={table:new THREE.Vector3(0,1.14,-4.92)};
 for(const c of curiosities){poses[c.id]=c.pose;spots[c.id]=new THREE.Vector3(...c.position);}
@@ -74,9 +90,11 @@ function updateShelfFraming(){
   if(!camera)return;
   const c=curiosities.find(c=>c.id===place&&c.shelf),panel=$('#shelf-panel');
   if(c&&!panel.hidden){
-    const card=panel.getBoundingClientRect(),landscape=innerHeight<600&&innerWidth>600,walkButton=$('.walk-forward').getBoundingClientRect();
-    // The compact touch control stays beside, never over, the miniature and plaque.
-    const framing=shelfFraming(c,{width:innerWidth,height:innerHeight,top:$('.shop-header').getBoundingClientRect().bottom+14,bottom:landscape?$('.shop-footer').getBoundingClientRect().top-12:card.top-20,left:walkButton.width?Math.max(20,walkButton.right+12):20,right:landscape?card.left-20:innerWidth-20});
+    const card=panel.getBoundingClientRect(),landscape=innerWidth>600&&innerWidth>innerHeight,stick=$('#walk-stick').getBoundingClientRect();
+    const top=$('.shop-header').getBoundingClientRect().bottom+14,bottom=landscape?$('.shop-footer').getBoundingClientRect().top-12:card.top-20;
+    // Only reserve horizontal space when the lower-screen stick meets the display.
+    const left=stick.width&&stick.top<bottom&&stick.bottom>top?Math.max(20,stick.right+12):20;
+    const framing=shelfFraming(c,{width:innerWidth,height:innerHeight,top,bottom,left,right:landscape?card.left-20:innerWidth-20});
     camera.fov=framing.fov;camera.setViewOffset(innerWidth,innerHeight,framing.offsetX,framing.offsetY,innerWidth,innerHeight);
   }else{camera.fov=innerWidth<600?58:52;camera.clearViewOffset();}
   camera.updateProjectionMatrix();
@@ -120,7 +138,13 @@ async function initScene(){
     await enhanceMaterials(room,renderer);
     try{await applyRoomLightmap(room,renderer);}catch(error){console.warn('Baked room lighting unavailable; live lighting remains active.',error);}
     room.traverse(o=>{if(!o.isMesh)return;const mats=Array.isArray(o.material)?o.material:[o.material];if(mats.every(m=>m.emissiveIntensity>0&&m.emissive?.getHex()>0))o.castShadow=false;});
+    storefront=new ShopStorefront(scene,room);
+    storefront.update({nowMs:Date.now(),dt:0,daylight:solarState.daylight,night:solarState.night,visible:true,gentle:true});
+    radiance.setDaylight(solarState.daylight);
     try{radiance.capture(room,atmosphere);}catch(error){console.warn('Room reflections unavailable; direct lighting remains active.',error);}
+    roomVisibility=new RoomVisibility(room);
+    radiance.setShopLight(shopLightLevel,room).setDaylight(solarState.daylight);atmosphere.setShopLight(shopLightLevel);
+    storefront.setClosed(shopStatus.closed);
     renderer.shadowMap.needsUpdate=true;
     hinge=room.getObjectByName('BookCoverHinge');if(hinge)hingeStart=hinge.quaternion.clone();
     if(gltf.animations.length){mixer=new THREE.AnimationMixer(room);const clip=gltf.animations.find(a=>/open/i.test(a.name))||gltf.animations[0];openAction=mixer.clipAction(clip);openAction.setLoop(THREE.LoopOnce,1);openAction.clampWhenFinished=true;}
@@ -131,13 +155,12 @@ async function initScene(){
 }
 
 function useSimpleView(message='A still room, with all the same choices.'){
-  resetManualInput();finishMove();simple=true;document.body.classList.add('simple-mode','scene-ready');if(!$('.fallback-scene')){const el=document.createElement('div');el.className='fallback-scene';document.body.prepend(el);}
+  resetManualInput();simple=true;finishMove();document.body.classList.add('simple-mode','scene-ready');if(!$('.fallback-scene')){const el=document.createElement('div');el.className='fallback-scene';document.body.prepend(el);}
   $('#load-note').textContent=message;$('#simple-view').textContent='Simple shop view is on';$('#settings-panel').hidden=true;$('#settings-toggle').setAttribute('aria-expanded','false');
   if(place!=='entrance')$('#waypoints').hidden=false;$$('.waypoint').forEach(b=>{b.tabIndex=0;b.setAttribute('aria-hidden','false');});announce(message);
 }
 $('#simple-view').onclick=()=>useSimpleView();
-$('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{announce('This browser keeps the room in its window. You can still explore every part of it.');}};
-addEventListener('fullscreenchange',()=>{$('#fullscreen').textContent=document.fullscreenElement?'Return to the window ↙':'Fill the screen with the room ↗';});
+$('#fullscreen').onclick=()=>immersive.toggle();
 addEventListener('visibilitychange',()=>{if(document.hidden&&move){move.hiddenAt=performance.now();}else if(move?.hiddenAt){move.start+=performance.now()-move.hiddenAt;delete move.hiddenAt;}});
 function frame(now){
   const elapsedFrame=now-lastFrame,dt=Math.min(elapsedFrame/1000,.05);lastFrame=now;time+=dt;
@@ -152,10 +175,17 @@ function frame(now){
       if(p===1)finishMove();
     }
     updateManualMovement(dt);
+    roomLook.update(dt);
     camera.position.copy(pose);if(!gentle){camera.position.y+=bob;camera.position.x+=sway;}
     camera.lookAt(roomLook.target(camera.position,focus,lookTarget));
     audio.setPosition(camera.position,camera.getWorldDirection(listenerDirection));
-    atmosphere.update(dt,time,camera.position,gentle);
+    camera.updateMatrixWorld(true);
+    const targetLight=shopStatus.lightsOff?0:1;shopLightLevel+=(targetLight-shopLightLevel)*(gentle?1:1-Math.exp(-dt*3));
+    if(Math.abs(shopLightLevel-targetLight)<.001)shopLightLevel=targetLight;
+    radiance.setShopLight(shopLightLevel,room);atmosphere.setShopLight(shopLightLevel);
+    roomVisibility?.update(camera);
+    storefront?.update({nowMs:Date.now(),dt,camera,daylight:solarState.daylight,night:solarState.night,gentle});
+    atmosphere.update(dt,time,camera.position,gentle,camera);
     radiance.update(time,gentle,!!closing||!!(revealAt&&now-revealAt<5000));
     if(mixer)mixer.update(dt);
     if(closing&&hinge){const progress=Math.min((now-closing.start)/2200,1),eased=progress*progress*(3-2*progress);hinge.quaternion.slerpQuaternions(closing.from,hingeStart,eased);if(progress===1)closing=null;}
@@ -180,7 +210,7 @@ function updateWaypoints(){
     const v=point.clone().project(camera);
     return {b,c,v,distance:point.distanceToSquared(camera.position),x:(v.x*.5+.5)*innerWidth,y:(-v.y*.5+.5)*innerHeight};
   }).sort((a,b)=>a.distance-b.distance);
-  const landscape=innerHeight<600&&innerWidth>600;
+  const landscape=innerWidth>600&&innerWidth>innerHeight;
   const bottom=inspecting?(landscape?$('.shop-footer').getBoundingClientRect().top-12:$('#shelf-panel').getBoundingClientRect().top-24):innerHeight*(mobile?.57:.69);
   for(const {b,c,v,x,y} of candidates){
     const selected=!!c?.shelf&&place===c.id,facing=!c?.shelf||camera.position.x*c.side>.52;
@@ -193,9 +223,135 @@ function updateWaypoints(){
     b.style.left=`${x}px`;b.style.top=`${y}px`;b.style.opacity=visible?'1':'0';b.style.pointerEvents=visible?'auto':'none';b.tabIndex=visible?0:-1;b.setAttribute('aria-hidden',String(!visible));
   }
 }
+function settleBookForStory(){
+  openingToken++;audio.stopActive('book-open');
+  if($('#book-reader').open)closeBook();
+  else if(revealAt){
+    if(openAction)openAction.stop();
+    if(hinge&&hingeStart){if(gentle||simple)hinge.quaternion.copy(hingeStart);else closing={start:performance.now(),from:hinge.quaternion.clone()};}
+  }
+  revealAt=0;if(magicLight)magicLight.intensity=0;atmosphere?.close();
+  $('#opening-caption').hidden=true;$('#revelation').classList.remove('active');
+}
+// The clock owns shop hours; the story never advances the visitor's device clock.
+function tickShop(){
+  const now=Date.now(),clock=shopTime(now),inside=document.body.classList.contains('inside');
+  const previous=shopStatus;shopStatus=shopClosing.tick(now,{inside,visible:!document.hidden});
+  $('#shop-clock').textContent=clock.timeLabel;$('#shop-clock').dateTime=new Date(now).toISOString();
+  $('#shop-clock').setAttribute('aria-label',`${clock.timeLabel} Indiana Eastern time`);$('#shop-day').title=clock.dayLabel;
+  const hands=$('.clock svg path'),minuteAngle=(clock.minute+clock.second/60)*Math.PI/30,hourAngle=(clock.hour%12+clock.minute/60)*Math.PI/6;
+  hands.setAttribute('d',`M18 18 L${18+Math.sin(minuteAngle)*12} ${18-Math.cos(minuteAngle)*12} M18 18 L${18+Math.sin(hourAngle)*8} ${18-Math.cos(hourAngle)*8}`);
+  $('#footer-note').textContent=clock.isClosingSoon?'Closing at 8 PM':shopStatus.closed?'Closed · Opens 9 AM':'Closes at 8 PM';
+  if(now-solarUpdated>15000||now<solarUpdated){solarState=solarLight(now);solarUpdated=now;radiance?.setDaylight(solarState.daylight);}
+  storefront?.setClosed(shopStatus.closed);document.body.classList.toggle('after-hours',shopStatus.closed);
+  const blocked=shopStatus.closed&&!shopStatus.resumeHidden;
+  for(const selector of ['#enter','#enter-quietly','#return-shop','#resume'])$(selector).disabled=blocked;
+  $('#resume').hidden=!hasOpened||shopStatus.closed;
+  if(!inside){
+    $('#intro .eyebrow').innerHTML=shopStatus.closed?'THE SHOP IS CLOSED':introCopy.eyebrow;
+    $('#intro h1').innerHTML=shopStatus.closed?(shopStatus.resumeHidden?'A place<br><em>kept quiet.</em>':'Until<br><em>tomorrow.</em>'):introCopy.title;
+    $('#intro > p').innerHTML=shopStatus.closed?(shopStatus.resumeHidden?'Your place behind the reading table is still here.<br>Continue your visit in the darkened shop.':'The door is closed for the night.<br>Come back at 9 a.m. Indiana Eastern time.'):introCopy.description;
+    $('#intro .keeper-note').textContent=shopStatus.closed?'The street carries on outside.':introCopy.note;
+    $('#enter').textContent=shopStatus.resumeHidden&&shopStatus.closed?'Return to your hiding place with sound →':'Step inside with sound →';
+    $('#enter-quietly').textContent=shopStatus.resumeHidden&&shopStatus.closed?'Return quietly':'Enter quietly';
+    $('#leave-panel > p').textContent=shopStatus.closed?'The shop is closed until 9 a.m. Indiana Eastern time. Your bookmark is kept for your next visit.':'The city carries on. The shop is open until 8 p.m. Indiana Eastern time.';
+    $('#return-shop').textContent=shopStatus.closed?'The door is closed · Opens 9 AM':'Step back inside →';
+    if(blocked&&place==='entrance'){place='outside';pose.fromArray(EXIT_POSITION);focus.set(0,1.4,5.8);roomLook.reset();document.body.classList.add('outside');}
+  }
+  if(shopStatus.warningNew){
+    darkExploring=false;resetManualInput();
+    const interrupted=move;move=null;busy=false;interrupted?.onArrive?.(false);
+    settleBookForStory();closePanels();$('#scene-caption').hidden=true;
+    audio.ownerCall();announce(OWNER_LINE+' You can leave through the glass door.');
+  }
+  if(previous.closed&&!shopStatus.closed){
+    document.body.classList.remove('hide-wait');darkExploring=false;
+    if(inside&&!move){freeExploring=true;place='free';document.body.classList.add('free-exploring');$('#waypoints').hidden=false;}
+  }
+  closingUI.update(shopStatus,{inside});
+  if(shopStatus.warningNew)closingUI.focusLeave();
+  if(darkExploring&&shopStatus.state==='dark')closingUI.dismiss();
+}
+function storyPath(to){
+  if(simple||!renderReady)return appendPath({points:[pose.toArray()],lengths:[0],length:0},to);
+  return movement.planPath(pose.toArray(),to);
+}
+function travelStory(path,lookTo,onArrive){
+  const journey=++storyJourney,interrupted=move;move=null;interrupted?.onArrive?.(false);
+  resetManualInput();roomLook.reset();freeExploring=false;document.body.classList.remove('free-exploring');document.body.classList.add('story-travel');
+  const done=arrived=>{if(!arrived||journey!==storyJourney)return;document.body.classList.remove('story-travel');onArrive();};
+  const to=new THREE.Vector3(...path.points.at(-1)),look=new THREE.Vector3(...lookTo);
+  if(gentle||simple||!renderReady){pose.copy(to);focus.copy(look);busy=false;done(true);return;}
+  busy=true;move={path,to,lookFrom:focus.clone(),lookTo:look,start:performance.now(),duration:THREE.MathUtils.clamp(path.length*850,1800,10000),distance:path.length,lastStep:0,onArrive:done};
+}
+function enterShop(destination='aisle',resumeBook=false){
+  if(document.body.classList.contains('story-travel'))return false;
+  shopStatus=shopClosing.enter();
+  if(!shopStatus.canEnter){tickShop();announce('The shop is closed until 9 a.m. Indiana Eastern time.');return false;}
+  const arrive=()=>{
+    // A long or backgrounded approach can cross the actual closing instant.
+    shopStatus=shopClosing.enter();
+    if(!shopStatus.canEnter){
+      const retreat=appendPath({points:[pose.toArray()],lengths:[0],length:0},EXIT_POSITION);
+      travelStory(retreat,[0,1.6,18],()=>{
+        place='outside';document.body.classList.remove('inside','hide-wait');document.body.classList.add('outside');
+        closePanels();$('#intro').hidden=true;$('#leave-panel').hidden=false;storefront?.setDoorOpen(false);tickShop();
+        announce('The shop has closed. You return through the glass door to the sidewalk.');
+      });
+      return;
+    }
+    document.body.classList.add('inside');document.body.classList.remove('outside','hide-wait');$('#intro').hidden=true;
+    closePanels();audio.bell();
+    if(shopStatus.resumeHidden&&shopStatus.closed){
+      pose.fromArray(SHOP_HIDE_POSITION);focus.set(0,.9,5);place='hidden';document.body.classList.add('hide-wait');$('#scene-caption').hidden=true;$('#waypoints').hidden=true;
+    }else{go(destination);if(resumeBook)openBook(true);}
+    storefront?.setDoorOpen(false);tickShop();
+  };
+  if(shopStatus.resumeHidden&&shopStatus.closed){arrive();return true;}
+  if(place==='outside'){
+    storefront?.setDoorOpen(true);$('#intro').hidden=true;$('#leave-panel').hidden=true;
+    const path=appendPath({points:[pose.toArray()],lengths:[0],length:0},ENTRANCE_THRESHOLD);
+    travelStory(path,[0,1.25,-3],arrive);
+  }else arrive();
+  return true;
+}
+function leaveShop(){
+  if(!document.body.classList.contains('inside')||shopStatus.state==='leaving')return false;
+  let path;
+  try{path=appendPath(storyPath(ENTRANCE_THRESHOLD),EXIT_POSITION);}catch{announce('Move into the clear aisle, then try the glass door again.');return false;}
+  shopStatus=shopClosing.chooseLeave();if(shopStatus.state!=='leaving')return false;
+  settleBookForStory();closePanels();$('#scene-caption').hidden=true;$('#waypoints').hidden=true;
+  document.body.classList.remove('hide-wait');storefront?.setDoorOpen(true);
+  travelStory(path,[0,1.6,18],()=>{
+    shopStatus=shopClosing.confirmLeave();darkExploring=false;place='outside';
+    document.body.classList.remove('inside','free-exploring','hide-wait');document.body.classList.add('outside');
+    $('#intro').hidden=true;$('#leave-panel').hidden=false;storefront?.setDoorOpen(false);audio.bell();
+    tickShop();announce('You step through the glass door onto the city sidewalk. Your bookmark is kept here.');$('#return-shop').disabled?$('#leave-panel a').focus({preventScroll:true}):$('#return-shop').focus({preventScroll:true});
+  });
+  tickShop();return true;
+}
+function hideInShop(){
+  if(!shopStatus.canHide)return false;
+  let path;try{path=storyPath(SHOP_HIDE_POSITION);}catch{announce('Move into the clear aisle, then try the hiding place again.');return false;}
+  shopStatus=shopClosing.chooseHide();if(shopStatus.state!=='hiding')return false;
+  settleBookForStory();closePanels();$('#scene-caption').hidden=true;$('#waypoints').hidden=true;
+  travelStory(path,[0,.9,5],()=>{
+    shopStatus=shopClosing.confirmHidden();
+    if(['hidden','dark'].includes(shopStatus.state)){place='hidden';document.body.classList.add('hide-wait');announce('You crouch behind the reading table, out of sight of the doorway.');}
+    else{place='free';freeExploring=true;document.body.classList.add('free-exploring');}
+    tickShop();
+  });
+  tickShop();return true;
+}
+function exploreAfterDark(){
+  if(shopStatus.state!=='dark')return;
+  darkExploring=true;document.body.classList.remove('hide-wait');freeExploring=true;place='free';document.body.classList.add('free-exploring');
+  closingUI.dismiss();$('#waypoints').hidden=false;$('#world').focus({preventScroll:true});announce('The lamps are out. You can keep exploring the shop.');
+}
+
 // A glance is an invitation, never a mode the visitor must close.
 function canExplore(){
-  return renderReady&&!simple&&!document.hidden&&!$('#book-reader').open&&document.body.classList.contains('inside');
+  return renderReady&&!simple&&!document.hidden&&!$('#book-reader').open&&document.body.classList.contains('inside')&&!document.body.classList.contains('story-travel')&&!document.body.classList.contains('hide-wait');
 }
 function preserveHeading(){
   if(camera){
@@ -217,12 +373,13 @@ function releaseExploration(){
   document.body.classList.add('free-exploring');
 }
 function resetManualInput(){
-  walkingKeys.clear();touchDirections.clear();dragging=false;dragPointer=null;dragTurning=false;
-  for(const button of $$('[data-walk]')){button.classList.remove('held');button.setAttribute('aria-pressed','false');}
+  walkingKeys.clear();dragging=false;dragPointer=null;dragTurning=false;
+  stopStick();roomLook.cancelMotion();
   audio.stopFootsteps();
 }
 function roomKeyAllowed(e){
   if(!canExplore()||e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey)return false;
+  if(e.target?.closest?.('#walk-stick'))return true;
   return !e.target?.closest?.('input,textarea,select,button,a,summary,dialog,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="slider"]');
 }
 function handleRoomKeyDown(e){
@@ -232,14 +389,14 @@ function handleRoomKeyDown(e){
 }
 function updateManualMovement(dt){
   if(!canExplore())return;
-  const held=code=>walkingKeys.has(code),touch=[...touchDirections.values()];
-  const forward=(held('KeyW')||held('ArrowUp')?1:0)-(held('KeyS')||held('ArrowDown')?1:0)+touch.filter(v=>v==='forward').length-touch.filter(v=>v==='back').length;
-  const right=(held('KeyD')||held('ArrowRight')?1:0)-(held('KeyA')||held('ArrowLeft')?1:0)+touch.filter(v=>v==='right').length-touch.filter(v=>v==='left').length;
-  const turn=(held('KeyQ')?1:0)-(held('KeyE')?1:0),tilt=(held('KeyR')?1:0)-(held('KeyF')?1:0),crouch=held('KeyC')||touch.includes('crouch');
+  const held=code=>walkingKeys.has(code);
+  const forward=touchStick.forward+(held('KeyW')||held('ArrowUp')?1:0)-(held('KeyS')||held('ArrowDown')?1:0);
+  const right=touchStick.right+(held('KeyD')||held('ArrowRight')?1:0)-(held('KeyA')||held('ArrowLeft')?1:0);
+  const turn=(held('KeyQ')?1:0)-(held('KeyE')?1:0),tilt=(held('KeyR')?1:0)-(held('KeyF')?1:0),crouch=held('KeyC');
   if(forward||right||turn||tilt||crouch){
     releaseExploration();
     if(turn||tilt)roomLook.turn(turn*390*dt,tilt*250*dt,pose,focus);
-    const before=pose.clone(),heading=roomLook.heading(pose,focus);
+    const before=pose.clone(),heading=touchStick.active?touchStick.heading:roomLook.heading(pose,focus);
     movement.step(pose.toArray(),heading,{forward,right,sprint:held('ShiftLeft')||held('ShiftRight')},dt,walkPoint);
     pose.fromArray(walkPoint);focus.add(pose.clone().sub(before));
     walkedDistance+=movement.distance;
@@ -281,6 +438,9 @@ function glide(name,preparedPath){
 function closePanels(){for(const id of ['explore-menu','settings-panel','shelf-panel','chair-panel','leave-panel'])$('#'+id).hidden=true;document.body.classList.remove('inspecting-shelf');$('#explore-toggle').setAttribute('aria-expanded','false');$('#settings-toggle').setAttribute('aria-expanded','false');updateShelfFraming();}
 function setCaption(label,title,description,buttons=[]){$('#place-label').textContent=label;$('#place-title').textContent=title;$('#place-description').textContent=description;$('#place-actions').replaceChildren();for(const b of buttons){const el=document.createElement('button');el.className=b.primary?'brass-button':'quiet-button';el.textContent=b.label;el.onclick=e=>{b.action();focusRoomAfterPointer(e);};$('#place-actions').append(el);}$('#scene-caption').hidden=false;}
 function go(name){
+  if(name==='leave'||name==='entrance'&&document.body.classList.contains('inside'))return leaveShop();
+  if(document.body.classList.contains('story-travel')||document.body.classList.contains('hide-wait'))return false;
+  if(!document.body.classList.contains('inside')&&name!=='entrance')return enterShop(name);
   let route;
   if(!(gentle||simple||!renderReady)){
     const pair=poses[name==='shelves'?'paper':name]||poses.aisle;
@@ -292,20 +452,19 @@ function go(name){
   if(revealAt&&!$('#book-reader').open){revealAt=0;if(magicLight)magicLight.intensity=0;atmosphere?.close();if(hinge&&hingeStart&&!closing){hinge.quaternion.copy(hingeStart);if(renderer)renderer.shadowMap.needsUpdate=true;}}
   if($('#book-reader').open)closeBook();closePanels();place=name;$('#intro').hidden=name!=='entrance';$('#waypoints').hidden=name!=='aisle';$('#scene-caption').hidden=true;document.body.classList.toggle('inside',name!=='entrance');
   if(name==='entrance'){document.title='Legacy — Old books & odd things';glide(name,route);return;}
-  if(name==='aisle'){glide(name,route);setCaption('SOMETHING, EVERYWHERE','This way. Or that.','Walk with W A S D or the arrow keys. Drag to turn all the way around. On touch screens, hold a walking arrow while you look. You can leave any object just by turning or walking away.',[{label:'Explore the first side →',action:()=>go(curiosities.find(c=>c.shelf&&c.side===-1).id)},{label:'Explore the other side →',action:()=>go(curiosities.find(c=>c.shelf&&c.side===1).id)},{label:'Look around',action:()=>togglePanel('explore-menu','explore-toggle')}]);}
+  if(name==='aisle'){glide(name,route);setCaption('SOMETHING, EVERYWHERE','This way. Or that.','Move the circle or use W A S D / arrow keys to walk. Drag the room to look. On touch screens, pull below center to turn around; lift to stop.',[{label:'Explore the first side →',action:()=>go(curiosities.find(c=>c.shelf&&c.side===-1).id)},{label:'Explore the other side →',action:()=>go(curiosities.find(c=>c.shelf&&c.side===1).id)},{label:'Look around',action:()=>togglePanel('explore-menu','explore-toggle')}]);}
   if(name==='table'){glide(name,route);setCaption('UNDER THE DUST',hasOpened?'It remembers where you were.':'No price. No date.',hasOpened?'The old leather settles beneath your hand. Your place is waiting.':'The leather has worn soft around its old repairs. The page edges are dark and uneven. Someone has kept this for a very long time.',[{label:hasOpened?'Open to your bookmark →':'Lift the cover →',primary:true,action:openBook},{label:'Leave it be',action:()=>go('aisle')}]);}
   if(curiosities.some(c=>c.id===name))showCuriosity(name,route);
   if(name==='shelves')showCuriosity('paper',route);
   if(name==='chair'){glide(name,route);$('#chair-panel').hidden=false;announce('A cabinet of oddities. Wind a little music box, or leave yourself a note on a blank postcard.');}
-  if(name==='leave'){glide(name,route);audio.bell();$('#leave-panel').hidden=false;announce('You have left the shop. Your place is kept here.');}
   if(simple&&['aisle','table'].includes(name))$('#waypoints').hidden=name!=='aisle';
 }
 function focusRoomAfterPointer(e){if(e?.detail>0&&!simple&&!$('#book-reader').open)$('#world').focus({preventScroll:true});}
-$('#enter').onclick=async e=>{await toggleSound(true);audio.bell();go('aisle');focusRoomAfterPointer(e);};
-$('#enter-quietly').onclick=async e=>{await toggleSound(false);go('aisle');focusRoomAfterPointer(e);};
-$('#home').onclick=e=>{go('entrance');focusRoomAfterPointer(e);};
-$('#return-shop').onclick=e=>{go('aisle');focusRoomAfterPointer(e);};
-$('#resume').onclick=e=>{if(go('table')!==false)openBook(true);focusRoomAfterPointer(e);};
+$('#enter').onclick=async e=>{immersive.enter();if(entryPending)return;entryPending=true;try{await toggleSound(true);enterShop();focusRoomAfterPointer(e);}finally{entryPending=false;}};
+$('#enter-quietly').onclick=async e=>{immersive.enter();await toggleSound(false);enterShop();focusRoomAfterPointer(e);};
+$('#home').onclick=e=>{if(document.body.classList.contains('inside'))leaveShop();else{$('#intro').hidden=false;$('#leave-panel').hidden=true;}focusRoomAfterPointer(e);};
+$('#return-shop').onclick=e=>{immersive.enter();enterShop();focusRoomAfterPointer(e);};
+$('#resume').onclick=e=>{immersive.enter();enterShop('table',true);focusRoomAfterPointer(e);};
 $$('[data-go]').forEach(el=>el.onclick=e=>{go(el.dataset.go);if(e.detail===0&&!$('#shelf-panel').hidden)$('#curiosity-links a')?.focus({preventScroll:true});else focusRoomAfterPointer(e);});$$('.waypoint').forEach(el=>el.onclick=e=>{const c=curiosities.find(item=>item.id===el.dataset.place);if(c?.shelf&&place===c.id&&!busy){announce(`${c.website} opens in a new tab. Your place stays here.`);return;}e.preventDefault();go(el.dataset.place);if(e.detail===0&&!$('#shelf-panel').hidden)$('#curiosity-links a')?.focus({preventScroll:true});else focusRoomAfterPointer(e);});
 $$('[data-close]').forEach(el=>el.onclick=()=>{if(canExplore()){releaseExploration();$('#world').focus({preventScroll:true});}else{$('#'+el.dataset.close).hidden=true;document.body.classList.remove('inspecting-shelf');$('#waypoints').hidden=false;updateShelfFraming();$('#explore-toggle').focus();}});
 function togglePanel(id,button){resetManualInput();const next=$('#'+id).hidden;closePanels();$('#'+id).hidden=!next;$('#'+button).setAttribute('aria-expanded',String(next));if(next)$('#'+id).scrollTop=0;}
@@ -326,8 +485,9 @@ $('#motion-setting').onchange=e=>setGentle(e.target.checked);$('#reader-motion')
 $('#brightness-setting').onchange=e=>{bright=e.target.checked;applyComfort();};
 // Room input is deliberately separate from controls, forms and the book reader.
 $('#world').addEventListener('pointerdown',e=>{
-  if($('#book-reader').open||dragPointer!==null||(e.pointerType==='mouse'&&e.button!==0))return;
+  if(document.body.classList.contains('story-travel')||$('#book-reader').open||dragPointer!==null||(e.pointerType==='mouse'&&e.button!==0))return;
   dragging=true;dragTurning=false;dragPointer=e.pointerId;dragX=e.clientX;dragY=e.clientY;pointerTravel=0;
+  dragTouch=e.pointerType==='touch'||e.pointerType==='pen';
   $('#world').focus({preventScroll:true});$('#world').setPointerCapture(e.pointerId);
 });
 $('#world').addEventListener('pointermove',e=>{
@@ -335,12 +495,12 @@ $('#world').addEventListener('pointermove',e=>{
   const dx=e.clientX-dragX,dy=e.clientY-dragY;pointerTravel+=Math.abs(dx)+Math.abs(dy);
   if(pointerTravel>7){
     if(!dragTurning){if(canExplore())releaseExploration();dragTurning=true;}
-    roomLook.turn(dx,dy,pose,focus);
+    if(dragTouch)roomLook.turnTouch(dx,dy,pose,focus);else roomLook.turn(dx,dy,pose,focus);
   }
   dragX=e.clientX;dragY=e.clientY;
 });
 $('#world').addEventListener('pointerup',e=>{
-  if(!dragging||e.pointerId!==dragPointer)return;dragging=false;dragPointer=null;if(pointerTravel>7||!room||place==='entrance')return;
+  if(!dragging||e.pointerId!==dragPointer)return;dragging=false;dragPointer=null;if(dragTouch)roomLook.releaseTouch();if(pointerTravel>7||!room||place==='entrance')return;
   const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,1-e.clientY/innerHeight*2),camera);
   const hit=ray.intersectObject(room,true)[0];if(!hit)return;
   const c=shelfItemAtHit(curiosities,hit.point.toArray(),camera.position.x);
@@ -348,26 +508,46 @@ $('#world').addEventListener('pointerup',e=>{
   for(let object=hit.object;object;object=object.parent)if(object===hinge){if(place==='table'&&!busy)openBook();else go('table');return;}
   if(hit.point.y<.15&&hit.point.y>-.2&&hit.face?.normal.clone().transformDirection(hit.object.matrixWorld).y>.75)walkToFloor(hit.point);
 });
-const stopLooking=e=>{if(e.pointerId===dragPointer){dragging=false;dragPointer=null;dragTurning=false;}};
+const stopLooking=e=>{if(e.pointerId===dragPointer){dragging=false;dragPointer=null;dragTurning=false;if(dragTouch)roomLook.stopTouch();}};
 $('#world').addEventListener('pointercancel',stopLooking);
 $('#world').addEventListener('lostpointercapture',stopLooking);
 addEventListener('keydown',handleRoomKeyDown);
 addEventListener('keyup',e=>walkingKeys.delete(e.code));
 addEventListener('blur',resetManualInput);
-document.addEventListener('visibilitychange',()=>{if(document.hidden)resetManualInput();});
-for(const button of $$('[data-walk]')){
-  button.addEventListener('pointerdown',e=>{
-    if(!canExplore()||(e.pointerType==='mouse'&&e.button!==0))return;
-    e.preventDefault();releaseExploration();touchDirections.set(e.pointerId,button.dataset.walk);
-    button.setPointerCapture(e.pointerId);button.classList.add('held');button.setAttribute('aria-pressed','true');
-  });
-  const release=e=>{touchDirections.delete(e.pointerId);touchDirections.delete(button);button.classList.remove('held');button.setAttribute('aria-pressed','false');};
-  for(const name of ['pointerup','pointercancel','lostpointercapture','blur'])button.addEventListener(name,release);
-  button.addEventListener('keydown',e=>{if((e.key===' '||e.key==='Enter')&&canExplore()){e.preventDefault();releaseExploration();touchDirections.set(button,button.dataset.walk);button.classList.add('held');button.setAttribute('aria-pressed','true');}});
-  button.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();release(e);}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)resetManualInput();tickShop();});
+function drawStick(){
+  const stick=$('#walk-stick');
+  stick.style.setProperty('--stick-x',`${touchStick.x*stickRadius}px`);
+  stick.style.setProperty('--stick-y',`${touchStick.y*stickRadius}px`);
+  stick.classList.toggle('held',touchStick.active);
 }
+function stopStick(){
+  const pointer=stickPointer;stickPointer=null;touchStick.end();roomLook.stopAutoTurn();drawStick();
+  const stick=$('#walk-stick');if(pointer!==null&&stick.hasPointerCapture(pointer))stick.releasePointerCapture(pointer);
+}
+function moveStick(e){
+  touchStick.set((e.clientX-stickCenterX)/stickRadius,(e.clientY-stickCenterY)/stickRadius);
+  if(touchStick.turnHeading!==null){
+    // An intentional look gesture takes priority over an automatic half-turn.
+    if(!dragTurning||dragPointer===null)roomLook.faceHeading(touchStick.turnHeading,pose,focus,gentle);
+    touchStick.turnHeading=null;
+  }
+  drawStick();
+}
+$('#walk-stick').addEventListener('pointerdown',e=>{
+  if(!canExplore()||stickPointer!==null||(e.pointerType==='mouse'&&e.button!==0))return;
+  e.preventDefault();releaseExploration();stickPointer=e.pointerId;
+  const stick=$('#walk-stick'),rect=stick.getBoundingClientRect();
+  stickCenterX=rect.left+rect.width/2;stickCenterY=rect.top+rect.height/2;
+  stickRadius=Math.max(1,(rect.width-$('#walk-stick-thumb').getBoundingClientRect().width)/2-5);
+  touchStick.start(roomLook.heading(pose,focus));stick.setPointerCapture(e.pointerId);moveStick(e);
+});
+$('#walk-stick').addEventListener('pointermove',e=>{if(e.pointerId===stickPointer){e.preventDefault();moveStick(e);}});
+for(const name of ['pointerup','pointercancel','lostpointercapture'])$('#walk-stick').addEventListener(name,e=>{if(e.pointerId===stickPointer)stopStick();});
+$('#walk-stick').addEventListener('contextmenu',e=>e.preventDefault());
+$('#walk-stick').addEventListener('blur',()=>{walkingKeys.clear();if(dragPointer===null)stopStick();});
 $('#world').addEventListener('webglcontextlost',e=>{e.preventDefault();useSimpleView('The moving room paused. The simple shop keeps every place available.');});
-addEventListener('resize',()=>{stopPageTurn();if(renderer){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;updateShelfFraming();}renderPages();});
+addEventListener('resize',()=>{resetManualInput();stopPageTurn();if(renderer){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;updateShelfFraming();}renderPages();});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#book-reader').open){const guideOpen=['shelf-panel','chair-panel'].some(id=>!$('#'+id).hidden);if(canExplore())releaseExploration();closePanels();if(guideOpen)$('#waypoints').hidden=false;(canExplore()?$('#world'):$('#explore-toggle')).focus({preventScroll:true});}if($('#book-reader').open&&!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)){if(e.key==='ArrowRight'){e.preventDefault();turnPage(1);}if(e.key==='ArrowLeft'){e.preventDefault();turnPage(-1);}}});
 
 let pages=[],basePages=[],chapters=[],pageIndex=Math.max(0,Number(saved.page)||0),plain=false,contentReady;
@@ -456,18 +636,19 @@ async function turnPage(direction){
   if(completed)pageIndex=next;renderPages();if(completed&&single)$('#spread').scrollIntoView({behavior:gentle?'instant':'smooth',block:'start'});if(completed)announce(`Page ${pageIndex+1}. ${pages[pageIndex].title}`);
 }
 async function openBook(resume=false){
+  if(!document.body.classList.contains('inside')||document.body.classList.contains('story-travel')||document.body.classList.contains('hide-wait'))return;
   resetManualInput();
   const token=++openingToken;
   if(move){announce('You make your way to the back table.');const arrived=await new Promise(resolve=>move.onArrive=resolve);if(!arrived||token!==openingToken)return;}
   closing=null;
   $('#waypoints').hidden=true;$('#scene-caption').hidden=true;closePanels();hasOpened=true;saved.opened=true;persist();$('#resume').hidden=false;
   document.title='The Book of Immutable Truths — Legacy AI Solutions';
-  if(!resume){audio.stopFootsteps();audio.open();atmosphere?.open();revealAt=performance.now();if(openAction){openAction.reset().setEffectiveTimeScale(.65).play();}if(!gentle){$('#revelation').classList.remove('active');void $('#revelation').offsetWidth;$('#revelation').classList.add('active');}$('#opening-caption').hidden=false;announce('You lift the cover. Leather creaks. Dust rises. Light blooms from the pages in a room without windows.');await new Promise(r=>setTimeout(r,gentle?600:8000));}
+  if(!resume){audio.stopFootsteps();audio.open();atmosphere?.open();revealAt=performance.now();if(openAction){openAction.reset().setEffectiveTimeScale(.65).play();}if(!gentle){$('#revelation').classList.remove('active');void $('#revelation').offsetWidth;$('#revelation').classList.add('active');}$('#opening-caption').hidden=false;announce('You lift the cover. Leather creaks. Dust rises. Light blooms from the pages at the back of the shop.');await new Promise(r=>setTimeout(r,gentle?600:8000));}
   await contentReady;if(token!==openingToken)return;$('#opening-caption').hidden=true;$('#book-reader').showModal();document.body.classList.add('reading');renderPages();$('#close-book').focus();
 }
 function closeBook(){
   stopPageTurn();
-  $('#book-reader').close();document.body.classList.remove('reading');audio.close();$('#footer-note').textContent='YOUR PLACE IS KEPT. THE REST OF THE AFTERNOON IS YOURS.';
+  $('#book-reader').close();document.body.classList.remove('reading');audio.close();
   if(openAction)openAction.stop();if(hinge&&hingeStart){if(gentle||simple){hinge.quaternion.copy(hingeStart);if(renderer)renderer.shadowMap.needsUpdate=true;}else closing={start:performance.now(),from:hinge.quaternion.clone()};}revealAt=0;if(magicLight)magicLight.intensity=0;atmosphere?.close();
   place='table';setCaption('THE BACK TABLE','A place held for you.','The old cover settles. Your place is kept for you.',[{label:'Open to your bookmark →',primary:true,action:()=>openBook(true)},{label:'Keep looking',action:()=>go('aisle')}]);$('#place-actions button').focus();
 }
@@ -477,4 +658,5 @@ $('#reading-mode').onclick=()=>{stopPageTurn();plain=!plain;$('#plain-reading').
 $('#contents-toggle').onclick=()=>{const next=$('#contents').hidden;$('#contents').hidden=!next;$('#contents-toggle').setAttribute('aria-expanded',String(next));if(next)$('#contents').scrollIntoView({behavior:gentle?'instant':'smooth',block:'start'});};
 
 document.body.dataset.appReady='true';
+tickShop();setInterval(tickShop,500);
 initScene();

@@ -142,8 +142,8 @@ body.inspecting-shelf .sound-caption{bottom:auto;top:102px}
 @media(max-width:600px) and (max-height:650px){
   #shelf-panel.shelf-inspection{max-height:calc(100dvh - 335px)}
 }
-@media(min-width:601px) and (max-height:599px){
-  #shelf-panel.shelf-inspection{inset:101px 16px 74px auto;transform:none;width:min(340px,44vw);max-height:none;padding:12px 16px}
+@media(min-width:601px) and (orientation:landscape){
+  #shelf-panel.shelf-inspection{inset:calc(101px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 74px auto;transform:none;width:min(340px,44vw);max-height:none;padding:12px 16px}
   #shelf-panel.shelf-inspection #shelf-title{font-size:21px}
   #shelf-panel.shelf-inspection>.eyebrow{font-size:7px}
   #shelf-panel.shelf-inspection .shelf-walk-options .underlined{font-size:9px}
@@ -161,26 +161,81 @@ body.inspecting-shelf .sound-caption{bottom:auto;top:102px}
 @media(max-width:600px){.shelf-waypoint.selected>.waypoint-label{max-width:180px}}
 
 
-/* Walking stays available beside a display; the information never traps focus. */
+/* A low, circular movement stick leaves the rest of the room free for looking. */
+:root{--stick-size:132px;--footer-height:74px;--touch-dock:calc(var(--footer-height) + var(--stick-size) + 28px + env(safe-area-inset-bottom,0px))}
 #movement-hint,.walk-pad{display:none}
 body.inside:not(.reading):not(.simple-mode) #movement-hint{display:block;position:fixed;left:18px;right:18px;bottom:79px;z-index:18;pointer-events:none;text-align:center;font:9px/1.5 Arial,sans-serif;color:#d5c5a8;text-shadow:0 1px 5px #000,0 2px 12px #000}
 .touch-hint{display:none}
-.walk-pad{position:fixed;left:20px;bottom:105px;z-index:24;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:5px;touch-action:none}
-.walk-pad button{border:1px solid #b69a6b80;border-radius:8px;background:#211a12bf;color:#f0d7ae;font:23px/1 Arial,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none;min-width:44px;min-height:44px;box-shadow:0 2px 10px #0005}
-.walk-pad button.held{background:#af8c51b8;border-color:#f3d59b}
-.walk-forward{grid-area:1/1}.walk-left{grid-area:2/1}.walk-back{grid-area:2/2}.walk-right{grid-area:2/3}
+.walk-pad{position:fixed;left:max(18px,env(safe-area-inset-left,0px));bottom:calc(var(--footer-height) + 10px + env(safe-area-inset-bottom,0px));z-index:24;width:var(--stick-size);height:var(--stick-size);pointer-events:none}
+#walk-stick{position:relative;display:block;width:100%;height:100%;padding:0;border:1px solid #b69a6b88;border-radius:50%;background:radial-gradient(circle,#b99b6320 0%,#211a1259 70%);box-shadow:inset 0 0 20px #0003,0 2px 15px #0003;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;pointer-events:auto;cursor:grab}
+#walk-stick.held{cursor:grabbing;border-color:#e7c896b0;background:radial-gradient(circle,#c6a66b30 0%,#211a1270 70%)}
+.walk-stick-track{position:absolute;inset:14px;border:1px solid #b69a6b38;border-radius:50%;pointer-events:none}
+.walk-stick-track:after{content:'';position:absolute;left:-7px;right:-7px;top:50%;border-top:1px solid #c3a6742b}
+.walk-stick-thumb{position:absolute;left:50%;top:50%;width:50px;height:50px;display:grid;place-items:center;border-radius:50%;border:1px solid #dbc18b9c;background:radial-gradient(circle at 35% 28%,#ba9d68e0,#6b5432e8);color:#fff0d5;font:8px/1 Arial,sans-serif;letter-spacing:1px;box-shadow:0 3px 10px #0005,inset 0 1px 2px #fff3;transform:translate3d(calc(-50% + var(--stick-x,0px)),calc(-50% + var(--stick-y,0px)),0);transition:transform .12s ease-out;pointer-events:none;will-change:transform}
+#walk-stick.held .walk-stick-thumb{transition:none}
 body.free-exploring .scene-caption{display:none}
-@media(pointer:coarse){
-  body.inside:not(.reading):not(.simple-mode) .walk-pad{display:grid;top:112px;bottom:auto;left:12px;opacity:.9;pointer-events:none}
-  .walk-pad button{pointer-events:auto}
-  body.inspecting-shelf .walk-pad button:not(.walk-forward){display:none}
-  body.inspecting-shelf #movement-hint{visibility:hidden}
-  body.inside:not(.reading):not(.simple-mode) #movement-hint{left:12px;right:auto;top:209px;bottom:auto;max-width:150px;text-align:left;font-size:8px}
+@media(any-pointer:coarse){
+  body.inside:not(.reading):not(.simple-mode) .walk-pad{display:block}
+  body.inside:not(.reading):not(.simple-mode) #movement-hint{left:calc(var(--stick-size) + 34px + env(safe-area-inset-left,0px));right:max(18px,env(safe-area-inset-right,0px));bottom:calc(var(--footer-height) + 52px + env(safe-area-inset-bottom,0px));text-align:left;font-size:10px;line-height:1.7}
   .keyboard-hint{display:none}.touch-hint{display:inline}
+  body.inside:not(.simple-mode) .scene-caption{bottom:var(--touch-dock)}
+  body.inside:not(.simple-mode) #shelf-panel.shelf-inspection{bottom:var(--touch-dock);max-height:calc(100dvh - var(--touch-dock) - 240px)}
 }
-@media(pointer:coarse) and (max-height:450px){
-  .walk-pad{left:12px;bottom:80px;grid-template-columns:repeat(3,40px);grid-template-rows:repeat(2,40px);gap:4px}
-  .walk-pad button{min-width:40px;min-height:40px}
-  body.inside:not(.reading):not(.simple-mode) .walk-pad{top:105px}
+@media(any-pointer:coarse) and (max-width:600px){:root{--stick-size:120px}}
+@media(any-pointer:coarse) and (min-width:601px) and (orientation:landscape){
+  body.inside:not(.simple-mode) #shelf-panel.shelf-inspection{bottom:calc(var(--footer-height) + 12px + env(safe-area-inset-bottom,0px));max-height:calc(100dvh - var(--footer-height) - 113px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+}
+@media(any-pointer:coarse) and (min-width:601px) and (max-height:599px){
+  body.inside:not(.simple-mode) .scene-caption{left:calc(var(--stick-size) + 42px);bottom:85px;max-height:calc(100dvh - 190px);overflow:auto}
+}
+@media(min-width:601px) and (min-height:600px) and (orientation:landscape){
+  #shelf-panel.shelf-inspection,body.inside:not(.simple-mode) #shelf-panel.shelf-inspection{top:calc(132px + env(safe-area-inset-top,0px));height:max-content;max-height:calc(100dvh - var(--footer-height) - 144px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+}
+@media(any-pointer:coarse) and (max-height:450px){
+  :root{--stick-size:104px}
+  .walk-stick-thumb{width:44px;height:44px;font-size:7px}
   body.inside:not(.reading):not(.simple-mode) #movement-hint{display:none}
+}
+@media(prefers-reduced-motion:reduce){.walk-stick-thumb{transition:none}}
+
+/* Clock, closing note and sound share a reserved footer, never the movement dock. */
+html,body{height:100dvh;min-height:100svh}
+.shop-header{padding-top:calc(26px + env(safe-area-inset-top,0px));padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.shop-footer{height:calc(var(--footer-height) + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:minmax(140px,200px) minmax(0,1fr) auto;grid-template-areas:"clock note sound";gap:8px 18px;align-items:center;padding:10px max(24px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px));background:linear-gradient(0deg,#17130fe8,#17130f50 75%,transparent);pointer-events:none}
+.shop-footer .clock{grid-area:clock;min-width:0;gap:10px;visibility:visible}
+.shop-footer .clock svg{width:25px;min-width:25px;height:25px}
+.shop-footer .clock-face{display:block;min-width:0;font-size:19px;line-height:1.15}
+#shop-clock{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:19px}
+.shop-footer #shop-day{display:block;margin-top:5px;font:7px/1.4 Arial,sans-serif;letter-spacing:.35px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shop-footer #footer-note{display:block;grid-area:note;min-width:0;font:9px/1.5 Arial,sans-serif;letter-spacing:.35px;text-align:center;color:#cbb99a;overflow-wrap:anywhere}
+.shop-footer #sound-toggle{grid-area:sound;min-height:44px;min-width:74px;justify-content:flex-end;white-space:nowrap;font-size:10px;pointer-events:auto}
+body.inside:not(.reading):not(.simple-mode) #movement-hint{bottom:calc(var(--footer-height) + 14px + env(safe-area-inset-bottom,0px))}
+.fullscreen-intro-note{font:10px/1.6 Arial,sans-serif!important;color:#c7b89e!important;max-width:340px;margin:14px 0 0!important}
+.fullscreen-help{border-left:2px solid #b79b6b;padding:9px 12px!important;background:#b69a6b0c;font:11px/1.7 Arial,sans-serif!important;color:#dfc9a5!important}
+.settings-panel{max-height:calc(100dvh - 130px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:auto}
+.sound-caption{bottom:calc(var(--footer-height) + 12px + env(safe-area-inset-bottom,0px))}
+#book-reader{padding-top:calc(25px + env(safe-area-inset-top,0px));padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+@media(max-width:600px){
+  :root{--footer-height:82px}
+  .shop-header{padding-top:calc(20px + env(safe-area-inset-top,0px));padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+  .shop-footer{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"clock sound" "note note";gap:2px 12px;padding:8px max(18px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px))}
+  .shop-footer #footer-note{font-size:8px;line-height:1.25;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .shop-footer .clock svg{width:22px;min-width:22px;height:22px}
+  #shop-clock{font-size:18px}
+  .shop-footer #shop-day{font-size:7px;margin-top:3px}
+  .shop-footer #sound-toggle{font-size:9px;min-width:70px}
+  .fullscreen-intro-note{font-size:9px!important;max-width:270px}
+  #book-reader{padding-top:calc(18px + env(safe-area-inset-top,0px));padding-bottom:calc(15px + env(safe-area-inset-bottom,0px))}
+}
+@media(any-pointer:coarse){
+  body.inside:not(.reading):not(.simple-mode) #movement-hint{bottom:calc(var(--footer-height) + 52px + env(safe-area-inset-bottom,0px))}
+  body:not(.inspecting-shelf) .sound-caption{bottom:var(--touch-dock)}
+}
+@media(max-height:450px) and (min-width:601px){
+  :root{--footer-height:62px}
+  .shop-header{padding-top:calc(14px + env(safe-area-inset-top,0px));padding-bottom:14px}
+  .shop-footer{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+  .shop-footer #footer-note{font-size:8px}
+  .fullscreen-intro-note{display:none}
+  .settings-panel{top:75px;max-height:calc(100dvh - 90px - env(safe-area-inset-bottom,0px))}
 }

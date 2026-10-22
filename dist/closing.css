@@ -1,0 +1,36 @@
+/* A small story card leaves the floor, movement stick and clock available. */
+.shop-closing-card{position:fixed;z-index:28;right:max(24px,env(safe-area-inset-right,0px));bottom:calc(var(--footer-height,74px) + 14px + env(safe-area-inset-bottom,0px));width:350px;max-width:calc(100vw - 48px);max-height:calc(100dvh - var(--footer-height,74px) - 140px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:auto;overscroll-behavior:contain;padding:20px 22px;background:rgba(24,20,15,.97);color:var(--ink,#f0e4cf);border:1px solid #a58a625c;border-radius:3px;box-shadow:0 12px 42px #0008;scrollbar-color:#8b7351 #18140f;touch-action:pan-y}
+.shop-closing-card h2{font:400 11px/1.5 Arial,Helvetica,sans-serif;letter-spacing:1.25px;color:#d2b683;margin:0 0 10px}
+.shop-closing-quote{font:18px/1.45 Georgia,serif;color:#f0e4cf;margin:0 0 10px;text-wrap:pretty}
+.shop-closing-message{font:11px/1.65 Arial,Helvetica,sans-serif;color:#ccbea7;margin:0 0 13px}
+.shop-closing-actions{display:flex;flex-wrap:wrap;gap:8px}
+.shop-closing-actions button{min-height:44px;flex:1 1 100%;border:1px solid #b69a6855;padding:10px 12px;text-align:left;font:11px/1.5 Arial,Helvetica,sans-serif;color:#e9d8b9;border-radius:2px;background:#b69a6808}
+.shop-closing-actions .shop-closing-primary{border-color:#b69a68aa;background:#b69a6814}
+.shop-closing-actions button:hover,.shop-closing-actions button:focus-visible{background:#b69a6824;border-color:#d2b683}
+.shop-closing-replay{display:block;min-height:44px;margin-top:3px;padding:9px 1px 0;font:10px/1.5 Arial,Helvetica,sans-serif;color:#c6b89e;text-decoration:underline;text-decoration-color:#a58a6270;text-underline-offset:4px}
+body.reading .shop-closing-card{visibility:hidden}
+body.story-travel #walk-pad,body.story-travel #movement-hint,body.story-travel #waypoints,
+body.hide-wait #walk-pad,body.hide-wait #movement-hint,body.hide-wait #waypoints,
+body.outside #walk-pad,body.outside #movement-hint,body.outside #waypoints{visibility:hidden!important;pointer-events:none!important}
+body.story-travel #explore-toggle,body.hide-wait #explore-toggle,body.outside #explore-toggle{visibility:hidden;pointer-events:none}
+@media(max-width:600px){
+  .shop-closing-card{left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(var(--touch-dock,240px) + 8px);width:auto;max-width:none;max-height:calc(100dvh - var(--touch-dock,240px) - 112px - env(safe-area-inset-top,0px));padding:15px 17px}
+  .shop-closing-card h2{font-size:10px;letter-spacing:1px;margin-bottom:7px}
+  .shop-closing-quote{font-size:16px;line-height:1.4;margin-bottom:8px}
+  .shop-closing-message{font-size:11px;line-height:1.5;margin-bottom:10px}
+  .shop-closing-actions{gap:6px}
+}
+@media(min-width:601px) and (max-height:599px){
+  .shop-closing-card{right:max(18px,env(safe-area-inset-right,0px));bottom:calc(var(--footer-height,62px) + 10px + env(safe-area-inset-bottom,0px));width:330px;max-width:calc(100vw - var(--stick-size,132px) - 62px);max-height:calc(100dvh - var(--footer-height,62px) - 98px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));padding:13px 17px}
+  .shop-closing-card h2{font-size:10px;margin-bottom:6px}
+  .shop-closing-quote{font-size:16px;margin-bottom:7px}
+  .shop-closing-message{line-height:1.5;margin-bottom:8px}
+  .shop-closing-actions{gap:6px}
+}
+@media(max-width:600px) and (max-height:450px) and (orientation:landscape){
+  .shop-closing-card{left:auto;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(var(--footer-height,82px) + 10px + env(safe-area-inset-bottom,0px));width:330px;max-width:calc(100vw - var(--stick-size,120px) - 54px);max-height:calc(100dvh - var(--footer-height,82px) - 98px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));padding:12px 15px}
+}
+
+.fallback-scene{transition:filter 1.2s ease}
+body.after-hours .fallback-scene{filter:brightness(.14) saturate(.55)}
+body.gentle .fallback-scene{transition:none}

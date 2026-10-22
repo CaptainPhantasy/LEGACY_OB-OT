@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#17130f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Legacy">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./assets/legacy-social-book-2ddb4e959565.jpg">
   <meta name="description" content="A low doorway. A room full of things. There is still time to look around.">
   <meta name="robots" content="noindex, nofollow">
   <title>Legacy — Old books & odd things</title>
@@ -24,7 +29,8 @@
   <meta name="twitter:image" content="https://sundays-old-books.captainphantasy.chatgpt.site/assets/legacy-social-book-2ddb4e959565.jpg">
   <meta name="twitter:image:alt" content="An antique leather book branded LEGACY with a brass four-point star.">
   <link rel="icon" type="image/svg+xml" href="./assets/mark.svg">
-  <link rel="stylesheet" href="./style.css?scene=natural-motion-1">
+  <link rel="stylesheet" href="./style.css?scene=shop-hours-1">
+  <link rel="stylesheet" href="./closing.css?scene=shop-hours-1">
   <link rel="alternate" type="application/json" href="./content/book.json" title="Book contents">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
 </head>
@@ -52,6 +58,7 @@
         <button id="enter-quietly" class="quiet-button">Enter quietly</button>
         <button id="resume" class="quiet-button" hidden>Return to your bookmark <span aria-hidden="true">↗</span></button>
       </div>
+      <p id="fullscreen-intro-note" class="fullscreen-intro-note"></p>
       <div id="load-note" class="load-note" role="status">The shop is settling into view…</div>
     </section>
     <section id="scene-caption" class="scene-caption" hidden aria-live="polite">
@@ -61,13 +68,14 @@
       <div id="place-actions" class="place-actions"></div>
     </section>
     <div id="waypoints" hidden aria-label="Objects in the cellar"></div>
-    <div id="movement-hint" aria-hidden="true"><span class="keyboard-hint">W A S D / arrows · walk &nbsp; Drag or Q / E · turn &nbsp; C · crouch</span><span class="touch-hint">Hold an arrow to walk. Drag the room to turn.</span></div>
-    <nav id="walk-pad" class="walk-pad" aria-label="Hold a direction to walk">
-      <button data-walk="forward" class="walk-forward" aria-label="Walk forward" aria-pressed="false">↑</button>
-      <button data-walk="left" class="walk-left" aria-label="Step left" aria-pressed="false">←</button>
-      <button data-walk="back" class="walk-back" aria-label="Walk backward" aria-pressed="false">↓</button>
-      <button data-walk="right" class="walk-right" aria-label="Step right" aria-pressed="false">→</button>
-    </nav>
+    <div id="movement-hint" aria-hidden="true"><span class="keyboard-hint">W A S D / arrows · walk &nbsp; Drag or Q / E · turn &nbsp; C · crouch</span><span class="touch-hint">Move the circle to walk.<br>Drag the room to look.<br>Pull below center to turn around.</span></div>
+    <div id="walk-pad" class="walk-pad">
+      <button id="walk-stick" type="button" aria-label="Movement stick" aria-describedby="walk-stick-help">
+        <span class="walk-stick-track" aria-hidden="true"></span>
+        <span id="walk-stick-thumb" class="walk-stick-thumb" aria-hidden="true">MOVE</span>
+      </button>
+    </div>
+    <p id="walk-stick-help" class="sr-only">Drag the circle in any direction to walk. Move farther from the center to walk faster. Pull below the center to turn around; return above it to face forward again. Lift your finger to stop. Use another finger on the room to look. With a keyboard, use the arrow keys. You can also choose places from Look around.</p>
     <aside id="explore-menu" class="panel explore-menu" hidden aria-label="Places to explore">
       <div class="eyebrow">THINGS THAT CAUGHT YOUR EYE</div>
       <div id="curiosity-menu"></div>
@@ -84,9 +92,10 @@
       <label><span>Brighter room<small>Lift the shadows</small></span><input id="brightness-setting" type="checkbox" role="switch"></label>
       <button id="simple-view" class="underlined">Use the simple shop view</button>
       <button id="fullscreen" class="underlined immersive-button">Fill the screen with the room ↗</button>
+      <p id="fullscreen-help" class="fullscreen-help" role="status" hidden></p>
       <p id="sound-status" role="status">Sounds begin only when you choose them.</p>
       <a class="sound-credits" href="./assets/audio/credits.html" target="_blank" rel="noopener">Sound credits ↗</a>
-      <p>Walk with W A S D or the arrow keys. Drag or swipe to look all the way around; Q and E also turn, and R and F look up or down. Hold Shift to walk faster or C to crouch. On touch screens, hold a walking arrow with one finger and look with the other. Click clear floor to walk there. Turning or walking away leaves an object naturally. Every place is also reachable with Tab and Enter.</p>
+      <p>On touch screens, drag the movement circle in any direction; push farther out to walk faster. Pull below its center to turn around, and lift your finger to stop. Drag the room with your other hand to look. With a keyboard, walk with W A S D or the arrow keys; Q and E turn, and R and F look up or down. Hold Shift to walk faster or C to crouch. Click clear floor to walk there. Turning or walking away leaves an object naturally. Every place is also reachable with Tab and Enter.</p>
     </aside>
     <section id="shelf-panel" class="discovery-panel" hidden aria-labelledby="shelf-title">
       <button class="close-panel" data-close="shelf-panel" aria-label="Dismiss this object’s information">×</button>
@@ -124,8 +133,8 @@
     <div id="opening-caption" class="opening-caption" hidden role="status">The spine gives.<br><em>Something in the room answers.</em></div>
   </main>
   <footer class="shop-footer">
-    <div class="clock"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16"/><path d="M18 18 6 18M18 18 23 24"/><circle cx="18" cy="18" r="1"/></svg><span>4:45 <small>SUNDAY AFTERNOON</small></span></div>
-    <div id="footer-note">FIFTEEN MINUTES TO CLOSE. GIVE OR TAKE.</div>
+    <div class="clock"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16"/><path d="M18 18 6 18M18 18 23 24"/><circle cx="18" cy="18" r="1"/></svg><span class="clock-face"><time id="shop-clock" aria-label="Current Indiana Eastern time">—:—</time><small id="shop-day">INDIANA EASTERN TIME</small></span></div>
+    <div id="footer-note">Closes at 8 p.m. Indiana Eastern time</div>
     <button id="sound-toggle" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h4l5-4v12l-5-4H4zM17 9c2 2 2 4 0 6M20 6c4 4 4 8 0 12"/></svg><span>Sound off</span></button>
   </footer>
   <dialog id="book-reader" aria-labelledby="book-title">
@@ -144,7 +153,7 @@
   <div id="announcement" class="sr-only" aria-live="polite"></div>
   <noscript><div class="noscript">You’re welcome here. The moving shop needs JavaScript, but <a href="./content/oath.txt">the book is still yours to read</a>.</div></noscript>
   <script type="module">
-    import('./app.js?scene=natural-motion-1').catch(error => {
+    import('./app.js?scene=render-review-1').catch(error => {
       console.error('The shop could not finish opening.', error);
       const note=document.querySelector('#load-note');
       note.textContent='Part of the room could not arrive. Your saved place is safe. You can try opening the door again.';

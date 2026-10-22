@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import * as THREE from '../dist/vendor/three.module.js';
 import { RoomLook } from '../dist/room-look.js';
 import { RoomMovement } from '../dist/room-movement.js';
+import { RoomTouchStick } from '../dist/room-touch.js';
 
 const source=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
 const controlStart=source.indexOf('function canExplore(){'),controlEnd=source.indexOf('function finishMove(){',controlStart);
@@ -15,27 +16,31 @@ function classes(initial=[]){
   return {add(...v){v.forEach(x=>set.add(x));},remove(...v){v.forEach(x=>set.delete(x));},contains(v){return set.has(v);},toggle(v,on){if(on??!set.has(v))set.add(v);else set.delete(v);}};
 }
 function element(id){
-  const events={};
+  const events={},captures=new Set(),styles={};
   return {id,events,hidden:false,open:false,dataset:{},classList:classes(),attributes:{},
+    style:{setProperty(name,value){styles[name]=value;},getPropertyValue(name){return styles[name]??'';}},
     addEventListener(name,fn){(events[name]??=[]).push(fn);},setAttribute(name,value){this.attributes[name]=value;},
-    setPointerCapture(){},focus(){},closest(){return null;}};
+    getBoundingClientRect(){return id==='#walk-stick-thumb'?{left:0,top:0,width:52,height:52}:{left:16,top:640,width:144,height:144};},
+    setPointerCapture(id){captures.add(id);},hasPointerCapture(id){return captures.has(id);},releasePointerCapture(id){captures.delete(id);},
+    focus(){},closest(){return null;}};
 }
 function harness(){
   const elements=new Map(),el=id=>{if(!elements.has(id))elements.set(id,element(id));return elements.get(id);};
-  const buttons=['forward','left','back','right'].map(name=>Object.assign(element(name),{dataset:{walk:name}}));
   const windowEvents={},documentEvents={};
   const pose=new THREE.Vector3(-1.1,1.48,1.5),focus=new THREE.Vector3(-.205,1.34,1.5);
   const camera=new THREE.PerspectiveCamera(68,390/844,.04,60);
   camera.position.copy(pose);camera.lookAt(focus);camera.setViewOffset(390,844,0,130,390,844);camera.updateProjectionMatrix();camera.updateMatrixWorld();
-  const roomLook=new RoomLook(),movement=new RoomMovement();
-  const context=vm.createContext({THREE,roomLook,movement,pose,focus,camera,
-    lookTarget:new THREE.Vector3(),walkPoint:[0,0,0],walkingKeys:new Set(),touchDirections:new Map(),
+  const roomLook=new RoomLook(),movement=new RoomMovement(),touchStick=new RoomTouchStick();
+  const context=vm.createContext({THREE,roomLook,movement,touchStick,pose,focus,camera,
+    lookTarget:new THREE.Vector3(),walkPoint:[0,0,0],walkingKeys:new Set(),
+    stickPointer:null,stickCenterX:0,stickCenterY:0,stickRadius:1,dragTouch:false,
     freeExploring:false,dragging:false,dragPointer:null,dragTurning:false,dragX:0,dragY:0,pointerTravel:0,
     walkedDistance:0,lastWalkingStep:0,renderReady:true,simple:false,gentle:false,busy:true,move:null,
     openingToken:0,revealAt:0,magicLight:null,atmosphere:null,hinge:null,hingeStart:null,renderer:null,
+    tickShop(){},immersive:{enter(){}},entryPending:false,
     place:'crypto-museum',room:{},curiosities:[],shelfItemAtHit(){return null;},go(){},openCuriosityWebsite(){},openBook(){},
     innerWidth:390,innerHeight:844,performance:{now:()=>1000},
-    $:el,$$:selector=>selector==='[data-walk]'?buttons:[],
+    $:el,$$:()=>[],
     audio:{stopFootsteps(){},stopActive(){},step(){}},
     document:{hidden:false,body:{classList:classes(['inside','inspecting-shelf'])},
       addEventListener(name,fn){(documentEvents[name]??=[]).push(fn);}},
@@ -44,10 +49,25 @@ function harness(){
   });
   vm.runInContext(source.slice(controlStart,controlEnd),context);
   vm.runInContext(source.slice(inputStart,inputEnd),context);
-  return {context,el,buttons,windowEvents,documentEvents};
+  context.enterShop=(destination='aisle')=>{context.go(destination);return true;};
+  return {context,el,windowEvents,documentEvents};
 }
 const keyEvent=(code,target={closest:()=>null})=>({code,key:code,target,defaultPrevented:false,preventDefault(){this.defaultPrevented=true;}});
 const direction=c=>new THREE.Vector3(0,0,.5).unproject(c.camera).sub(c.camera.position).normalize();
+const near=(actual,expected,message='')=>assert.ok(Math.abs(actual-expected)<1e-9,`${actual} should equal ${expected}. ${message}`);
+const pointerEvent=(pointerId,clientX=0,clientY=0,extra={})=>({pointerId,clientX,clientY,pointerType:'touch',isPrimary:true,preventDefault(){this.defaultPrevented=true;},...extra});
+function dispatch(element,name,event){for(const handler of element.events[name]??[])handler(event);}
+function stickEvent(h,pointerId,x=0,y=0,extra={}){
+  const rect=h.el('#walk-stick').getBoundingClientRect(),thumb=h.el('#walk-stick-thumb').getBoundingClientRect();
+  const radius=(rect.width-thumb.width)/2-5;
+  return pointerEvent(pointerId,rect.left+rect.width/2+x*radius,rect.top+rect.height/2+y*radius,extra);
+}
+function beginTwoThumbs(h){
+  dispatch(h.el('#walk-stick'),'pointerdown',stickEvent(h,10,0,-.8));
+  dispatch(h.el('#world'),'pointerdown',pointerEvent(11,270,300,{isPrimary:false}));
+  dispatch(h.el('#world'),'pointermove',pointerEvent(11,300,285,{isPrimary:false}));
+}
+const planarDelta=(from,to)=>new THREE.Vector3(to.x-from.x,0,to.z-from.z);
 
 test('looking away releases inspection and a pending approach without moving or snapping the view',()=>{
   const {context:c,el}=harness();
@@ -87,7 +107,7 @@ test('manual walking moves relative to the current view and carries that view wi
 test('walking keys never take over text, controls, the reader, or modifier shortcuts',()=>{
   const {context:c,el}=harness();
   for(const tag of ['input','textarea','select','button','a','summary','dialog','contenteditable']){
-    const e=keyEvent('KeyW',{closest:()=>({tag})});c.handleRoomKeyDown(e);
+    const e=keyEvent('KeyW',{closest:selector=>selector==='#walk-stick'?null:{tag}});c.handleRoomKeyDown(e);
     assert.equal(c.walkingKeys.size,0);assert.equal(e.defaultPrevented,false);
   }
   for(const modifier of ['ctrlKey','metaKey','altKey']){
@@ -99,20 +119,146 @@ test('walking keys never take over text, controls, the reader, or modifier short
   assert.ok(c.walkingKeys.has('ArrowRight'));assert.equal(e.defaultPrevented,true);
 });
 
-test('touch walking and a second-finger look work together and every release path stops input',()=>{
-  const {context:c,el,buttons,windowEvents,documentEvents}=harness();
-  const forward=buttons[0];
-  forward.events.pointerdown[0]({pointerId:10,pointerType:'touch',isPrimary:true,preventDefault(){}});
-  assert.equal(c.touchDirections.get(10),'forward');
-  // The looking finger is not primary when another finger already holds Walk.
-  el('#world').events.pointerdown[0]({pointerId:11,pointerType:'touch',isPrimary:false,clientX:270,clientY:300});
-  assert.equal(c.dragPointer,11);
-  el('#world').events.pointermove[0]({pointerId:11,clientX:300,clientY:300});
-  assert.ok(Math.abs(c.roomLook.yaw)>.1);
-  forward.events.pointercancel[0]({pointerId:10});assert.equal(c.touchDirections.size,0);
-  c.walkingKeys.add('KeyW');c.touchDirections.set(12,'right');
-  windowEvents.blur[0]();assert.equal(c.walkingKeys.size,0);assert.equal(c.touchDirections.size,0);assert.equal(c.dragPointer,null);
-  c.walkingKeys.add('KeyA');c.document.hidden=true;documentEvents.visibilitychange[0]();assert.equal(c.walkingKeys.size,0);
+test('two thumbs move and look together, with gentler look applied smoothly over frames',()=>{
+  const h=harness(),c=h.context,before=c.pose.clone();beginTwoThumbs(h);
+  assert.equal(c.stickPointer,10);assert.equal(c.dragPointer,11);
+  assert.equal(c.touchStick.active,true);assert.ok(c.touchStick.forward>0);
+  assert.equal(c.roomLook.yaw,0,'touch events queue movement instead of snapping the camera');
+  c.updateManualMovement(1/60);c.roomLook.update(1/60);
+  assert.ok(planarDelta(before,c.pose).length()>.005,'walking continues while looking');
+  assert.ok(c.roomLook.yaw<0&&c.roomLook.yaw>-.06,'first frame eases toward the requested angle');
+  const first=c.roomLook.yaw;c.roomLook.update(1/60);
+  assert.ok(c.roomLook.yaw<first&&c.roomLook.yaw>-.06,'later frames approach without overshooting');
+  assert.ok(Math.abs(c.roomLook.yaw)<30*.0045,'touch sensitivity is below desktop sensitivity');
+});
+
+test('lifting either thumb first leaves the other working, and released looking never drifts',()=>{
+  for(const releaseFirst of ['look','stick']){
+    const h=harness(),c=h.context;beginTwoThumbs(h);c.roomLook.update(1/60);
+    if(releaseFirst==='look'){
+      dispatch(h.el('#world'),'pointerup',pointerEvent(11,300,285));
+      assert.equal(c.dragPointer,null);assert.equal(c.touchStick.active,true);
+      const target=c.roomLook.targetYaw,before=c.pose.clone();c.updateManualMovement(.05);c.roomLook.update(.1);
+      near(c.roomLook.yaw,target,'released look finishes the requested swipe within 100 ms');
+      c.roomLook.update(1);near(c.roomLook.yaw,target,'finished looking has no continuing drift');
+      assert.ok(planarDelta(before,c.pose).length()>.01,'the remaining walking thumb still moves');
+      dispatch(h.el('#walk-stick'),'pointerup',stickEvent(h,10));
+    }else{
+      dispatch(h.el('#walk-stick'),'pointerup',stickEvent(h,10));
+      assert.equal(c.touchStick.active,false);assert.equal(c.dragPointer,11);
+      const before=c.pose.clone(),yaw=c.roomLook.yaw;
+      dispatch(h.el('#world'),'pointermove',pointerEvent(11,330,285));
+      c.updateManualMovement(.05);c.roomLook.update(.05);
+      near(planarDelta(before,c.pose).length(),0,'released walking stops immediately');
+      assert.ok(c.roomLook.yaw<yaw,'the remaining looking thumb still turns');
+      dispatch(h.el('#world'),'pointerup',pointerEvent(11,330,285));
+      c.roomLook.update(.1);near(c.roomLook.yaw,c.roomLook.targetYaw);
+    }
+    const yaw=c.roomLook.yaw,before=c.pose.clone();c.updateManualMovement(.1);c.roomLook.update(2);
+    near(c.roomLook.yaw,yaw);near(planarDelta(before,c.pose).length(),0);
+    assert.equal(c.stickPointer,null);assert.equal(c.dragPointer,null);
+    assert.equal(h.el('#walk-stick').style.getPropertyValue('--stick-x'),'0px');
+    assert.equal(h.el('#walk-stick').style.getPropertyValue('--stick-y'),'0px');
+    assert.equal(h.el('#walk-stick').hasPointerCapture(10),false);
+  }
+});
+
+test('a quick swipe ending before the next frame still completes and then stops exactly',()=>{
+  const h=harness(),c=h.context;
+  dispatch(h.el('#world'),'pointerdown',pointerEvent(11,270,300));
+  dispatch(h.el('#world'),'pointermove',pointerEvent(11,320,280));
+  const target=c.roomLook.targetYaw,targetPitch=c.roomLook.targetPitch;
+  dispatch(h.el('#world'),'pointerup',pointerEvent(11,320,280));
+  near(c.roomLook.yaw,0,'the event itself does not snap the view');
+  c.roomLook.update(.05);assert.ok(c.roomLook.yaw<0&&c.roomLook.yaw>target);
+  c.roomLook.update(.05);near(c.roomLook.yaw,target);near(c.roomLook.pitch,targetPitch);
+  c.roomLook.update(10);near(c.roomLook.yaw,target);near(c.roomLook.pitch,targetPitch);
+});
+
+test('an unrelated finger cannot move, release, or replace either active control',()=>{
+  const h=harness(),c=h.context;beginTwoThumbs(h);
+  const forward=c.touchStick.forward,target=c.roomLook.targetYaw;
+  dispatch(h.el('#walk-stick'),'pointerdown',stickEvent(h,99,1,1));
+  dispatch(h.el('#walk-stick'),'pointermove',stickEvent(h,99,-1,1));
+  for(const name of ['pointerup','pointercancel','lostpointercapture'])dispatch(h.el('#walk-stick'),name,stickEvent(h,99));
+  dispatch(h.el('#world'),'pointerdown',pointerEvent(99,0,0));
+  dispatch(h.el('#world'),'pointermove',pointerEvent(99,500,500));
+  for(const name of ['pointerup','pointercancel','lostpointercapture'])dispatch(h.el('#world'),name,pointerEvent(99));
+  assert.equal(c.stickPointer,10);assert.equal(c.dragPointer,11);
+  near(c.touchStick.forward,forward);near(c.roomLook.targetYaw,target);
+});
+
+test('pointer cancellation and lost capture stop the affected control without stopping the other thumb',()=>{
+  for(const eventName of ['pointercancel','lostpointercapture']){
+    for(const control of ['look','stick']){
+      const h=harness(),c=h.context;beginTwoThumbs(h);c.roomLook.update(.02);
+      if(control==='look'){
+        dispatch(h.el('#world'),eventName,pointerEvent(11));
+        assert.equal(c.dragPointer,null);assert.equal(c.touchStick.active,true);
+        const yaw=c.roomLook.yaw;c.roomLook.update(1);near(c.roomLook.yaw,yaw);
+      }else{
+        dispatch(h.el('#walk-stick'),eventName,stickEvent(h,10));
+        assert.equal(c.stickPointer,null);assert.equal(c.touchStick.active,false);assert.equal(c.dragPointer,11);
+        near(c.touchStick.forward,0);near(c.touchStick.right,0);
+      }
+    }
+  }
+});
+
+test('leaving the app or hiding the page clears both thumbs, keyboard movement, and queued camera motion',()=>{
+  for(const kind of ['blur','hidden']){
+    const h=harness(),c=h.context;beginTwoThumbs(h);c.roomLook.update(.02);c.walkingKeys.add('KeyW');
+    if(kind==='blur')h.windowEvents.blur[0]();
+    else{c.document.hidden=true;h.documentEvents.visibilitychange[0]();c.document.hidden=false;}
+    assert.equal(c.walkingKeys.size,0);assert.equal(c.touchStick.active,false);
+    assert.equal(c.stickPointer,null);assert.equal(c.dragPointer,null);assert.equal(c.dragging,false);
+    assert.equal(c.roomLook.autoTurn,null);assert.equal(c.roomLook.touchPending,false);
+    const yaw=c.roomLook.yaw,before=c.pose.clone();c.updateManualMovement(.1);c.roomLook.update(1);
+    near(c.roomLook.yaw,yaw);near(planarDelta(before,c.pose).length(),0);
+  }
+});
+
+test('a lower-half stick crossing turns once while walking remains on the original straight path',()=>{
+  const h=harness(),c=h.context;let turns=0;
+  const faceHeading=c.roomLook.faceHeading.bind(c.roomLook);c.roomLook.faceHeading=(...args)=>{turns++;return faceHeading(...args);};
+  dispatch(h.el('#walk-stick'),'pointerdown',stickEvent(h,10,.4,-.8));
+  const anchor=c.touchStick.heading;
+  dispatch(h.el('#walk-stick'),'pointermove',stickEvent(h,10,.4,.8));
+  assert.equal(turns,1);assert.ok(c.roomLook.autoTurn);
+  const forward=c.touchStick.forward,right=c.touchStick.right;
+  const expected=new THREE.Vector3(Math.sin(anchor)*forward+Math.cos(anchor)*right,0,-Math.cos(anchor)*forward+Math.sin(anchor)*right).normalize();
+  for(let i=0;i<8;i++){
+    dispatch(h.el('#walk-stick'),'pointermove',stickEvent(h,10,.4,.8));
+    const before=c.pose.clone();c.updateManualMovement(.05);c.roomLook.update(.05);
+    const delta=planarDelta(before,c.pose);assert.ok(delta.length()>.01);
+    assert.ok(delta.normalize().dot(expected)>.999999,'turning the view cannot curve the walking path');
+    near(c.touchStick.heading,anchor);
+  }
+  c.roomLook.update(2);const heading=c.roomLook.heading(c.pose,c.focus);
+  near(Math.cos(heading-anchor),-1,'the view finishes facing the opposite direction');
+  const yaw=c.roomLook.yaw;c.roomLook.update(2);near(c.roomLook.yaw,yaw);assert.equal(turns,1);
+  dispatch(h.el('#walk-stick'),'pointermove',stickEvent(h,10,.4,-.8));
+  assert.equal(turns,2);c.roomLook.update(2);near(Math.cos(c.roomLook.heading(c.pose,c.focus)-anchor),1);
+});
+
+test('explicit looking cancels an automatic turn and wins over later stick crossings',()=>{
+  const h=harness(),c=h.context;
+  dispatch(h.el('#walk-stick'),'pointerdown',stickEvent(h,10,0,.8));
+  assert.ok(c.roomLook.autoTurn);c.roomLook.update(.1);
+  dispatch(h.el('#world'),'pointerdown',pointerEvent(11,270,300,{isPrimary:false}));
+  dispatch(h.el('#world'),'pointermove',pointerEvent(11,300,300));
+  assert.equal(c.roomLook.autoTurn,null);assert.equal(c.roomLook.touchPending,true);
+  const target=c.roomLook.targetYaw;
+  dispatch(h.el('#walk-stick'),'pointermove',stickEvent(h,10,0,-.8));
+  dispatch(h.el('#walk-stick'),'pointermove',stickEvent(h,10,0,.8));
+  assert.equal(c.roomLook.autoTurn,null);near(c.roomLook.targetYaw,target);
+  c.roomLook.update(.1);dispatch(h.el('#world'),'pointerup',pointerEvent(11,300,300));
+  const targetAfterRelease=c.roomLook.targetYaw;c.roomLook.update(.1);near(c.roomLook.yaw,targetAfterRelease);
+  c.roomLook.update(1);near(c.roomLook.yaw,targetAfterRelease);
+  dispatch(h.el('#walk-stick'),'pointermove',stickEvent(h,10,0,-.8));
+  assert.ok(c.roomLook.autoTurn,'automatic facing becomes available again after looking ends');
+  c.roomLook.update(.1);dispatch(h.el('#walk-stick'),'pointerup',stickEvent(h,10));
+  const stoppedYaw=c.roomLook.yaw;c.roomLook.update(1);near(c.roomLook.yaw,stoppedYaw,'releasing the stick also stops an unfinished turn');
 });
 
 test('click-to-walk on clear floor keeps heading and reduced motion avoids an automatic glide',()=>{
@@ -127,13 +273,13 @@ test('click-to-walk on clear floor keeps heading and reduced motion avoids an au
 });
 
 test('pointer entry and destination choices return focus to walking, while keyboard choices keep UI focus',async()=>{
-  const {context:c,el,buttons}=harness();
+  const {context:c,el}=harness();
   let active=null;
   const world=el('#world');world.focus=()=>{active=world;};
   const enter=el('#enter');enter.focus=()=>{active=enter;};enter.closest=()=>enter;
   const menu=el('#menu-item');menu.dataset.go='priyom';menu.closest=()=>menu;
   const waypoint=el('#waypoint');waypoint.dataset.place='priyom';waypoint.closest=()=>waypoint;
-  c.$$=selector=>selector==='[data-go]'?[menu]:selector==='.waypoint'?[waypoint]:selector==='[data-walk]'?buttons:[];
+  c.$$=selector=>selector==='[data-go]'?[menu]:selector==='.waypoint'?[waypoint]:[];
   c.audio.bell=()=>{};c.toggleSound=async()=>{};c.curiosities=[{id:'priyom',shelf:true,website:'Priyom'}];
   c.go=id=>{c.place=id;c.busy=true;};
   const start=source.indexOf('function focusRoomAfterPointer('),end=source.indexOf("$$('[data-close]')",start);

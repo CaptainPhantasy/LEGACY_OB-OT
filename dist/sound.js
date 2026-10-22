@@ -1,6 +1,7 @@
 // Recorded Foley is bundled with the site. Sources/licenses: assets/audio/credits.html.
 // Room air, clock, bell, music-box notes and revelation harmony are synthesized.
-const FILES={page:'page-turn.mp3',steps:'footsteps-wood.mp3',leather:'leather-creak.mp3',bus:'bus-horn.mp3'};
+// The fictional shopkeeper's closing call is a bundled synthesized voice.
+const FILES={page:'page-turn.mp3',steps:'footsteps-wood.mp3',leather:'leather-creak.mp3',bus:'bus-horn.mp3',owner:'shop-owner-closing.mp3'};
 const BOOK=[0,1.05,-4.92], STEP_OFFSETS=[2.11,3.33,3.99,4.63,5.25,5.85];
 const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
 
@@ -140,6 +141,10 @@ export class ShopSound {
     this.play('page',{offset:.5,duration:.65,rate:.76,gain:.2,delay:1.3,position:BOOK,category:'book-close'});
   }
   busHorn(){return this.play('bus',{gain:.46,lowpass:820,position:[8,1.5,22],refDistance:3,rolloff:.85,wet:.24,category:'street'});}
+  ownerCall(){
+    this.stopActive('owner');
+    return this.play('owner',{gain:.95,lowpass:3800,position:[2.4,1.6,6.1],refDistance:3,rolloff:.35,wet:.22,category:'owner'});
+  }
   clearBus(){if(this.busTimer!==null)clearTimeout(this.busTimer);this.busTimer=null;}
   scheduleBus(seconds){
     this.clearBus();if(!this.canPlay())return;

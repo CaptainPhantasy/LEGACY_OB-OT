@@ -1,0 +1,16 @@
+{
+  "id": "./",
+  "name": "Legacy — Old books & odd things",
+  "short_name": "Legacy",
+  "description": "A little shop of old books and curious things. Come in and look around.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["fullscreen", "standalone"],
+  "background_color": "#17130f",
+  "theme_color": "#17130f",
+  "icons": [
+    {"src": "./assets/mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"},
+    {"src": "./assets/legacy-social-book-2ddb4e959565.jpg", "sizes": "1254x1254", "type": "image/jpeg", "purpose": "any"}
+  ]
+}
