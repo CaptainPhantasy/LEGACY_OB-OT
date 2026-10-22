@@ -21,6 +21,7 @@ import { applyRoomLightmap, updateRoomRevelation, updateRoomDaylight } from './r
 import { ROOM_POSES, sampleRoomPath } from './room-path.js?scene=rabbit-holes-1';
 import { curiosities } from './curiosities.js?scene=rabbit-holes-1';
 import { shelfNavigation, shelfItemAtHit, shelfFraming } from './shelf-navigation.js?scene=rabbit-holes-1';
+import { wallCuriosityAtHit } from './curiosity-picking.js?scene=discovery-repair-1';
 import { escapeHTML, inline, markdown, loadBook } from './book-content.js';
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -73,7 +74,7 @@ function showCuriosity(id,route){
   $('#curiosity-eyebrow').textContent=c.eyebrow;$('#curiosity-mark').textContent=c.mark;$('#shelf-title').textContent=c.title;$('#curiosity-description').textContent=c.description;
   $('#curiosity-links').replaceChildren();
   for(const [title,description,url,kind] of c.links){const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.innerHTML=shelf?`<span>Open ${escapeHTML(c.website)} <span aria-hidden="true">↗</span></span>`:`<span class="shelf-number" aria-hidden="true">${c.mark}</span><span>${kind?`<span class="source-kind">${escapeHTML(kind)}</span>`:''}${escapeHTML(title)}<small>${escapeHTML(description)}</small></span><span aria-hidden="true">↗</span>`;a.setAttribute('aria-label',`${shelf?'Open ':''}${title} — opens in a new tab`);$('#curiosity-links').append(a);}
-  $('#shelf-details').hidden=!shelf;$('#shelf-details').open=false;$('#shelf-trail').textContent=c.trail||'';$('#shelf-evidence').textContent=c.evidence||'';$('#shelf-object-note').textContent=c.description;
+  $('#shelf-details').hidden=!shelf;$('#shelf-details').open=shelf;$('#shelf-trail').textContent=c.trail||'';$('#shelf-evidence').textContent=c.evidence||'';
   $('#shelf-related-links').replaceChildren();
   for(const [title,description,url,kind] of c.relatedLinks||[]){const destination=new URL(url,location.href);if(!['https:','http:'].includes(destination.protocol))continue;const item=document.createElement('li'),link=document.createElement('a');link.href=destination.href;link.target='_blank';link.rel='noopener noreferrer';link.textContent=`${title} ↗`;link.title=description;link.setAttribute('aria-label',`${title}${kind?` — ${kind}`:''}, opens in a new tab`);item.append(link);$('#shelf-related-links').append(item);}
   $('#shelf-related').hidden=!shelf||!$('#shelf-related-links').children.length;
@@ -83,7 +84,7 @@ function showCuriosity(id,route){
     for(const [button,item] of [['shelf-previous',nav.previous],['shelf-next',nav.next],['shelf-opposite',nav.opposite]]){const el=$('#'+button);el.disabled=!item;el.dataset.destination=item?.id||'';el.setAttribute('aria-label',item?`${button==='shelf-opposite'?'Walk around to':button==='shelf-next'?'Next object:':'Previous object:'} ${item.name}`:button==='shelf-next'?'Last object on this side':'First object on this side');}
     $('#waypoints').hidden=false;
   }
-  panel.hidden=false;panel.scrollTop=0;
+  panel.hidden=false;panel.scrollTop=0;panel.focus({preventScroll:true});
   for(const label of $$('.shelf-waypoint')){const item=curiosities.find(value=>value.id===label.dataset.place),selected=item.id===id;label.classList.toggle('selected',selected);label.setAttribute('aria-label',selected?`Open ${item.website} — opens in a new tab`:`Inspect ${item.name} — ${item.website}`);}
   updateShelfFraming();
   announce(shelf?`${c.name}. ${c.question} Open ${c.website}, inspect the next object, or walk around to the other side.`:`${c.name}. ${c.links.length} paths into the wider internet. Each opens a new tab.`);
@@ -92,7 +93,7 @@ function updateShelfFraming(){
   if(!camera)return;
   const c=curiosities.find(c=>c.id===place&&c.shelf),panel=$('#shelf-panel');
   if(c&&!panel.hidden){
-    const card=panel.getBoundingClientRect(),landscape=innerWidth>600&&innerWidth>innerHeight,stick=$('#walk-stick').getBoundingClientRect();
+    const card=panel.getBoundingClientRect(),landscape=innerWidth>innerHeight,stick=$('#walk-stick').getBoundingClientRect();
     const top=$('.shop-header').getBoundingClientRect().bottom+14,bottom=landscape?$('.shop-footer').getBoundingClientRect().top-12:card.top-20;
     // Only reserve horizontal space when the lower-screen stick meets the display.
     const left=stick.width&&stick.top<bottom&&stick.bottom>top?Math.max(20,stick.right+12):20;
@@ -102,7 +103,7 @@ function updateShelfFraming(){
   camera.updateProjectionMatrix();
 }
 function openCuriosityWebsite(c){window.open(c.url,'_blank','noopener,noreferrer');announce(`${c.website} opened in a new tab. Your place in the shop is kept here.`);}
-for(const id of ['shelf-previous','shelf-next','shelf-opposite'])$('#'+id).onclick=e=>{const button=$('#'+id),destination=button.dataset.destination,heldFocus=document.activeElement===button;if(destination){go(destination);if(e.detail>0)focusRoomAfterPointer(e);else if(heldFocus&&button.disabled)$('#'+(id==='shelf-previous'?'shelf-next':'shelf-previous')).focus({preventScroll:true});}};
+for(const id of ['shelf-previous','shelf-next','shelf-opposite'])$('#'+id).onclick=e=>{const button=$('#'+id),destination=button.dataset.destination,heldFocus=document.activeElement===button;if(destination){go(destination);if(e.detail>0)focusRoomAfterPointer(e);else if(heldFocus)(button.disabled?$('#'+(id==='shelf-previous'?'shelf-next':'shelf-previous')):button).focus({preventScroll:true});}};
 $('#shelf-head-on').onclick=e=>{if(glide(currentCuriosity)){updateShelfFraming();announce('Looking straight at the object again.');focusRoomAfterPointer(e);}};
 $('#shelf-details').addEventListener('toggle',updateShelfFraming);
 if('ResizeObserver' in window){const framingObserver=new ResizeObserver(updateShelfFraming);for(const selector of ['#shelf-panel','.shop-header','.shop-footer'])framingObserver.observe($(selector));}
@@ -217,8 +218,9 @@ function updateWaypoints(){
     if(c?.labelBounds)point.fromArray(c.labelBounds[0].map((value,axis)=>(value+c.labelBounds[1][axis])/2));
     const v=point.clone().project(camera);
     return {b,c,v,distance:point.distanceToSquared(camera.position),x:(v.x*.5+.5)*innerWidth,y:(-v.y*.5+.5)*innerHeight};
-  }).sort((a,b)=>a.distance-b.distance);
-  const landscape=innerWidth>600&&innerWidth>innerHeight;
+  // The twenty nearby shelf markers must not crowd out the original wall discoveries.
+  }).sort((a,b)=>Number(!!a.c?.shelf)-Number(!!b.c?.shelf)||a.distance-b.distance);
+  const landscape=innerWidth>innerHeight;
   const bottom=inspecting?(landscape?$('.shop-footer').getBoundingClientRect().top-12:$('#shelf-panel').getBoundingClientRect().top-24):innerHeight*(mobile?.57:.69);
   for(const {b,c,v,x,y} of candidates){
     const selected=!!c?.shelf&&place===c.id,facing=!c?.shelf||camera.position.x*c.side>.52;
@@ -388,7 +390,7 @@ function resetManualInput(){
 function roomKeyAllowed(e){
   if(!canExplore()||e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey)return false;
   if(e.target?.closest?.('#walk-stick'))return true;
-  return !e.target?.closest?.('input,textarea,select,button,a,summary,dialog,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="slider"]');
+  return !e.target?.closest?.('.discovery-panel,.explore-menu,.settings-panel,input,textarea,select,button,a,summary,dialog,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="slider"]');
 }
 function handleRoomKeyDown(e){
   const code=e.code,keys=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyQ','KeyE','KeyR','KeyF','KeyC','ShiftLeft','ShiftRight'];
@@ -467,15 +469,15 @@ function go(name){
   if(name==='chair'){glide(name,route);$('#chair-panel').hidden=false;announce('A cabinet of oddities. Wind a little music box, or leave yourself a note on a blank postcard.');}
   if(simple&&['aisle','table'].includes(name))$('#waypoints').hidden=name!=='aisle';
 }
-function focusRoomAfterPointer(e){if(e?.detail>0&&!simple&&!$('#book-reader').open)$('#world').focus({preventScroll:true});}
+function focusRoomAfterPointer(e){if(e?.detail>0&&!simple&&!$('#book-reader').open)($('#shelf-panel').hidden?$('#world'):$('#shelf-panel')).focus({preventScroll:true});}
 $('#enter').onclick=async e=>{immersive.enter();if(entryPending)return;entryPending=true;try{await toggleSound(true);enterShop();focusRoomAfterPointer(e);}finally{entryPending=false;}};
 $('#enter-quietly').onclick=async e=>{immersive.enter();await toggleSound(false);enterShop();focusRoomAfterPointer(e);};
 $('#home').onclick=e=>{if(document.body.classList.contains('inside'))leaveShop();else{$('#intro').hidden=false;$('#leave-panel').hidden=true;}focusRoomAfterPointer(e);};
 $('#return-shop').onclick=e=>{immersive.enter();enterShop();focusRoomAfterPointer(e);};
 $('#resume').onclick=e=>{immersive.enter();enterShop('table',true);focusRoomAfterPointer(e);};
-$$('[data-go]').forEach(el=>el.onclick=e=>{go(el.dataset.go);if(e.detail===0&&!$('#shelf-panel').hidden)$('#curiosity-links a')?.focus({preventScroll:true});else focusRoomAfterPointer(e);});$$('.waypoint').forEach(el=>el.onclick=e=>{const c=curiosities.find(item=>item.id===el.dataset.place);if(c?.shelf&&place===c.id&&!busy){announce(`${c.website} opens in a new tab. Your place stays here.`);return;}e.preventDefault();go(el.dataset.place);if(e.detail===0&&!$('#shelf-panel').hidden)$('#curiosity-links a')?.focus({preventScroll:true});else focusRoomAfterPointer(e);});
+$$('[data-go]').forEach(el=>el.onclick=e=>{go(el.dataset.go);if(e.detail===0&&!$('#shelf-panel').hidden)$('#shelf-panel').focus({preventScroll:true});else focusRoomAfterPointer(e);});$$('.waypoint').forEach(el=>el.onclick=e=>{const c=curiosities.find(item=>item.id===el.dataset.place);if(c?.shelf&&place===c.id&&!busy){announce(`${c.website} opens in a new tab. Your place stays here.`);return;}e.preventDefault();go(el.dataset.place);if(e.detail===0&&!$('#shelf-panel').hidden)$('#shelf-panel').focus({preventScroll:true});else focusRoomAfterPointer(e);});
 $$('[data-close]').forEach(el=>el.onclick=()=>{if(canExplore()){releaseExploration();$('#world').focus({preventScroll:true});}else{$('#'+el.dataset.close).hidden=true;document.body.classList.remove('inspecting-shelf');$('#waypoints').hidden=false;updateShelfFraming();$('#explore-toggle').focus();}});
-function togglePanel(id,button){resetManualInput();const next=$('#'+id).hidden;closePanels();$('#'+id).hidden=!next;$('#'+button).setAttribute('aria-expanded',String(next));if(next)$('#'+id).scrollTop=0;}
+function togglePanel(id,button){resetManualInput();const next=$('#'+id).hidden;closePanels();$('#'+id).hidden=!next;$('#'+button).setAttribute('aria-expanded',String(next));if(next){$('#'+id).scrollTop=0;if(id==='explore-menu')$('#'+id).focus({preventScroll:true});}}
 $('#explore-toggle').onclick=()=>togglePanel('explore-menu','explore-toggle');$('#settings-toggle').onclick=()=>togglePanel('settings-panel','settings-toggle');
 async function toggleSound(value){
   $('#sound-status').textContent=value?'The room’s sounds are settling in…':'The room is quiet.';
@@ -513,6 +515,7 @@ $('#world').addEventListener('pointerup',e=>{
   const hit=ray.intersectObject(room,true)[0];if(!hit)return;
   const c=shelfItemAtHit(curiosities,hit.point.toArray(),camera.position.x);
   if(c){if(place===c.id&&!busy)openCuriosityWebsite(c);else go(c.id);return;}
+  const original=wallCuriosityAtHit(curiosities,hit);if(original){go(original.id);return;}
   for(let object=hit.object;object;object=object.parent)if(object===hinge){if(place==='table'&&!busy)openBook();else go('table');return;}
   if(hit.point.y<.15&&hit.point.y>-.2&&hit.face?.normal.clone().transformDirection(hit.object.matrixWorld).y>.75)walkToFloor(hit.point);
 });

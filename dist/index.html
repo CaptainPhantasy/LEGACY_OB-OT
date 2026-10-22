@@ -29,7 +29,7 @@
   <meta name="twitter:image" content="https://sundays-old-books.captainphantasy.chatgpt.site/assets/legacy-social-book-2ddb4e959565.jpg">
   <meta name="twitter:image:alt" content="An antique leather book branded LEGACY with a brass four-point star.">
   <link rel="icon" type="image/svg+xml" href="./assets/mark.svg">
-  <link rel="stylesheet" href="./style.css?scene=realism-1">
+  <link rel="stylesheet" href="./style.css?scene=discovery-repair-1">
   <link rel="stylesheet" href="./closing.css?scene=shop-hours-1">
   <link rel="alternate" type="application/json" href="./content/book.json" title="Book contents">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
@@ -76,7 +76,7 @@
       </button>
     </div>
     <p id="walk-stick-help" class="sr-only">Drag the circle in any direction to walk. Move farther from the center to walk faster. Pull below the center to turn around; return above it to face forward again. Lift your finger to stop. Use another finger on the room to look. With a keyboard, use the arrow keys. You can also choose places from Look around.</p>
-    <aside id="explore-menu" class="panel explore-menu" hidden aria-label="Places to explore">
+    <aside id="explore-menu" class="panel explore-menu" hidden tabindex="0" aria-label="Places to explore">
       <div class="eyebrow">THINGS THAT CAUGHT YOUR EYE</div>
       <div id="curiosity-menu"></div>
       <button data-go="chair"><span>↻</span>A little winding box <b>↗</b></button>
@@ -97,7 +97,7 @@
       <a class="sound-credits" href="./assets/audio/credits.html" target="_blank" rel="noopener">Sound credits ↗</a>
       <p>On touch screens, drag the movement circle in any direction; push farther out to walk faster. Pull below its center to turn around, and lift your finger to stop. Drag the room with your other hand to look. With a keyboard, walk with W A S D or the arrow keys; Q and E turn, and R and F look up or down. Hold Shift to walk faster or C to crouch. Click clear floor to walk there. Turning or walking away leaves an object naturally. Every place is also reachable with Tab and Enter.</p>
     </aside>
-    <section id="shelf-panel" class="discovery-panel" hidden aria-labelledby="shelf-title">
+    <section id="shelf-panel" class="discovery-panel" hidden tabindex="0" aria-labelledby="shelf-title">
       <button class="close-panel" data-close="shelf-panel" aria-label="Dismiss this object’s information">×</button>
       <div id="curiosity-eyebrow" class="eyebrow">SOMETHING CAUGHT YOUR EYE</div>
       <div id="curiosity-mark" class="curiosity-mark" aria-hidden="true">⌁</div>
@@ -108,11 +108,11 @@
         <div class="shelf-walk-row"><button id="shelf-previous" class="shelf-walk-button">← Previous</button><span id="shelf-progress" role="status"></span><button id="shelf-next" class="shelf-walk-button">Next →</button></div>
         <div class="shelf-walk-options"><button id="shelf-opposite" class="underlined">Walk around to the other side ↶</button><button id="shelf-head-on" class="underlined">Look straight at it</button></div>
       </nav>
-      <details id="shelf-details" hidden><summary>Follow the trail &amp; read about the object</summary><p id="shelf-trail"></p><p id="shelf-evidence" class="source-kind"></p><p id="shelf-object-note"></p><div id="shelf-related" hidden><h3>More paths from here</h3><ul id="shelf-related-links"></ul></div></details>
+      <details id="shelf-details" hidden><summary>Follow the trail &amp; explore more</summary><p id="shelf-trail"></p><p id="shelf-evidence" class="source-kind"></p><div id="shelf-related" hidden><h3>More paths from here</h3><ul id="shelf-related-links"></ul></div></details>
       <p id="shelf-website-note" class="small-note">These doors open other websites in a new tab. The shop stays here.</p>
       <div class="rummage-actions"><button id="rummage" class="underlined">Find another curiosity ↝</button><button class="underlined" data-close="shelf-panel">Back into the cellar →</button></div>
     </section>
-    <section id="chair-panel" class="discovery-panel chair-panel" hidden aria-labelledby="chair-title">
+    <section id="chair-panel" class="discovery-panel chair-panel" hidden tabindex="0" aria-labelledby="chair-title">
       <button class="close-panel" data-close="chair-panel" aria-label="Step away from the cabinet">×</button>
       <div class="eyebrow">THINGS WITHOUT LABELS</div>
       <h2 id="chair-title">No labels.<br><em>No explanations.</em></h2>
@@ -153,7 +153,7 @@
   <div id="announcement" class="sr-only" aria-live="polite"></div>
   <noscript><div class="noscript">You’re welcome here. The moving shop needs JavaScript, but <a href="./content/oath.txt">the book is still yours to read</a>.</div></noscript>
   <script type="module">
-    import('./app.js?scene=realism-1').catch(error => {
+    import('./app.js?scene=discovery-repair-1').catch(error => {
       console.error('The shop could not finish opening.', error);
       const note=document.querySelector('#load-note');
       note.textContent='Part of the room could not arrive. Your saved place is safe. You can try opening the door again.';

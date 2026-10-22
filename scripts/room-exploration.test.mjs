@@ -38,7 +38,7 @@ function harness({stickSize=180,thumbSize=50}={}){
     walkedDistance:0,lastWalkingStep:0,renderReady:true,simple:false,gentle:false,busy:true,move:null,
     openingToken:0,revealAt:0,magicLight:null,atmosphere:null,hinge:null,hingeStart:null,renderer:null,
     tickShop(){},immersive:{enter(){}},entryPending:false,
-    place:'crypto-museum',room:{},curiosities:[],shelfItemAtHit(){return null;},go(){},openCuriosityWebsite(){},openBook(){},
+    place:'crypto-museum',room:{},curiosities:[],shelfItemAtHit(){return null;},wallCuriosityAtHit(){return null;},go(){},openCuriosityWebsite(){},openBook(){},
     innerWidth:390,innerHeight:844,performance:{now:()=>1000},
     $:el,$$:()=>[],
     audio:{stopFootsteps(){},stopActive(){},step(){}},
@@ -303,26 +303,33 @@ test('click-to-walk on clear floor keeps heading and reduced motion avoids an au
   assert.equal(c.move,null);assert.ok(c.pose.distanceTo(new THREE.Vector3(-1.1,1.48,2.6))<1e-9);
 });
 
-test('pointer entry and destination choices return focus to walking, while keyboard choices keep UI focus',async()=>{
+test('entry focuses walking while discovery choices focus readable cards for pointer and keyboard users',async()=>{
   const {context:c,el}=harness();
   let active=null;
   const world=el('#world');world.focus=()=>{active=world;};
+  const panel=el('#shelf-panel');panel.hidden=true;panel.focus=()=>{active=panel;};
+  panel.closest=selector=>selector.includes('.discovery-panel')?panel:null;
   const enter=el('#enter');enter.focus=()=>{active=enter;};enter.closest=()=>enter;
   const menu=el('#menu-item');menu.dataset.go='priyom';menu.closest=()=>menu;
   const waypoint=el('#waypoint');waypoint.dataset.place='priyom';waypoint.closest=()=>waypoint;
   c.$$=selector=>selector==='[data-go]'?[menu]:selector==='.waypoint'?[waypoint]:[];
   c.audio.bell=()=>{};c.toggleSound=async()=>{};c.curiosities=[{id:'priyom',shelf:true,website:'Priyom'}];
-  c.go=id=>{c.place=id;c.busy=true;};
+  c.go=id=>{c.place=id;c.busy=true;panel.hidden=id==='aisle';};
   const start=source.indexOf('function focusRoomAfterPointer('),end=source.indexOf("$$('[data-close]')",start);
   assert.ok(end>start);vm.runInContext(source.slice(start,end),c);
   active=enter;await enter.onclick({detail:1});
   assert.equal(active,world,'A mouse/touch entry should immediately leave WASD ready');
   c.handleRoomKeyDown(keyEvent('KeyW',active));assert.ok(c.walkingKeys.has('KeyW'));c.walkingKeys.clear();
-  active=menu;menu.onclick({detail:1});assert.equal(active,world);
-  c.handleRoomKeyDown(keyEvent('KeyA',active));assert.ok(c.walkingKeys.has('KeyA'));c.walkingKeys.clear();
+  active=menu;menu.onclick({detail:1});assert.equal(active,panel);
+  const scroll=keyEvent('ArrowDown',active);c.handleRoomKeyDown(scroll);
+  assert.equal(scroll.defaultPrevented,false);assert.equal(c.walkingKeys.size,0);assert.equal(panel.hidden,false);
   c.place='aisle';active=waypoint;waypoint.onclick({detail:1,preventDefault(){}});
-  assert.equal(active,world,'Clicking a destination label does not trap focus on the anchor');
-  c.handleRoomKeyDown(keyEvent('KeyD',active));assert.ok(c.walkingKeys.has('KeyD'));c.walkingKeys.clear();
+  assert.equal(active,panel,'Clicking a destination label leaves the description ready to scroll');
+  for(const code of ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','KeyW']){
+    const event=keyEvent(code,active);c.handleRoomKeyDown(event);
+    assert.equal(event.defaultPrevented,false);assert.equal(c.walkingKeys.size,0);assert.equal(panel.hidden,false);
+  }
+  active=menu;menu.onclick({detail:0});assert.equal(active,panel,'Keyboard selection also starts at the complete description');
   active=enter;await enter.onclick({detail:0});
   assert.equal(active,enter,'Keyboard activation keeps intentional UI navigation focus');
 });

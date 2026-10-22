@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import * as THREE from '../dist/vendor/three.module.js';
 import { curiosities } from '../dist/curiosities.js';
 import { shelfNavigation, shelfItemAtHit, shelfFraming } from '../dist/shelf-navigation.js';
+import { wallCuriosityAtHit } from '../dist/curiosity-picking.js';
 
 test('walking controls visit every object bay by bay on both faces without a dead end', () => {
   const visited = new Set();
@@ -58,7 +59,7 @@ test('the app picks the nearest visible triangle, inspects once, then opens the 
     } },
     dragging: true, dragPointer: 4, dragTouch: false, pointerTravel: 0, room: {}, busy: false,
     place: 'aisle', camera: { position: { x: -1.1 } }, innerWidth: 1000, innerHeight: 800,
-    curiosities: pickItems, shelfItemAtHit, hinge,
+    curiosities: [...pickItems,{id:'maps'}], shelfItemAtHit, wallCuriosityAtHit, hinge,
     go: id => went.push(id), openCuriosityWebsite: item => opened.push(item.url), openBook: () => { bookOpened++; },
   });
   const start = app.indexOf("$('#world').addEventListener('pointerup',e=>{");
@@ -75,6 +76,13 @@ test('the app picks the nearest visible triangle, inspects once, then opens the 
   reset();context.pointerTravel = 12;handler(event);assert.equal(opened.length, 1, 'Looking around must not accidentally open a site');
   reset();context.pointerTravel = 0;context.place = 'table';hits = [{ point: new THREE.Vector3(0, 1, -5), object: { parent: hinge } }];
   handler(event);assert.equal(bookOpened, 1, 'The original book remains selectable');
+  reset();context.place='aisle';
+  const mapHit={point:new THREE.Vector3(1.6,.84,1.5),object:{isMesh:true,name:'OldCuriosityShop',material:{name:'Centuries of foxing in rag paper'}}};
+  hits=[{point:new THREE.Vector3(1,.9,1.4),object:{}},mapHit];
+  handler(event);assert.deepEqual(went,['west'],'Furniture in front of an original object still blocks selection');
+  reset();hits=[mapHit];handler(event);
+  assert.deepEqual(went,['west','maps'],'A physical original wall object opens its own full card');
+  assert.equal(opened.length,1,'Selecting an original group does not choose one of its destinations for the visitor');
 });
 
 test('fitting respects the actual free screen area and never expands it under the card', () => {
@@ -101,25 +109,28 @@ test('fitting respects the actual free screen area and never expands it under th
   }
 });
 
-test('app framing keeps every miniature and plaque clear of the footer, joystick and card across touch and desktop layouts', async () => {
+test('app framing keeps all twenty miniatures and plaques clear in modeled maximum-height inspection layouts', async () => {
   const layout = JSON.parse(await readFile(new URL('../dist/assets/rabbit-hole-layout.json', import.meta.url), 'utf8'));
   const items = curiosities.filter(item => item.shelf).map(item => ({...item,...layout.items.find(measured => measured.id === item.id)}));
   const start = app.indexOf('function updateShelfFraming(){'), end = app.indexOf('function openCuriosityWebsite(', start);
   for (const viewport of [
-    // Cards sit above the lower control dock in portrait/tablet layouts. The
-    // shortest phone exercises the card's CSS maximum height; landscape phones
-    // and tablets use a right-side card. Header bounds conservatively include
-    // the top notch/status area; the landscape pair tests either notch side.
-    {width:320,height:568,cardTop:240,cardLeft:12,cardRight:308,cardBottom:338,footerTop:486,headerBottom:96,footerHeight:82,stickSize:120,safeBottom:0,safeLeft:0},
-    {width:390,height:844,cardTop:340,cardLeft:12,cardRight:378,cardBottom:580,footerTop:728,headerBottom:143,footerHeight:82,stickSize:120,safeBottom:34,safeLeft:0},
-    {width:768,height:1024,cardTop:500,cardLeft:64,cardRight:704,cardBottom:770,footerTop:930,headerBottom:128,footerHeight:74,stickSize:132,safeBottom:20,safeLeft:0},
-    {width:1024,height:768,cardTop:152,cardLeft:668,cardRight:1008,cardBottom:422,footerTop:674,headerBottom:140,footerHeight:74,stickSize:132,safeBottom:20,safeLeft:0},
-    {width:844,height:390,cardTop:101,cardLeft:488,cardRight:828,cardBottom:296,footerTop:308,headerBottom:104,footerHeight:62,stickSize:104,safeBottom:20,safeLeft:47},
-    {width:844,height:390,cardTop:101,cardLeft:457,cardRight:797,cardBottom:296,footerTop:308,headerBottom:104,footerHeight:62,stickSize:104,safeBottom:20,safeLeft:0,safeRight:47},
-    {width:960,height:600,cardTop:152,cardLeft:604,cardRight:944,cardBottom:422,footerTop:506,headerBottom:140,footerHeight:74,stickSize:132,safeBottom:20,safeLeft:0},
-    {width:1440,height:900,cardTop:132,cardLeft:1084,cardRight:1424,cardBottom:402,footerTop:826,headerBottom:120,footerHeight:74,stickSize:0,safeBottom:0,safeLeft:0},
+    // Rectangles model maximum-length, fully expanded card content using the
+    // stylesheet's current dock and card caps. These are geometry fixtures,
+    // not browser measurements: live CSS/scroll behavior needs browser QA too.
+    // Short portrait uses the compact inspection header and a scrollable card.
+    {width:320,height:568,cardTop:188,cardLeft:12,cardRight:308,cardBottom:278,footerTop:486,headerBottom:60,footerHeight:82,stickSize:180,safeBottom:0,safeLeft:0},
+    {width:360,height:640,cardTop:200,cardLeft:12,cardRight:348,cardBottom:330,footerTop:538,headerBottom:60,footerHeight:82,stickSize:180,safeBottom:20,safeLeft:0},
+    {width:390,height:844,cardTop:337.6,cardLeft:12,cardRight:378,cardBottom:520,footerTop:728,headerBottom:143,footerHeight:82,stickSize:180,safeBottom:34,safeLeft:0},
+    {width:768,height:1024,cardTop:409.6,cardLeft:64,cardRight:704,cardBottom:698,footerTop:930,headerBottom:128,footerHeight:74,stickSize:204,safeBottom:20,safeLeft:0},
+    {width:1024,height:768,cardTop:152,cardLeft:668,cardRight:1008,cardBottom:662,footerTop:674,headerBottom:140,footerHeight:74,stickSize:204,safeBottom:20,safeLeft:0},
+    {width:568,height:320,cardTop:101,cardLeft:302.08,cardRight:552,cardBottom:246,footerTop:258,headerBottom:104,footerHeight:62,stickSize:154,safeBottom:0,safeLeft:0},
+    {width:600,height:360,cardTop:101,cardLeft:320,cardRight:584,cardBottom:286,footerTop:298,headerBottom:104,footerHeight:62,stickSize:154,safeBottom:0,safeLeft:0},
+    {width:844,height:390,cardTop:101,cardLeft:488,cardRight:828,cardBottom:296,footerTop:308,headerBottom:104,footerHeight:62,stickSize:154,safeBottom:20,safeLeft:47},
+    {width:844,height:390,cardTop:101,cardLeft:457,cardRight:797,cardBottom:296,footerTop:308,headerBottom:104,footerHeight:62,stickSize:154,safeBottom:20,safeLeft:0,safeRight:47},
+    {width:960,height:600,cardTop:152,cardLeft:604,cardRight:944,cardBottom:494,footerTop:506,headerBottom:140,footerHeight:74,stickSize:204,safeBottom:20,safeLeft:0},
+    {width:1440,height:900,cardTop:132,cardLeft:1084,cardRight:1424,cardBottom:814,footerTop:826,headerBottom:120,footerHeight:74,stickSize:0,safeBottom:0,safeLeft:0},
   ]) {
-    const landscape=viewport.width>600&&viewport.width>viewport.height;
+    const landscape=viewport.width>viewport.height;
     const stickLeft=Math.max(18,viewport.safeLeft),stickBottom=viewport.height-viewport.footerHeight-10-viewport.safeBottom;
     const stick=viewport.stickSize?{left:stickLeft,right:stickLeft+viewport.stickSize,top:stickBottom-viewport.stickSize,
       bottom:stickBottom,width:viewport.stickSize}:{left:0,right:0,top:0,bottom:0,width:0};
