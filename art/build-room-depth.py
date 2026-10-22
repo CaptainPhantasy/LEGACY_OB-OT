@@ -1541,18 +1541,37 @@ def camera_view(name, dof=False):
 
 
 def render_views(prefix, dof=False):
+    import shutil
     paths = []
+    quarantined = []
+    poster = None
+    def retain_previous(path):
+        if path.exists():
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()[:16]
+            backup = ART / 'rendering.quarantine' / (path.stem + '-' + digest + path.suffix)
+            backup.parent.mkdir(parents=True, exist_ok=True)
+            if not backup.exists():
+                shutil.copy2(path, backup)
+            quarantined.append(str(backup.relative_to(ROOT)))
     for name in ARGS.views.split(','):
         if name not in VIEWS:
             raise ValueError('Unknown review view: ' + name)
         camera_view(name, dof=dof)
         path = ART / (prefix + '-' + name + '.png')
+        retain_previous(path)
         bpy.context.scene.render.filepath = str(path)
         bpy.ops.render.render(write_still=True)
+        if ARGS.stage == 'beauty' and name == 'entrance':
+            poster = ASSETS / 'poster-depth.png'
+            retain_previous(poster)
+            shutil.copy2(path, poster)
+            note('Native entrance beauty copied to simple-view poster', path=str(poster))
         paths.append(str(path.relative_to(ROOT)))
         note('Render saved for inspection', path=str(path))
     report_update(**{prefix: {'images': paths, 'samples_ceiling': bpy.context.scene.cycles.samples,
-                             'depth_of_field': dof, 'viewed_by_agent': False}})
+                             'depth_of_field': dof, 'viewed_by_agent': False,
+                             'previous_images_retained': quarantined,
+                             'poster': str(poster.relative_to(ROOT)) if poster else None}})
 
 
 def apply_review_lightmap(manifest):
