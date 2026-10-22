@@ -3834,10 +3834,12 @@
     ],
     "samples_ceiling": 1024,
     "depth_of_field": true,
-    "viewed_by_agent": true,
-    "inspected_views": [
-      "entrance"
-    ]
+    "viewed_by_agent": false,
+    "previous_images_retained": [
+      "art/rendering.quarantine/room-depth-beauty-entrance-e661057bcd9de02e.png",
+      "art/rendering.quarantine/poster-depth-e661057bcd9de02e.png"
+    ],
+    "poster": "dist/assets/poster-depth.png"
   },
   "bake": {
     "version": 1,
@@ -3859,24 +3861,24 @@
     "static_runtime_diffuse_lights_must_be_disabled": true,
     "statistics": {
       "max_linear_occupied": 636.5971069335938,
-      "mean_linear_occupied": 0.09672702103853226,
+      "mean_linear_occupied": 0.0967264324426651,
       "linear_percentiles_occupied": {
         "p01": 0.0,
-        "p50": 0.005590631626546383,
-        "p95": 0.38648560643196106,
+        "p50": 0.005587949650362134,
+        "p95": 0.38654112815856934,
         "p9999": 81.57760993955299
       },
       "channels_clipped": 0,
       "fraction_occupied_channels_clipped": 0.0,
       "nonfinite_channels": 0,
       "negative_channels_clamped": 0,
-      "black_pixels_including_unused_atlas": 7663640,
-      "max_abs_decode_error_occupied": 2.041211152448909,
-      "mean_abs_decode_error_occupied": 0.000250411416937071,
-      "mean_abs_decode_error_shadow_channels": 5.88461373203393e-05,
+      "black_pixels_including_unused_atlas": 7662788,
+      "max_abs_decode_error_occupied": 2.041272187605159,
+      "mean_abs_decode_error_occupied": 0.000250398452624797,
+      "mean_abs_decode_error_shadow_channels": 5.883017934605233e-05,
       "minimum_positive_decoded_occupied": 2.421805353602945e-07,
       "total_pixels": 16777216,
-      "bytes": 23783320,
+      "bytes": 23784591,
       "occupied_texels": 11914402,
       "atlas_coverage_fraction": 0.7101536989212036,
       "interior_overlap_texels": 0,
@@ -3901,21 +3903,21 @@
       "invalid_uv_examples": [],
       "collision_examples": []
     },
-    "sha256": "c076f7c33b3b0d13f5c248faca67f7a63657e8118129ecd0d0c91c13500897ca",
+    "sha256": "0c992a52228a8e9226630c6da069aa79cbb55160850d7d6eb44e897744034c9a",
     "additionalLightmaps": [
       "curiosity-lightmap.json"
     ],
     "export": {
       "path": "dist/assets/bookstore-depth.gltf",
-      "bytes": 129986,
-      "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7",
+      "bytes": 129987,
+      "sha256": "17599897dbf1e9192a000ce977a4180031bfe912f4d1f2a807125991d2076e28",
       "format": "gltf",
-      "total_bytes": 43826842,
+      "total_bytes": 43826843,
       "files": [
         {
           "path": "dist/assets/bookstore-depth.gltf",
-          "bytes": 129986,
-          "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7"
+          "bytes": 129987,
+          "sha256": "17599897dbf1e9192a000ce977a4180031bfe912f4d1f2a807125991d2076e28"
         },
         {
           "path": "dist/assets/bookstore-depth/part-001.bin",
@@ -3930,7 +3932,7 @@
         {
           "path": "dist/assets/bookstore-depth/part-003.bin",
           "bytes": 8304188,
-          "sha256": "8b386f6a0f5da45f3a4eebf2b53190d29e87bc510ef4409c34084ec0272011ec"
+          "sha256": "c910b852b6ec5f9a47f74faf2f4d067cec53878cc4f93ce38dd73c3cf1bab68d"
         },
         {
           "path": "dist/assets/bookstore-depth/part-004.bin",
@@ -3954,8 +3956,8 @@
       "geometry_bytes_preserved": true,
       "source_glb": {
         "path": "art/bookstore-depth.glb",
-        "bytes": 43827080,
-        "sha256": "f29802399f9ea1a87cd028b2337c5e38c073a6ed875a8e8a2b4ad9e1620b04ad"
+        "bytes": 43827084,
+        "sha256": "4f420b8c22bb984006c9a8344dd1f3e1cbafe3c756fef605500c734e3ef71ce1"
       },
       "static_primitives": 55,
       "static_nodes": {
@@ -4364,6 +4366,10 @@
   },
   "room-depth-export-review": {
     "images": [
+      "art/room-depth-export-review-backroom-floor.png",
+      "art/room-depth-export-review-table.png",
+      "art/room-depth-export-review-close.png",
+      "art/room-depth-export-review-open.png",
       "art/room-depth-export-review-entrance.png",
       "art/room-depth-export-review-aisle.png",
       "art/room-depth-export-review-shelf-west-front.png",
@@ -4373,28 +4379,25 @@
       "art/room-depth-export-review-bottles-west.png",
       "art/room-depth-export-review-bottles-east.png",
       "art/room-depth-export-review-maps.png",
-      "art/room-depth-export-review-globe.png",
-      "art/room-depth-export-review-table.png",
-      "art/room-depth-export-review-close.png",
-      "art/room-depth-export-review-open.png"
+      "art/room-depth-export-review-globe.png"
     ],
     "samples_ceiling": 64,
     "depth_of_field": false,
     "viewed_by_agent": false,
     "previous_images_retained": [
-      "art/rendering.quarantine/room-depth-export-review-entrance-7339d8235b798a57.png",
-      "art/rendering.quarantine/room-depth-export-review-aisle-07368b57d09a07bf.png",
-      "art/rendering.quarantine/room-depth-export-review-shelf-west-front-531fda1c8804eb49.png",
-      "art/rendering.quarantine/room-depth-export-review-shelf-east-front-c7f62835e6737b7a.png",
-      "art/rendering.quarantine/room-depth-export-review-shelf-west-03c7d222e5647321.png",
-      "art/rendering.quarantine/room-depth-export-review-shelf-east-236e898d9b498a0b.png",
-      "art/rendering.quarantine/room-depth-export-review-bottles-west-e9da53681c3f01ec.png",
-      "art/rendering.quarantine/room-depth-export-review-bottles-east-71ca1124239a84cc.png",
-      "art/rendering.quarantine/room-depth-export-review-maps-6e13d88a1dc5bb0e.png",
-      "art/rendering.quarantine/room-depth-export-review-globe-5e35b01d5ec6e76b.png",
-      "art/rendering.quarantine/room-depth-export-review-table-95f62c18af738abe.png",
-      "art/rendering.quarantine/room-depth-export-review-close-7dd76dbf24e03329.png",
-      "art/rendering.quarantine/room-depth-export-review-open-41aec2a26dbb6752.png"
+      "art/rendering.quarantine/room-depth-export-review-table-f39b42750f55df22.png",
+      "art/rendering.quarantine/room-depth-export-review-close-2bbcfade57458aa4.png",
+      "art/rendering.quarantine/room-depth-export-review-open-75447fdc07c7677a.png",
+      "art/rendering.quarantine/room-depth-export-review-entrance-1f20f42ed3e33e39.png",
+      "art/rendering.quarantine/room-depth-export-review-aisle-f8703fd1efd4f72c.png",
+      "art/rendering.quarantine/room-depth-export-review-shelf-west-front-5ed69e2e29cb817c.png",
+      "art/rendering.quarantine/room-depth-export-review-shelf-east-front-e96eb284d95cbb29.png",
+      "art/rendering.quarantine/room-depth-export-review-shelf-west-747659721c8fbb56.png",
+      "art/rendering.quarantine/room-depth-export-review-shelf-east-cf837178685b03bd.png",
+      "art/rendering.quarantine/room-depth-export-review-bottles-west-d92d2f3622afc46d.png",
+      "art/rendering.quarantine/room-depth-export-review-bottles-east-dbbff8e2bfd4c901.png",
+      "art/rendering.quarantine/room-depth-export-review-maps-9e1feaacd22ba550.png",
+      "art/rendering.quarantine/room-depth-export-review-globe-31238efb59b06fda.png"
     ],
     "poster": null
   },
@@ -5760,11 +5763,11 @@
       "bake_extension_pixels": 3,
       "static_runtime_diffuse_lights_must_be_disabled": true,
       "statistics": {
-        "max_linear_occupied": 6.476396560668945,
-        "mean_linear_occupied": 0.0923110768198967,
+        "max_linear_occupied": 6.476396083831787,
+        "mean_linear_occupied": 0.09231112152338028,
         "linear_percentiles_occupied": {
           "p01": 0.0,
-          "p50": 0.005212589632719755,
+          "p50": 0.005212599411606789,
           "p95": 0.5496299326419822,
           "p9999": 2.3819021508690703
         },
@@ -5772,13 +5775,13 @@
         "fraction_occupied_channels_clipped": 0.0,
         "nonfinite_channels": 0,
         "negative_channels_clamped": 0,
-        "black_pixels_including_unused_atlas": 9260470,
+        "black_pixels_including_unused_atlas": 9260467,
         "max_abs_decode_error_occupied": 0.019169282755545858,
-        "mean_abs_decode_error_occupied": 0.00022773225046013315,
-        "mean_abs_decode_error_shadow_channels": 3.8926064177444866e-05,
+        "mean_abs_decode_error_occupied": 0.0002277308040645789,
+        "mean_abs_decode_error_shadow_channels": 3.892612576362091e-05,
         "minimum_positive_decoded_occupied": 1.892035432502301e-09,
         "total_pixels": 16777216,
-        "bytes": 23315123,
+        "bytes": 23315166,
         "occupied_texels": 9836641,
         "atlas_coverage_fraction": 0.5863094925880432,
         "interior_overlap_texels": 0,
@@ -5803,7 +5806,7 @@
         "invalid_uv_examples": [],
         "collision_examples": []
       },
-      "sha256": "fa73bc05ea876c66bd557b0e20c9848e6a7695552dc835dd6b4340aefb0dc820",
+      "sha256": "b566ca8572dd5efece96bb74bd4d3665955a77cb437ab6f4f26e67488691f31b",
       "texel_density": {
         "major_wood_triangles": 172,
         "major_wood_area_m2": 42.9915675722032,
@@ -5815,15 +5818,15 @@
       },
       "export": {
         "path": "dist/assets/bookstore-depth.gltf",
-        "bytes": 129986,
-        "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7",
+        "bytes": 129987,
+        "sha256": "17599897dbf1e9192a000ce977a4180031bfe912f4d1f2a807125991d2076e28",
         "format": "gltf",
-        "total_bytes": 43826842,
+        "total_bytes": 43826843,
         "files": [
           {
             "path": "dist/assets/bookstore-depth.gltf",
-            "bytes": 129986,
-            "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7"
+            "bytes": 129987,
+            "sha256": "17599897dbf1e9192a000ce977a4180031bfe912f4d1f2a807125991d2076e28"
           },
           {
             "path": "dist/assets/bookstore-depth/part-001.bin",
@@ -5838,7 +5841,7 @@
           {
             "path": "dist/assets/bookstore-depth/part-003.bin",
             "bytes": 8304188,
-            "sha256": "8b386f6a0f5da45f3a4eebf2b53190d29e87bc510ef4409c34084ec0272011ec"
+            "sha256": "c910b852b6ec5f9a47f74faf2f4d067cec53878cc4f93ce38dd73c3cf1bab68d"
           },
           {
             "path": "dist/assets/bookstore-depth/part-004.bin",
@@ -5862,8 +5865,8 @@
         "geometry_bytes_preserved": true,
         "source_glb": {
           "path": "art/bookstore-depth.glb",
-          "bytes": 43827080,
-          "sha256": "f29802399f9ea1a87cd028b2337c5e38c073a6ed875a8e8a2b4ad9e1620b04ad"
+          "bytes": 43827084,
+          "sha256": "4f420b8c22bb984006c9a8344dd1f3e1cbafe3c756fef605500c734e3ef71ce1"
         },
         "static_primitives": 55,
         "static_nodes": {
