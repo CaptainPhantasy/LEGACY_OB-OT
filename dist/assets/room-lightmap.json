@@ -17,25 +17,25 @@
   "bake_extension_pixels": 3,
   "static_runtime_diffuse_lights_must_be_disabled": true,
   "statistics": {
-    "max_linear_occupied": 636.5971069335938,
-    "mean_linear_occupied": 0.0967264324426651,
+    "max_linear_occupied": 618.85986328125,
+    "mean_linear_occupied": 0.11650780588388443,
     "linear_percentiles_occupied": {
       "p01": 0.0,
-      "p50": 0.005587949650362134,
-      "p95": 0.38654112815856934,
-      "p9999": 81.57760993955299
+      "p50": 0.007674986030906439,
+      "p95": 0.5189334601163864,
+      "p9999": 71.84237706374495
     },
     "channels_clipped": 0,
     "fraction_occupied_channels_clipped": 0.0,
     "nonfinite_channels": 0,
     "negative_channels_clamped": 0,
-    "black_pixels_including_unused_atlas": 7662788,
-    "max_abs_decode_error_occupied": 2.041272187605159,
-    "mean_abs_decode_error_occupied": 0.000250398452624797,
-    "mean_abs_decode_error_shadow_channels": 5.883017934605233e-05,
+    "black_pixels_including_unused_atlas": 7590454,
+    "max_abs_decode_error_occupied": 2.0587577411215534,
+    "mean_abs_decode_error_occupied": 0.00030204010642801175,
+    "mean_abs_decode_error_shadow_channels": 5.884104852594994e-05,
     "minimum_positive_decoded_occupied": 2.421805353602945e-07,
     "total_pixels": 16777216,
-    "bytes": 23784591,
+    "bytes": 23992170,
     "occupied_texels": 11914402,
     "atlas_coverage_fraction": 0.7101536989212036,
     "interior_overlap_texels": 0,
@@ -60,21 +60,21 @@
     "invalid_uv_examples": [],
     "collision_examples": []
   },
-  "sha256": "0c992a52228a8e9226630c6da069aa79cbb55160850d7d6eb44e897744034c9a",
+  "sha256": "d24459327fcacbcbe2b2d42d6545e3b6f66374ecb2193f263591bb875085464e",
   "additionalLightmaps": [
     "curiosity-lightmap.json"
   ],
   "export": {
     "path": "dist/assets/bookstore-depth.gltf",
-    "bytes": 129987,
-    "sha256": "17599897dbf1e9192a000ce977a4180031bfe912f4d1f2a807125991d2076e28",
+    "bytes": 163663,
+    "sha256": "7ac4d841b460d66d3e971917d7bbc934cc341c4529095a6699488e04059af936",
     "format": "gltf",
-    "total_bytes": 43826843,
+    "total_bytes": 77968555,
     "files": [
       {
         "path": "dist/assets/bookstore-depth.gltf",
-        "bytes": 129987,
-        "sha256": "17599897dbf1e9192a000ce977a4180031bfe912f4d1f2a807125991d2076e28"
+        "bytes": 163663,
+        "sha256": "7ac4d841b460d66d3e971917d7bbc934cc341c4529095a6699488e04059af936"
       },
       {
         "path": "dist/assets/bookstore-depth/part-001.bin",
@@ -89,37 +89,57 @@
       {
         "path": "dist/assets/bookstore-depth/part-003.bin",
         "bytes": 8304188,
-        "sha256": "c910b852b6ec5f9a47f74faf2f4d067cec53878cc4f93ce38dd73c3cf1bab68d"
+        "sha256": "423e3487fd268849d64298ceeec7bc1011f2f9f7e4810e7c56a9b6d43670b8e9"
       },
       {
         "path": "dist/assets/bookstore-depth/part-004.bin",
         "bytes": 8042608,
-        "sha256": "c7db16eb39fdeb801bbae23e18195aa0b0b198eba4adc6d8d50182784684e18e"
+        "sha256": "a929a93297d865634778cc40c81e757c06df7df0dfd99e7da7ccd6214ec8a320"
       },
       {
         "path": "dist/assets/bookstore-depth/part-005.bin",
-        "bytes": 8204996,
-        "sha256": "6527c0ad95905a519f4d0a45b4bfdddd4f1634e7e982fc72df146ad7bcc5880d"
+        "bytes": 7044368,
+        "sha256": "f3f6f94265976b631aa894cea076ed42352c953613720207b83b451c3fe00321"
       },
       {
         "path": "dist/assets/bookstore-depth/part-006.bin",
-        "bytes": 3108768,
-        "sha256": "78dd9b5a43ab43e98976b1e71ea29a16692b7fdb5c02ce586edad5438d2ac6e7"
+        "bytes": 7725564,
+        "sha256": "2d1adbe1fd3a5d8458d1cf7b8665a8585a7a6e3bfe79133e67a496ea66d31225"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-007.bin",
+        "bytes": 7468312,
+        "sha256": "3f44ac2d01ec09d986a7a0283c5e4053139d81834ec6eb26b0d83ed204a57d8b"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-008.bin",
+        "bytes": 8224760,
+        "sha256": "4d7c9d8be23ebc0e3a5b94675826febfa76c8ab8ca729371c52e1fdd58beb4a8"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-009.bin",
+        "bytes": 8316984,
+        "sha256": "a3782ccd2aaf19e5f7a2d676d7e5c7b9c8cec09ede498f71d0ea79af9bfe1f88"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-010.bin",
+        "bytes": 6641812,
+        "sha256": "bdf57388854ef8fda09bb6bfa9c5d274e08e7feda58ff3a78b86cc7c9b721e7e"
       }
     ],
-    "buffer_parts": 6,
+    "buffer_parts": 10,
     "max_part_bytes": 8388608,
-    "buffer_views_verified": 475,
+    "buffer_views_verified": 535,
     "geometry_bytes_preserved": true,
     "source_glb": {
       "path": "art/bookstore-depth.glb",
-      "bytes": 43827084,
-      "sha256": "4f420b8c22bb984006c9a8344dd1f3e1cbafe3c756fef605500c734e3ef71ce1"
+      "bytes": 77968668,
+      "sha256": "d1b50e7f2301c960aba82b2c7407d342a4f1896cf1b348da15d845678b79c6cc"
     },
     "static_primitives": 55,
     "static_nodes": {
       "OldCuriosityShop": 55,
-      "CenterCuriosityShelf": 14
+      "CenterCuriosityShelf": 24
     },
     "required_texcoords": [
       0,
@@ -516,6 +536,66 @@
         0.09000000357627869,
         0.054999999701976776,
         0.02199999988079071,
+        1.0
+      ],
+      "Warm ivory shelf diffuser / delivery": [
+        0.5799999833106995,
+        0.4300000071525574,
+        0.25999999046325684,
+        1.0
+      ],
+      "Brushed silver display metal / delivery": [
+        0.47999998927116394,
+        0.5099999904632568,
+        0.5400000214576721,
+        1.0
+      ],
+      "Faded red display enamel / delivery": [
+        0.3100000023841858,
+        0.03500000014901161,
+        0.02199999988079071,
+        1.0
+      ],
+      "Indigo painted display enamel / delivery": [
+        0.02500000037252903,
+        0.08500000089406967,
+        0.14000000059604645,
+        1.0
+      ],
+      "Clear display glass / delivery": [
+        0.8799999952316284,
+        0.9700000286102295,
+        0.9800000190734863,
+        1.0
+      ],
+      "Verdigris botanical enamel / delivery": [
+        0.07999999821186066,
+        0.1899999976158142,
+        0.10499999672174454,
+        1.0
+      ],
+      "Terracotta replica pottery / delivery": [
+        0.3499999940395355,
+        0.11500000208616257,
+        0.04800000041723251,
+        1.0
+      ],
+      "Aged ivory appliance shell / delivery": [
+        0.5799999833106995,
+        0.5099999904632568,
+        0.3700000047683716,
+        1.0
+      ],
+      "Vortex pale water / delivery": [
+        0.25999999046325684,
+        0.5699999928474426,
+        0.6299999952316284,
+        1.0
+      ],
+      "Black steel archive case / delivery": [
+        0.02500000037252903,
+        0.029999999329447746,
+        0.03500000014901161,
         1.0
       ]
     }
