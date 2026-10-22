@@ -144,7 +144,9 @@ function snapshotUV(attribute) {
 
 test('the actual glTF retains valid binary chunks and all linear material factors instead of white defaults', async () => {
   const document = await exportedDocument();
-  assert.equal(document.materials.length, 65, 'Keep every static and articulated material');
+  // The v8 export retains all 65 existing material names and adds ten shelf
+  // delivery copies for its second static node; no original material was removed.
+  assert.equal(document.materials.length, 75, 'Keep all original materials and the ten shelf delivery copies');
   for (const material of document.materials) {
     const pbr = material.pbrMetallicRoughness;
     assert.ok(pbr && Object.hasOwn(pbr, 'baseColorFactor'),
