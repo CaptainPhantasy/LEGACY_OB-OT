@@ -1,0 +1,282 @@
+{
+  "protected_object_count": 21,
+  "protected_objects_unchanged": true,
+  "protected_objects": {
+    "AncientBookCoverDetails": "1b2f67313e8e98cb3e019bd1bcec50e548badbe946aed8c4864d3c1ad967f8a1",
+    "Book front leather cover": "9ccb80d6cf3e28eac43d6b43b4e26fd5712a725d33051e2ef01a4324794cd906",
+    "BookCoverHinge": "e023fd993101171d7334cb887d2ea005a15c083d2557ce7e984dd3a81c62c1bb",
+    "Curiosity shop entry": "cb4128b8235160a951e1c84f4b0c50de73a6bb0a8e99b75a263e0cc52a081893",
+    "Dim dusty room bounce": "ffa2f3b0cf9320d5b9e95c615928748d3d23893eaa1a5829a2c92c6d1467ed56",
+    "Dim dusty room bounce.001": "1af1631a803ec1cffab9f17c2d83b2e7aceaa43733fcbb7dacd67b36ba266624",
+    "Old practical lamp 00": "4a8da346a9688c54c780dbd43972b0ce927e5d9cc0804912212eef8c023a87a3",
+    "Old practical lamp 01": "90427b96d71c0d0f240d3cc9c110067a94f236848f7a35413b7323139d32cbe9",
+    "Old practical lamp 02": "7b0617e5b49ffe06968120c27ee95cef8862c52cfa46b30be86bfd5abc873ac0",
+    "Old practical lamp 03": "18204a831567f0a7c61d3af62ea2c1fd1cc13a089073916ecee46cce2db10ddd",
+    "Render-only dust": "2e0a66549530f5be20e57504fb1a6c31b56b147ca11dc5f74ea56591259ab6ad",
+    "Room depth cool entrance": "541f9ca833eff122b8bcd7d9cebc70ba88846c42ec6d2f85ca2c759604d82494",
+    "Room depth lantern upper spill 00": "bbe1090f8719d2ca2ee288b3b6bb3e4e9049b4d4c62c9942d74670e232765dfd",
+    "Room depth lantern upper spill 01": "ba8ec6f55ea927b68a09c7404d0292444af2d9352e4987dd73092639c8b70568",
+    "Room depth lantern upper spill 02": "503b790273484c0393229bafdf5f06ecfa48978142d409cccc5c3a84caa6ea6e",
+    "Room depth soft back-room lift": "23fd81b967a207dc20ee6eaed5dd6edea34007f804b94aa5450254920a2bbf63",
+    "Room depth soft front-room lift": "b3b113db8228fd85203efd3919f73c62f516efae4cc239d6abee28e11efa9999",
+    "Room depth warm fixture 00": "867e5f5011d88a602b16d2f3d420fcaed2575f6d3ccc9d6c887e669b3c422dc1",
+    "Room depth warm fixture 01": "947a1b835320623e9c31bd32ef033c4ce8b8cf2a85fc37d004c7a29a5481e0a8",
+    "Room depth warm fixture 02": "114a8da451914f7d9d1525c2256988ccfd0183113a76390fc8c6c5fce8499d1e",
+    "Room depth warm fixture 03": "d21f8472c842576de63c35d774465a3e12789e578c9ad2d696f7270bc4bbe8fa"
+  },
+  "old_intersecting_glass_faces_remaining": 0,
+  "continuous_bottles": 19,
+  "native_bottle_contacts": [
+    {
+      "xy": [
+        -2.7300000190734863,
+        -0.5
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        -2.7300000190734863,
+        -0.1499999761581421
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        -2.440000057220459,
+        -0.5199999958276749
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        -2.430000066757202,
+        -1.899999976158142
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        -2.430000066757202,
+        -1.5499999523162842
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        -2.430000066757202,
+        -1.2000000476837158
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        -2.430000066757202,
+        -0.8500000238418579
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        -2.430000066757202,
+        0.20000004768371582
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        -2.3399999141693115,
+        -0.10000002384185791
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.2999999523162842,
+      "support_gap_m": 0.0006000995635986328,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        -2.200000047683716,
+        -0.3500000089406967
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.2999999523162842,
+      "support_gap_m": 0.0006000995635986328,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        -2.009999990463257,
+        -0.10000002384185791
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.2999999523162842,
+      "support_gap_m": 0.0006000995635986328,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        -1.9500000476837158,
+        -0.5199999958276749
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.2999999523162842,
+      "support_gap_m": 0.0006000995635986328,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        2.430000066757202,
+        -1.899999976158142
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        2.430000066757202,
+        -1.5499999523162842
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        2.430000066757202,
+        -1.2000000476837158
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        2.430000066757202,
+        -0.8500000238418579
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        2.430000066757202,
+        -0.5
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        2.430000066757202,
+        -0.1499999761581421
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    },
+    {
+      "xy": [
+        2.430000066757202,
+        0.20000004768371582
+      ],
+      "base_m": 1.3006000518798828,
+      "support_m": 1.3000000715255737,
+      "support_gap_m": 0.000599980354309082,
+      "cork_gap_m": 0.0,
+      "closed_manifold_positive_volume": true
+    }
+  ],
+  "maximum_bottle_support_gap_m": 0.0006000995635986328,
+  "floor_bundles": [
+    {
+      "source_xy": [
+        -1.75,
+        -4.6
+      ],
+      "rolls": 3,
+      "ties": 1,
+      "support_sample_count": 27,
+      "support_m": 0.007715880870819092,
+      "before_roll_floor_gap_m": 0.06728411465883255,
+      "after_roll_floor_clearance_m": 0.003399990499019623,
+      "after_tie_floor_gap_m": 0.00039999932050704956,
+      "translation_z_m": -0.06388411912918092,
+      "tie_tube_radius_m": 0.0015,
+      "rolls_rest_on_tie": true,
+      "topology_and_uvs_unchanged": true,
+      "modified_vertices": 360
+    },
+    {
+      "source_xy": [
+        1.55,
+        -2.7
+      ],
+      "rolls": 3,
+      "ties": 1,
+      "support_sample_count": 27,
+      "support_m": 0.008198153227567673,
+      "before_roll_floor_gap_m": 0.06680184230208397,
+      "after_roll_floor_clearance_m": 0.0033999942243099213,
+      "after_tie_floor_gap_m": 0.000400003045797348,
+      "translation_z_m": -0.06340184677243234,
+      "tie_tube_radius_m": 0.0015,
+      "rolls_rest_on_tie": true,
+      "topology_and_uvs_unchanged": true,
+      "modified_vertices": 360
+    }
+  ],
+  "remaining_old_face_uv0_uv2_material_signature": "e97ffa16fefb7e9044708e21b7f789ba30013704d56539c7beba476044ec5c69",
+  "removed_old_faces": 3552,
+  "retained_old_faces": 250443
+}

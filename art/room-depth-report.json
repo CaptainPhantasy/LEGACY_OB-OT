@@ -44,11 +44,18 @@
   },
   "room-depth-preview": {
     "images": [
-      "art/room-depth-preview-table.png"
+      "art/room-depth-preview-bottles-west.png",
+      "art/room-depth-preview-bottles-east.png",
+      "art/room-depth-preview-shelf-east-front.png"
     ],
-    "samples_ceiling": 32,
+    "samples_ceiling": 64,
     "depth_of_field": false,
-    "viewed_by_agent": false
+    "viewed_by_agent": false,
+    "previous_images_retained": [
+      "art/rendering.quarantine/room-depth-preview-bottles-west-64977ba9d6eb6490.png",
+      "art/rendering.quarantine/room-depth-preview-bottles-east-099cf81c9debd082.png"
+    ],
+    "poster": null
   },
   "atlas_repair": {
     "attempts": [
@@ -3846,37 +3853,38 @@
     "samples": 1024,
     "dynamic_cover_excluded": true,
     "volume_excluded": true,
+    "complete_static_scene_visible": true,
     "atlas_inter_island_gap_pixels": 8,
     "bake_extension_pixels": 3,
     "static_runtime_diffuse_lights_must_be_disabled": true,
     "statistics": {
-      "max_linear_occupied": 636.5969848632812,
-      "mean_linear_occupied": 0.09969060868024826,
+      "max_linear_occupied": 636.5971069335938,
+      "mean_linear_occupied": 0.09672702103853226,
       "linear_percentiles_occupied": {
         "p01": 0.0,
-        "p50": 0.006182427518069744,
-        "p95": 0.4065758347511288,
-        "p9999": 81.44785919158312
+        "p50": 0.005590631626546383,
+        "p95": 0.38648560643196106,
+        "p9999": 81.57760993955299
       },
       "channels_clipped": 0,
       "fraction_occupied_channels_clipped": 0.0,
       "nonfinite_channels": 0,
       "negative_channels_clamped": 0,
-      "black_pixels_including_unused_atlas": 7601444,
-      "max_abs_decode_error_occupied": 2.041028046980159,
-      "mean_abs_decode_error_occupied": 0.00025824016702467563,
-      "mean_abs_decode_error_shadow_channels": 5.898811922940441e-05,
+      "black_pixels_including_unused_atlas": 7663640,
+      "max_abs_decode_error_occupied": 2.041211152448909,
+      "mean_abs_decode_error_occupied": 0.000250411416937071,
+      "mean_abs_decode_error_shadow_channels": 5.88461373203393e-05,
       "minimum_positive_decoded_occupied": 2.421805353602945e-07,
       "total_pixels": 16777216,
-      "bytes": 23939052,
-      "occupied_texels": 11927070,
-      "atlas_coverage_fraction": 0.7109087705612183,
+      "bytes": 23783320,
+      "occupied_texels": 11914402,
+      "atlas_coverage_fraction": 0.7101536989212036,
       "interior_overlap_texels": 0,
       "degenerate_uv_triangles": 12,
       "positive_area_degenerate_uv_faces": [],
       "conflicting_faces": [],
       "collision_triangle_pair_count": 0,
-      "uv_loops_checked": 991031,
+      "uv_loops_checked": 976823,
       "nonfinite_uv_loops": 0,
       "out_of_bounds_uv_loops": 0,
       "invalid_uv_faces": [],
@@ -3893,18 +3901,21 @@
       "invalid_uv_examples": [],
       "collision_examples": []
     },
-    "sha256": "c8d1155a66c35bdaef78af35980606b587a8ca09923400bcdb097f8f779d604a",
+    "sha256": "c076f7c33b3b0d13f5c248faca67f7a63657e8118129ecd0d0c91c13500897ca",
+    "additionalLightmaps": [
+      "curiosity-lightmap.json"
+    ],
     "export": {
       "path": "dist/assets/bookstore-depth.gltf",
-      "bytes": 113058,
-      "sha256": "45a736a3ddb3b5892c4db64bfc81a45b31a450014f9d110a63994b6c23013227",
+      "bytes": 129986,
+      "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7",
       "format": "gltf",
-      "total_bytes": 36893714,
+      "total_bytes": 43826842,
       "files": [
         {
           "path": "dist/assets/bookstore-depth.gltf",
-          "bytes": 113058,
-          "sha256": "45a736a3ddb3b5892c4db64bfc81a45b31a450014f9d110a63994b6c23013227"
+          "bytes": 129986,
+          "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7"
         },
         {
           "path": "dist/assets/bookstore-depth/part-001.bin",
@@ -3918,30 +3929,39 @@
         },
         {
           "path": "dist/assets/bookstore-depth/part-003.bin",
-          "bytes": 8372108,
-          "sha256": "c0a5fcbee861dbbc5e78ff061c434f0c3054ed1b50da0484057ff5b7b41c250c"
+          "bytes": 8304188,
+          "sha256": "8b386f6a0f5da45f3a4eebf2b53190d29e87bc510ef4409c34084ec0272011ec"
         },
         {
           "path": "dist/assets/bookstore-depth/part-004.bin",
-          "bytes": 8388080,
-          "sha256": "5158487a7ed21a3996d1b402f129d6207c7f1e5cdb143e4d83db01077ff4e506"
+          "bytes": 8042608,
+          "sha256": "c7db16eb39fdeb801bbae23e18195aa0b0b198eba4adc6d8d50182784684e18e"
         },
         {
           "path": "dist/assets/bookstore-depth/part-005.bin",
-          "bytes": 3984172,
-          "sha256": "0d1d07c43bd05954fd56a6b15c64360a1b521c4f6bc327dce9a558049c094a6e"
+          "bytes": 8204996,
+          "sha256": "6527c0ad95905a519f4d0a45b4bfdddd4f1634e7e982fc72df146ad7bcc5880d"
+        },
+        {
+          "path": "dist/assets/bookstore-depth/part-006.bin",
+          "bytes": 3108768,
+          "sha256": "78dd9b5a43ab43e98976b1e71ea29a16692b7fdb5c02ce586edad5438d2ac6e7"
         }
       ],
-      "buffer_parts": 5,
+      "buffer_parts": 6,
       "max_part_bytes": 8388608,
-      "buffer_views_verified": 415,
+      "buffer_views_verified": 475,
       "geometry_bytes_preserved": true,
       "source_glb": {
         "path": "art/bookstore-depth.glb",
-        "bytes": 36893960,
-        "sha256": "c0fb9feb5ca27004361dceb47e63ef156f9e6439f2435e8505b5e8151fadec51"
+        "bytes": 43827080,
+        "sha256": "f29802399f9ea1a87cd028b2337c5e38c073a6ed875a8e8a2b4ad9e1620b04ad"
       },
-      "static_primitives": 59,
+      "static_primitives": 55,
+      "static_nodes": {
+        "OldCuriosityShop": 55,
+        "CenterCuriosityShelf": 14
+      },
       "required_texcoords": [
         0,
         1,
@@ -4121,30 +4141,6 @@
           0.11999999731779099,
           0.10499999672174454,
           0.054999999701976776,
-          1.0
-        ],
-        "Dusty bottle 03 / delivery": [
-          0.11999999731779099,
-          0.09600000083446503,
-          0.06400000303983688,
-          1.0
-        ],
-        "Dusty bottle 00 / delivery": [
-          0.03500000014901161,
-          0.06499999761581421,
-          0.0430000014603138,
-          1.0
-        ],
-        "Dusty bottle 01 / delivery": [
-          0.09000000357627869,
-          0.054999999701976776,
-          0.02199999988079071,
-          1.0
-        ],
-        "Dusty bottle 02 / delivery": [
-          0.05700000002980232,
-          0.0729999989271164,
-          0.07000000029802322,
           1.0
         ],
         "Dust-darkened globe / delivery": [
@@ -4338,6 +4334,30 @@
           1.0,
           1.0,
           1.0
+        ],
+        "Dusty bottle 02 / delivery": [
+          0.05700000002980232,
+          0.0729999989271164,
+          0.07000000029802322,
+          1.0
+        ],
+        "Dusty bottle 00 / delivery": [
+          0.03500000014901161,
+          0.06499999761581421,
+          0.0430000014603138,
+          1.0
+        ],
+        "Dusty bottle 03 / delivery": [
+          0.11999999731779099,
+          0.09600000083446503,
+          0.06400000303983688,
+          1.0
+        ],
+        "Dusty bottle 01 / delivery": [
+          0.09000000357627869,
+          0.054999999701976776,
+          0.02199999988079071,
+          1.0
         ]
       }
     }
@@ -4345,21 +4365,38 @@
   "room-depth-export-review": {
     "images": [
       "art/room-depth-export-review-entrance.png",
+      "art/room-depth-export-review-aisle.png",
+      "art/room-depth-export-review-shelf-west-front.png",
+      "art/room-depth-export-review-shelf-east-front.png",
+      "art/room-depth-export-review-shelf-west.png",
+      "art/room-depth-export-review-shelf-east.png",
+      "art/room-depth-export-review-bottles-west.png",
+      "art/room-depth-export-review-bottles-east.png",
+      "art/room-depth-export-review-maps.png",
+      "art/room-depth-export-review-globe.png",
       "art/room-depth-export-review-table.png",
       "art/room-depth-export-review-close.png",
       "art/room-depth-export-review-open.png"
     ],
     "samples_ceiling": 64,
     "depth_of_field": false,
-    "viewed_by_agent": true,
-    "inspected_views": [
-      "entrance",
-      "table",
-      "close",
-      "open"
+    "viewed_by_agent": false,
+    "previous_images_retained": [
+      "art/rendering.quarantine/room-depth-export-review-entrance-7339d8235b798a57.png",
+      "art/rendering.quarantine/room-depth-export-review-aisle-07368b57d09a07bf.png",
+      "art/rendering.quarantine/room-depth-export-review-shelf-west-front-531fda1c8804eb49.png",
+      "art/rendering.quarantine/room-depth-export-review-shelf-east-front-c7f62835e6737b7a.png",
+      "art/rendering.quarantine/room-depth-export-review-shelf-west-03c7d222e5647321.png",
+      "art/rendering.quarantine/room-depth-export-review-shelf-east-236e898d9b498a0b.png",
+      "art/rendering.quarantine/room-depth-export-review-bottles-west-e9da53681c3f01ec.png",
+      "art/rendering.quarantine/room-depth-export-review-bottles-east-71ca1124239a84cc.png",
+      "art/rendering.quarantine/room-depth-export-review-maps-6e13d88a1dc5bb0e.png",
+      "art/rendering.quarantine/room-depth-export-review-globe-5e35b01d5ec6e76b.png",
+      "art/rendering.quarantine/room-depth-export-review-table-95f62c18af738abe.png",
+      "art/rendering.quarantine/room-depth-export-review-close-7dd76dbf24e03329.png",
+      "art/rendering.quarantine/room-depth-export-review-open-41aec2a26dbb6752.png"
     ],
-    "encoding": "RGBM_SQRT",
-    "bake_samples": 1024
+    "poster": null
   },
   "export_review_mode": "Clean GLB reimport; static base color multiplied by decoded baked illumination. Moving cover uses native direct lights. Runtime specular/reflections and browser shaders are not tested by this image.",
   "export_only": {
@@ -5593,20 +5630,645 @@
     "after_bytes": 23939052
   },
   "native_checkpoint_sha256": "0be16932333212795c8c4f5fa86260119ab6d3861f1f3fbf6c622d53d5097e02",
-  "final_edge_clearance": {
-    "safe": true,
-    "proof": "art/room-atlas-edge-clearance.json",
-    "allocated_faces_checked": 1562,
-    "mask_proven_tiles": 1537,
-    "exactly_refined_tiles": 25,
-    "minimum_refined_separation_pixels": 11.194107055664062,
-    "required_separation_pixels": 8
+  "shelf_atlas": {
+    "attempts": [
+      {
+        "resolution": 2048,
+        "atlas": {
+          "occupied_texels": 1674335,
+          "atlas_coverage_fraction": 0.39919257164001465,
+          "interior_overlap_texels": 0,
+          "degenerate_uv_triangles": 20,
+          "positive_area_degenerate_uv_faces": [],
+          "conflicting_faces": [],
+          "collision_triangle_pair_count": 0,
+          "uv_loops_checked": 241188,
+          "nonfinite_uv_loops": 0,
+          "out_of_bounds_uv_loops": 0,
+          "invalid_uv_faces": [],
+          "nonfinite_uv_faces": [],
+          "out_of_bounds_uv_faces": [],
+          "uv_min": [
+            0.003906202269718051,
+            0.0039062330033630133
+          ],
+          "uv_max": [
+            0.9960935711860657,
+            0.9900245666503906
+          ],
+          "invalid_uv_examples": [],
+          "collision_examples": []
+        },
+        "density": {
+          "major_wood_triangles": 172,
+          "major_wood_area_m2": 42.9915675722032,
+          "texels_per_metre_min": 163.24267097741816,
+          "texels_per_metre_p10": 163.2749853508453,
+          "texels_per_metre_median": 163.69079226838625,
+          "required_p10": 256,
+          "measurement": "Wood triangles >=0.02m2 with minimum altitude >=0.03m; UV area / world area"
+        }
+      },
+      {
+        "resolution": 4096,
+        "atlas": {
+          "occupied_texels": 9836641,
+          "atlas_coverage_fraction": 0.5863094925880432,
+          "interior_overlap_texels": 0,
+          "degenerate_uv_triangles": 20,
+          "positive_area_degenerate_uv_faces": [],
+          "conflicting_faces": [],
+          "collision_triangle_pair_count": 0,
+          "uv_loops_checked": 241188,
+          "nonfinite_uv_loops": 0,
+          "out_of_bounds_uv_loops": 0,
+          "invalid_uv_faces": [],
+          "nonfinite_uv_faces": [],
+          "out_of_bounds_uv_faces": [],
+          "uv_min": [
+            0.0019531226716935635,
+            0.0019530790159478784
+          ],
+          "uv_max": [
+            0.9980451464653015,
+            0.9941127300262451
+          ],
+          "invalid_uv_examples": [],
+          "collision_examples": []
+        },
+        "density": {
+          "major_wood_triangles": 172,
+          "major_wood_area_m2": 42.9915675722032,
+          "texels_per_metre_min": 395.58189154846383,
+          "texels_per_metre_p10": 395.66057656735217,
+          "texels_per_metre_median": 396.66807909339565,
+          "required_p10": 256,
+          "measurement": "Wood triangles >=0.02m2 with minimum altitude >=0.03m; UV area / world area"
+        }
+      }
+    ],
+    "resolution": 4096,
+    "density": {
+      "major_wood_triangles": 172,
+      "major_wood_area_m2": 42.9915675722032,
+      "texels_per_metre_min": 395.58189154846383,
+      "texels_per_metre_p10": 395.66057656735217,
+      "texels_per_metre_median": 396.66807909339565,
+      "required_p10": 256,
+      "measurement": "Wood triangles >=0.02m2 with minimum altitude >=0.03m; UV area / world area"
+    },
+    "orientation": {
+      "components": 601,
+      "closed_components": 241,
+      "positive_components": 241,
+      "negative_components_reversed": 0,
+      "near_zero_closed_components": 0,
+      "open_or_nonmanifold_components_unchanged": 360,
+      "inconsistent_closed_components_unchanged": 0,
+      "faces_reversed": 0,
+      "verified_negative_components_remaining": 0,
+      "reversed_material_face_counts": {},
+      "component_examples": []
+    },
+    "existing_room_uv0_uv2_unchanged": true,
+    "existing_room_positions_unchanged": true,
+    "existing_room_uv_sha256": {
+      "0": "fae87f6352f6ea3ab6ee795f652ce5ed1925f04f35400792ec7246dda5db4276",
+      "2": "8dc55003e9ec5fe278a40e239554f4d982f1d6ea7eaacaef649d4381829a1260"
+    },
+    "shelf_uv0_and_positions_unchanged": true,
+    "requires_rebake": true,
+    "backup": "/Volumes/Storage/LAI-BookOfTruths/sites/legacy-depth-v7/art/room-curiosities-before-shelf-atlas.blend"
   },
-  "final_delivered_asset_tests": {
-    "passed": 8,
-    "failed": 0,
-    "commands": [
-      "node --test scripts/room-lightmap.test.mjs scripts/room-lightmap-encoding.test.mjs"
-    ]
-  }
+  "additional_bakes": [
+    {
+      "version": 1,
+      "node": "CenterCuriosityShelf",
+      "uv_channel": 2,
+      "scale": 8.0,
+      "illuminationScale": 8.0,
+      "resolution": 4096,
+      "encoding": "RGBM_SQRT",
+      "decode": "(rgb * alpha)^2 * illuminationScale; all channels are non-color data",
+      "file": "curiosity-lightmap.png",
+      "source": "Cycles diffuse direct + indirect, color disabled",
+      "samples": 1024,
+      "dynamic_cover_excluded": true,
+      "volume_excluded": true,
+      "complete_static_scene_visible": true,
+      "atlas_inter_island_gap_pixels": 8,
+      "bake_extension_pixels": 3,
+      "static_runtime_diffuse_lights_must_be_disabled": true,
+      "statistics": {
+        "max_linear_occupied": 6.476396560668945,
+        "mean_linear_occupied": 0.0923110768198967,
+        "linear_percentiles_occupied": {
+          "p01": 0.0,
+          "p50": 0.005212589632719755,
+          "p95": 0.5496299326419822,
+          "p9999": 2.3819021508690703
+        },
+        "channels_clipped": 0,
+        "fraction_occupied_channels_clipped": 0.0,
+        "nonfinite_channels": 0,
+        "negative_channels_clamped": 0,
+        "black_pixels_including_unused_atlas": 9260470,
+        "max_abs_decode_error_occupied": 0.019169282755545858,
+        "mean_abs_decode_error_occupied": 0.00022773225046013315,
+        "mean_abs_decode_error_shadow_channels": 3.8926064177444866e-05,
+        "minimum_positive_decoded_occupied": 1.892035432502301e-09,
+        "total_pixels": 16777216,
+        "bytes": 23315123,
+        "occupied_texels": 9836641,
+        "atlas_coverage_fraction": 0.5863094925880432,
+        "interior_overlap_texels": 0,
+        "degenerate_uv_triangles": 20,
+        "positive_area_degenerate_uv_faces": [],
+        "conflicting_faces": [],
+        "collision_triangle_pair_count": 0,
+        "uv_loops_checked": 241188,
+        "nonfinite_uv_loops": 0,
+        "out_of_bounds_uv_loops": 0,
+        "invalid_uv_faces": [],
+        "nonfinite_uv_faces": [],
+        "out_of_bounds_uv_faces": [],
+        "uv_min": [
+          0.0019531226716935635,
+          0.0019530790159478784
+        ],
+        "uv_max": [
+          0.9980451464653015,
+          0.9941127300262451
+        ],
+        "invalid_uv_examples": [],
+        "collision_examples": []
+      },
+      "sha256": "fa73bc05ea876c66bd557b0e20c9848e6a7695552dc835dd6b4340aefb0dc820",
+      "texel_density": {
+        "major_wood_triangles": 172,
+        "major_wood_area_m2": 42.9915675722032,
+        "texels_per_metre_min": 395.58189154846383,
+        "texels_per_metre_p10": 395.66057656735217,
+        "texels_per_metre_median": 396.66807909339565,
+        "required_p10": 256,
+        "measurement": "Wood triangles >=0.02m2 with minimum altitude >=0.03m; UV area / world area"
+      },
+      "export": {
+        "path": "dist/assets/bookstore-depth.gltf",
+        "bytes": 129986,
+        "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7",
+        "format": "gltf",
+        "total_bytes": 43826842,
+        "files": [
+          {
+            "path": "dist/assets/bookstore-depth.gltf",
+            "bytes": 129986,
+            "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7"
+          },
+          {
+            "path": "dist/assets/bookstore-depth/part-001.bin",
+            "bytes": 7660832,
+            "sha256": "6b66994852fff675e62ac5f16112e0f62c6f7e821341c3db9606e176bb9e3928"
+          },
+          {
+            "path": "dist/assets/bookstore-depth/part-002.bin",
+            "bytes": 8375464,
+            "sha256": "204a20878faa375ec9cc90f0ef442b8405a40b3d9041eff57105184a0af247d3"
+          },
+          {
+            "path": "dist/assets/bookstore-depth/part-003.bin",
+            "bytes": 8304188,
+            "sha256": "8b386f6a0f5da45f3a4eebf2b53190d29e87bc510ef4409c34084ec0272011ec"
+          },
+          {
+            "path": "dist/assets/bookstore-depth/part-004.bin",
+            "bytes": 8042608,
+            "sha256": "c7db16eb39fdeb801bbae23e18195aa0b0b198eba4adc6d8d50182784684e18e"
+          },
+          {
+            "path": "dist/assets/bookstore-depth/part-005.bin",
+            "bytes": 8204996,
+            "sha256": "6527c0ad95905a519f4d0a45b4bfdddd4f1634e7e982fc72df146ad7bcc5880d"
+          },
+          {
+            "path": "dist/assets/bookstore-depth/part-006.bin",
+            "bytes": 3108768,
+            "sha256": "78dd9b5a43ab43e98976b1e71ea29a16692b7fdb5c02ce586edad5438d2ac6e7"
+          }
+        ],
+        "buffer_parts": 6,
+        "max_part_bytes": 8388608,
+        "buffer_views_verified": 475,
+        "geometry_bytes_preserved": true,
+        "source_glb": {
+          "path": "art/bookstore-depth.glb",
+          "bytes": 43827080,
+          "sha256": "f29802399f9ea1a87cd028b2337c5e38c073a6ed875a8e8a2b4ad9e1620b04ad"
+        },
+        "static_primitives": 55,
+        "static_nodes": {
+          "OldCuriosityShop": 55,
+          "CenterCuriosityShelf": 14
+        },
+        "required_texcoords": [
+          0,
+          1,
+          2
+        ],
+        "hinge_preserved": true,
+        "explicit_base_color_factors": {
+          "Old ebony joinery / delivery": [
+            0.03200000151991844,
+            0.020999999716877937,
+            0.017000000923871994,
+            1.0
+          ],
+          "Walnut \u2022 patina 03 / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Rusted iron / delivery": [
+            0.07500000298023224,
+            0.041999999433755875,
+            0.023000000044703484,
+            1.0
+          ],
+          "Walnut \u2022 patina 07 / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Walnut \u2022 patina 00 / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Walnut \u2022 patina 04 / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Walnut \u2022 patina 08 / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Walnut \u2022 patina 01 / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Walnut \u2022 patina 05 / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Walnut \u2022 patina 06 / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Walnut \u2022 patina 02 / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Damp grey green plaster / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Exposed old brick / delivery": [
+            0.0949999988079071,
+            0.04800000041723251,
+            0.032999999821186066,
+            1.0
+          ],
+          "Dusty canvas / delivery": [
+            0.11500000208616257,
+            0.10400000214576721,
+            0.07500000298023224,
+            1.0
+          ],
+          "Book cloth 05 / delivery": [
+            0.2199999988079071,
+            0.10999999940395355,
+            0.054999999701976776,
+            1.0
+          ],
+          "Antique paper / delivery": [
+            0.5099999904632568,
+            0.4000000059604645,
+            0.2549999952316284,
+            1.0
+          ],
+          "Tarnished old brass / delivery": [
+            0.2199999988079071,
+            0.1599999964237213,
+            0.07199999690055847,
+            1.0
+          ],
+          "Book cloth 03 / delivery": [
+            0.11999999731779099,
+            0.10000000149011612,
+            0.05999999865889549,
+            1.0
+          ],
+          "Book cloth 06 / delivery": [
+            0.10999999940395355,
+            0.03999999910593033,
+            0.04399999976158142,
+            1.0
+          ],
+          "Ox-blood leather / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Book cloth 04 / delivery": [
+            0.054999999701976776,
+            0.06499999761581421,
+            0.09000000357627869,
+            1.0
+          ],
+          "Book cloth 09 / delivery": [
+            0.14000000059604645,
+            0.11999999731779099,
+            0.0949999988079071,
+            1.0
+          ],
+          "Faded linen / delivery": [
+            0.5600000023841858,
+            0.44999998807907104,
+            0.28999999165534973,
+            1.0
+          ],
+          "Book cloth 00 / delivery": [
+            0.1599999964237213,
+            0.03200000151991844,
+            0.02500000037252903,
+            1.0
+          ],
+          "Book cloth 07 / delivery": [
+            0.2199999988079071,
+            0.18000000715255737,
+            0.12999999523162842,
+            1.0
+          ],
+          "Book cloth 01 / delivery": [
+            0.09000000357627869,
+            0.10499999672174454,
+            0.07199999690055847,
+            1.0
+          ],
+          "Book cloth 08 / delivery": [
+            0.06499999761581421,
+            0.03999999910593033,
+            0.03500000014901161,
+            1.0
+          ],
+          "Book cloth 02 / delivery": [
+            0.06499999761581421,
+            0.11999999731779099,
+            0.10999999940395355,
+            1.0
+          ],
+          "Oxidized bronze / delivery": [
+            0.11999999731779099,
+            0.10499999672174454,
+            0.054999999701976776,
+            1.0
+          ],
+          "Dust-darkened globe / delivery": [
+            0.10499999672174454,
+            0.125,
+            0.08500000089406967,
+            1.0
+          ],
+          "Almost invisible cobwebs / delivery": [
+            0.25,
+            0.25,
+            0.20000000298023224,
+            1.0
+          ],
+          "Damp soot-blackened cellar stone / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Crumbling lime plaster / delivery": [
+            0.11500000208616257,
+            0.11400000005960464,
+            0.08399999886751175,
+            1.0
+          ],
+          "Centuries of foxing in rag paper / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Faded charcoal ink / delivery": [
+            0.054999999701976776,
+            0.04699999839067459,
+            0.02800000086426735,
+            1.0
+          ],
+          "Faded madder hanging cloth / delivery": [
+            0.12999999523162842,
+            0.05700000002980232,
+            0.03500000014901161,
+            1.0
+          ],
+          "Stained hemp rope / delivery": [
+            0.10000000149011612,
+            0.08299999684095383,
+            0.04699999839067459,
+            1.0
+          ],
+          "Indigo cloth worn almost grey / delivery": [
+            0.04600000008940697,
+            0.06199999898672104,
+            0.061000000685453415,
+            1.0
+          ],
+          "Old unglazed pottery / delivery": [
+            0.15000000596046448,
+            0.0729999989271164,
+            0.03700000047683716,
+            1.0
+          ],
+          "Copper green patina / delivery": [
+            0.04500000178813934,
+            0.08399999886751175,
+            0.06599999964237213,
+            1.0
+          ],
+          "Desiccated cracked leather / delivery": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Uneven darkened leaf 05 / delivery": [
+            0.4000000059604645,
+            0.3149999976158142,
+            0.1850000023841858,
+            1.0
+          ],
+          "Uneven darkened leaf 03 / delivery": [
+            0.35199999809265137,
+            0.2750000059604645,
+            0.15700000524520874,
+            1.0
+          ],
+          "Uneven darkened leaf 07 / delivery": [
+            0.4480000138282776,
+            0.35499998927116394,
+            0.21299999952316284,
+            1.0
+          ],
+          "Uneven darkened leaf 00 / delivery": [
+            0.2800000011920929,
+            0.2150000035762787,
+            0.11500000208616257,
+            1.0
+          ],
+          "Uneven darkened leaf 02 / delivery": [
+            0.328000009059906,
+            0.2549999952316284,
+            0.14300000667572021,
+            1.0
+          ],
+          "Uneven darkened leaf 06 / delivery": [
+            0.42399999499320984,
+            0.33500000834465027,
+            0.19900000095367432,
+            1.0
+          ],
+          "Uneven darkened leaf 01 / delivery": [
+            0.30399999022483826,
+            0.23499999940395355,
+            0.1289999932050705,
+            1.0
+          ],
+          "Uneven darkened leaf 04 / delivery": [
+            0.37599998712539673,
+            0.29499998688697815,
+            0.17100000381469727,
+            1.0
+          ],
+          "Uneven darkened leaf 08 / delivery": [
+            0.47200000286102295,
+            0.375,
+            0.22699999809265137,
+            1.0
+          ],
+          "Exposed abraded rawhide / delivery": [
+            0.11500000208616257,
+            0.07000000029802322,
+            0.029999999329447746,
+            1.0
+          ],
+          "Almost vanished gilt / delivery": [
+            0.10499999672174454,
+            0.06499999761581421,
+            0.02199999988079071,
+            1.0
+          ],
+          "Threadbare burgundy rug / delivery": [
+            0.11500000208616257,
+            0.02199999988079071,
+            0.027000000700354576,
+            1.0
+          ],
+          "Amber blown glass / delivery": [
+            0.8500000238418579,
+            0.4699999988079071,
+            0.1599999964237213,
+            1.0
+          ],
+          "Warm lamp glow / delivery": [
+            1.0,
+            0.6800000071525574,
+            0.2800000011920929,
+            1.0
+          ],
+          "Almost vanished gilt / delivery.001": [
+            0.10499999672174454,
+            0.06499999761581421,
+            0.02199999988079071,
+            1.0
+          ],
+          "Old ebony joinery / delivery.001": [
+            0.03200000151991844,
+            0.020999999716877937,
+            0.017000000923871994,
+            1.0
+          ],
+          "Exposed abraded rawhide / delivery.001": [
+            0.11500000208616257,
+            0.07000000029802322,
+            0.029999999329447746,
+            1.0
+          ],
+          "Blackened repair thread / delivery": [
+            0.15000000596046448,
+            0.12300000339746475,
+            0.07100000232458115,
+            1.0
+          ],
+          "Surviving worn title impression / delivery": [
+            0.30000001192092896,
+            0.20999999344348907,
+            0.10000000149011612,
+            1.0
+          ],
+          "Desiccated cracked leather / delivery.001": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "Dusty bottle 02 / delivery": [
+            0.05700000002980232,
+            0.0729999989271164,
+            0.07000000029802322,
+            1.0
+          ],
+          "Dusty bottle 00 / delivery": [
+            0.03500000014901161,
+            0.06499999761581421,
+            0.0430000014603138,
+            1.0
+          ],
+          "Dusty bottle 03 / delivery": [
+            0.11999999731779099,
+            0.09600000083446503,
+            0.06400000303983688,
+            1.0
+          ],
+          "Dusty bottle 01 / delivery": [
+            0.09000000357627869,
+            0.054999999701976776,
+            0.02199999988079071,
+            1.0
+          ]
+        }
+      }
+    }
+  ]
 }
