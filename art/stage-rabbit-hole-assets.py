@@ -15,6 +15,8 @@ p = argparse.ArgumentParser()
 p.add_argument('--source', type=Path, required=True)
 p.add_argument('--destination', type=Path, required=True)
 p.add_argument('--batch', type=int, help='Omit to print the complete batch plan')
+p.add_argument('--phase', choices=['geometry', 'visuals', 'all'], default='all',
+               help='Allow geometry QA to proceed while the final poster renders')
 a = p.parse_args()
 source, dest = a.source.resolve(), a.destination.resolve()
 report = json.loads((source / 'art/room-depth-report.json').read_text())
@@ -31,16 +33,20 @@ for buffer in scene['buffers']:
     path = source / 'dist/assets' / uri
     assert path.stat().st_size == buffer['byteLength'] <= 8 * 1024 * 1024
     paths.append('dist/assets/' + uri)
-review = report['room-depth-export-review']
-assert review['viewed_by_agent'] is True
-for item in layout['items']:
-    assert 'art/room-depth-export-review-object-' + item['id'] + '.png' in review['images']
-paths += ['dist/assets/rabbit-hole-layout.json', 'dist/assets/poster-depth.png',
-          'art/rabbit-hole-geometry-report.json', 'art/upper-book-grounding-report.json',
-          'art/room-depth-report.json']
-native_review = report['room-depth-preview']
-assert native_review['viewed_by_agent'] is True
-paths += review['images'] + native_review['images'] + ['art/room-depth-beauty-entrance.png']
+paths += ['dist/assets/rabbit-hole-layout.json']
+if a.phase != 'geometry':
+    review = report['room-depth-export-review']
+    assert review['viewed_by_agent'] is True
+    for item in layout['items']:
+        assert 'art/room-depth-export-review-object-' + item['id'] + '.png' in review['images']
+    native_review = report['room-depth-preview']
+    assert native_review['viewed_by_agent'] is True
+    assert report['room-depth-beauty']['viewed_by_agent'] is True
+    if a.phase == 'visuals':
+        paths = []
+    paths += ['dist/assets/poster-depth.png', 'art/rabbit-hole-geometry-report.json',
+              'art/upper-book-grounding-report.json', 'art/room-depth-report.json']
+    paths += review['images'] + native_review['images'] + ['art/room-depth-beauty-entrance.png']
 assert len(paths) == len(set(paths))
 batches, current, size = [], [], 0
 for rel in paths:
@@ -70,6 +76,6 @@ else:
         assert hashlib.sha256(target.read_bytes()).digest() == hashlib.sha256((source / rel).read_bytes()).digest()
     subprocess.run(['git', '-C', str(dest), 'add', '--', *paths], check=True)
     subprocess.run(['git', '-C', str(dest), '-c', 'user.name=Codex', '-c', 'user.email=codex@openai.com',
-                    'commit', '-m', f'Deliver twenty shelf exhibits: asset batch {a.batch + 1}'], check=True)
+                    'commit', '-m', f'Deliver twenty shelf exhibits: {a.phase} batch {a.batch + 1}'], check=True)
     sha = subprocess.check_output(['git', '-C', str(dest), 'rev-parse', 'HEAD'], text=True).strip()
     print(json.dumps({'batch': a.batch, 'total_batches': len(batches), 'commit': sha, 'files': len(paths)}))
