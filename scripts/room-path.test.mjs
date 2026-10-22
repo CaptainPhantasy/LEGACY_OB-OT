@@ -152,10 +152,10 @@ test('replanning from an interrupted route or an exact corner keeps every new pa
 const appSource = await readFile(new URL('../dist/app.js', import.meta.url), 'utf8');
 function movementHarness() {
   const audio = { stopFootsteps() {}, setPosition() {} };
-  const context = vm.createContext({ THREE, poses, planRoomPath, performance: { now: () => 1000 },
+  const context = vm.createContext({ THREE, poses, planRoomPath, movement: { planPath: planRoomPath }, performance: { now: () => 1000 },
     roomLook: { reset() {} }, audio, pose: new THREE.Vector3(...ROOM_POSES.entrance[0]),
     focus: new THREE.Vector3(...ROOM_POSES.entrance[1]), move: null, busy: false,
-    gentle: false, simple: false, renderReady: true, stopPageTurn() {}, applyComfort() {} });
+    gentle: false, simple: false, renderReady: true, stopPageTurn() {}, applyComfort() {}, announce() {} });
   const start = appSource.indexOf('function finishMove(){'), end = appSource.indexOf('function closePanels()', start);
   assert.ok(start > 0 && end > start);
   vm.runInContext(appSource.slice(start, end), context);
@@ -193,4 +193,12 @@ test('actual app arrival, interruption and reduced motion resolve book waits exa
   context.gentle = false;context.simple = true;context.glide('chair');
   assert.equal(context.move, null);
   assert.deepEqual(context.pose.toArray(), ROOM_POSES.chair[0]);
+  context.simple=false;
+  let rejected=0;context.move={onArrive:value=>{assert.equal(value,false);rejected++;}};
+  context.movement.planPath=()=>{throw new RangeError('Occupied');};
+  const priorPosition=context.pose.clone();
+  assert.equal(context.glide('table'),false);assert.equal(rejected,1);assert.equal(context.move,null);
+  assert.ok(context.pose.distanceTo(priorPosition)<1e-10,'An unreachable approach cannot teleport the camera');
+  context.simple=true;assert.equal(context.glide('table'),true,'The simple view never depends on collision planning');
+  assert.deepEqual(context.pose.toArray(),ROOM_POSES.table[0]);
 });

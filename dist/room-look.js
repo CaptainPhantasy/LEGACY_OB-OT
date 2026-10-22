@@ -1,9 +1,9 @@
 const radians=degrees=>degrees*Math.PI/180;
 const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
-const yawLimit=radians(135),lowestPitch=radians(-55),highestPitch=radians(80);
+const lowestPitch=radians(-89),highestPitch=radians(89);
 const sensitivity=.0045;
 
-// Turn in place around the current stop, with the horizon kept level.
+// Turn freely through any number of revolutions, with the horizon kept level.
 // Pitch limits are measured against the room, never the current object's tilt.
 export class RoomLook {
   constructor(){this.reset();}
@@ -14,9 +14,10 @@ export class RoomLook {
   turn(dx,dy,position,focus){
     const base=this.basePitch(position,focus);
     // Drag the room with your hand, like a panorama, on mouse and touch alike.
-    this.yaw=clamp(this.yaw-dx*sensitivity,-yawLimit,yawLimit);
+    this.yaw-=dx*sensitivity;
     this.pitch=clamp(base+this.pitch+dy*sensitivity,lowestPitch,highestPitch)-base;
   }
+  heading(position,focus){return Math.atan2(focus.x-position.x,-(focus.z-position.z))+this.yaw;}
   target(position,focus,out){
     const dx=focus.x-position.x,dy=focus.y-position.y,dz=focus.z-position.z;
     const distance=Math.hypot(dx,dy,dz)||1;

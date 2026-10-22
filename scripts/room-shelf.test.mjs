@@ -69,8 +69,8 @@ test('the app picks the nearest visible triangle, inspects once, then opens the 
   const reset = () => { context.dragging = true;context.dragPointer = 4; };
   hits = [{ point: new THREE.Vector3(-1, 1, .65), object: {} }, { point: new THREE.Vector3(-.2, 1.4, .65), object: {} }];
   handler(event);assert.deepEqual(went, [], 'An intervening scene surface blocks selection');
-  reset();hits = [{ point: new THREE.Vector3(-.2, 1.4, .65), object: {} }];
-  handler(event);assert.deepEqual(went, ['west']);assert.deepEqual(opened, []);
+  reset();context.busy = true;hits = [{ point: new THREE.Vector3(-.2, 1.4, .65), object: {} }];
+  handler(event);assert.deepEqual(went, ['west'], 'A new object can interrupt the current approach');assert.deepEqual(opened, []);context.busy = false;
   reset();context.place = 'west';handler(event);assert.deepEqual(opened, ['https://example.org/west']);
   reset();context.pointerTravel = 12;handler(event);assert.equal(opened.length, 1, 'Looking around must not accidentally open a site');
   reset();context.pointerTravel = 0;context.place = 'table';hits = [{ point: new THREE.Vector3(0, 1, -5), object: { parent: hinge } }];
@@ -97,6 +97,39 @@ test('fitting respects the actual free screen area and never expands it under th
       const x = (point.x * .5 + .5) * viewport.width, y = (-point.y * .5 + .5) * viewport.height;
       assert.ok(x > (viewport.left || 20) && x < (viewport.right || viewport.width - 20), `${viewport.width}: horizontal clipping`);
       assert.ok(y > viewport.top && y < viewport.bottom, `${viewport.width}: card/header overlap`);
+    }
+  }
+});
+
+test('app framing keeps all measured miniatures and plaques clear of the compact touch control', async () => {
+  const layout = JSON.parse(await readFile(new URL('../dist/assets/rabbit-hole-layout.json', import.meta.url), 'utf8'));
+  const items = curiosities.filter(item => item.shelf).map(item => ({...item,...layout.items.find(measured => measured.id === item.id)}));
+  const start = app.indexOf('function updateShelfFraming(){'), end = app.indexOf('function openCuriosityWebsite(', start);
+  for (const viewport of [
+    {width:320,height:568,cardTop:260,cardLeft:12,footerTop:510,buttonRight:56,buttonSize:44},
+    {width:390,height:844,cardTop:480,cardLeft:12,footerTop:780,buttonRight:56,buttonSize:44},
+    {width:844,height:390,cardTop:101,cardLeft:488,footerTop:325,buttonRight:52,buttonSize:40},
+  ]) {
+    const landscape=viewport.height<600&&viewport.width>600;
+    const left=viewport.buttonRight+12,right=landscape?viewport.cardLeft-20:viewport.width-20;
+    const bottom=landscape?viewport.footerTop-12:viewport.cardTop-20;
+    for (const item of items) {
+      const camera=new THREE.PerspectiveCamera(58,viewport.width/viewport.height,.04,60);
+      camera.position.fromArray(item.pose[0]);camera.lookAt(new THREE.Vector3(...item.pose[1]));
+      const elements={
+        '#shelf-panel':{hidden:false,getBoundingClientRect:()=>({top:viewport.cardTop,left:viewport.cardLeft})},
+        '.shop-header':{getBoundingClientRect:()=>({bottom:96})},
+        '.shop-footer':{getBoundingClientRect:()=>({top:viewport.footerTop})},
+        '.walk-forward':{getBoundingClientRect:()=>({width:viewport.buttonSize,right:viewport.buttonRight})},
+      };
+      const context=vm.createContext({camera,curiosities:items,place:item.id,$:selector=>elements[selector],shelfFraming,innerWidth:viewport.width,innerHeight:viewport.height});
+      vm.runInContext(app.slice(start,end)+'\nupdateShelfFraming();',context);camera.updateMatrixWorld();
+      for (const bounds of [item.pickBounds,item.labelBounds]) for(let corner=0;corner<8;corner++){
+        const point=new THREE.Vector3(...[0,1,2].map(axis=>bounds[(corner>>axis)&1][axis])).project(camera);
+        const x=(point.x*.5+.5)*viewport.width,y=(-point.y*.5+.5)*viewport.height;
+        assert.ok(x>left&&x<right,`${item.id} on ${viewport.width}px: overlaps walk control or card`);
+        assert.ok(y>110&&y<bottom,`${item.id} on ${viewport.width}px: overlaps header or card`);
+      }
     }
   }
 });

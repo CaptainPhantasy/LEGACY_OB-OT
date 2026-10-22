@@ -24,13 +24,13 @@
   <meta name="twitter:image" content="https://sundays-old-books.captainphantasy.chatgpt.site/assets/legacy-social-book-2ddb4e959565.jpg">
   <meta name="twitter:image:alt" content="An antique leather book branded LEGACY with a brass four-point star.">
   <link rel="icon" type="image/svg+xml" href="./assets/mark.svg">
-  <link rel="stylesheet" href="./style.css?scene=rabbit-holes-1">
+  <link rel="stylesheet" href="./style.css?scene=natural-motion-1">
   <link rel="alternate" type="application/json" href="./content/book.json" title="Book contents">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
 </head>
 <body>
   <a class="skip-link" href="#explore-toggle">Skip to places to explore</a>
-  <canvas id="world" tabindex="0" aria-label="A cellar of old books and curious objects. Drag or swipe to look around. Select an object to inspect it. Use the arrow keys to look, or Tab to choose an object and the shelf walking controls." role="img"></canvas>
+  <canvas id="world" tabindex="0" aria-label="A cellar of old books and curious objects. Drag or swipe to look around. Select an object to inspect it. Use W A S D or the arrow keys to walk, Q and E to turn, R and F to look up and down, or Tab to choose an object. You can turn and walk away from any display." role="img"></canvas>
   <div class="vignette" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
   <div id="revelation" aria-hidden="true"><div class="solar-ring"></div><div class="solar-ring second"></div><div class="flare-core"></div></div>
@@ -61,6 +61,13 @@
       <div id="place-actions" class="place-actions"></div>
     </section>
     <div id="waypoints" hidden aria-label="Objects in the cellar"></div>
+    <div id="movement-hint" aria-hidden="true"><span class="keyboard-hint">W A S D / arrows · walk &nbsp; Drag or Q / E · turn &nbsp; C · crouch</span><span class="touch-hint">Hold an arrow to walk. Drag the room to turn.</span></div>
+    <nav id="walk-pad" class="walk-pad" aria-label="Hold a direction to walk">
+      <button data-walk="forward" class="walk-forward" aria-label="Walk forward" aria-pressed="false">↑</button>
+      <button data-walk="left" class="walk-left" aria-label="Step left" aria-pressed="false">←</button>
+      <button data-walk="back" class="walk-back" aria-label="Walk backward" aria-pressed="false">↓</button>
+      <button data-walk="right" class="walk-right" aria-label="Step right" aria-pressed="false">→</button>
+    </nav>
     <aside id="explore-menu" class="panel explore-menu" hidden aria-label="Places to explore">
       <div class="eyebrow">THINGS THAT CAUGHT YOUR EYE</div>
       <div id="curiosity-menu"></div>
@@ -73,16 +80,16 @@
       <div class="eyebrow">MAKE YOURSELF COMFORTABLE</div>
       <label><span>Shop sounds<small>Footsteps, old paper, leather and the distant street</small></span><input id="sound-setting" type="checkbox" role="switch"></label>
       <label><span>Describe sounds<small>Quiet words for what you hear</small></span><input id="captions-setting" type="checkbox" role="switch"></label>
-      <label><span>Gentle movement<small>Still views, quiet light and pages without movement</small></span><input id="motion-setting" type="checkbox" role="switch"></label>
+      <label><span>Gentle movement<small>No automatic walking animation, quiet light and pages without movement</small></span><input id="motion-setting" type="checkbox" role="switch"></label>
       <label><span>Brighter room<small>Lift the shadows</small></span><input id="brightness-setting" type="checkbox" role="switch"></label>
       <button id="simple-view" class="underlined">Use the simple shop view</button>
       <button id="fullscreen" class="underlined immersive-button">Fill the screen with the room ↗</button>
       <p id="sound-status" role="status">Sounds begin only when you choose them.</p>
       <a class="sound-credits" href="./assets/audio/credits.html" target="_blank" rel="noopener">Sound credits ↗</a>
-      <p>Choose a place to move there. Drag or swipe to look around, or select the room and use the arrow keys. Every place is reachable with Tab and Enter.</p>
+      <p>Walk with W A S D or the arrow keys. Drag or swipe to look all the way around; Q and E also turn, and R and F look up or down. Hold Shift to walk faster or C to crouch. On touch screens, hold a walking arrow with one finger and look with the other. Click clear floor to walk there. Turning or walking away leaves an object naturally. Every place is also reachable with Tab and Enter.</p>
     </aside>
     <section id="shelf-panel" class="discovery-panel" hidden aria-labelledby="shelf-title">
-      <button class="close-panel" data-close="shelf-panel" aria-label="Close the shelf">×</button>
+      <button class="close-panel" data-close="shelf-panel" aria-label="Dismiss this object’s information">×</button>
       <div id="curiosity-eyebrow" class="eyebrow">SOMETHING CAUGHT YOUR EYE</div>
       <div id="curiosity-mark" class="curiosity-mark" aria-hidden="true">⌁</div>
       <h2 id="shelf-title">One thing leads to another.</h2>
@@ -137,7 +144,7 @@
   <div id="announcement" class="sr-only" aria-live="polite"></div>
   <noscript><div class="noscript">You’re welcome here. The moving shop needs JavaScript, but <a href="./content/oath.txt">the book is still yours to read</a>.</div></noscript>
   <script type="module">
-    import('./app.js?scene=rabbit-holes-1').catch(error => {
+    import('./app.js?scene=natural-motion-1').catch(error => {
       console.error('The shop could not finish opening.', error);
       const note=document.querySelector('#load-note');
       note.textContent='Part of the room could not arrive. Your saved place is safe. You can try opening the door again.';

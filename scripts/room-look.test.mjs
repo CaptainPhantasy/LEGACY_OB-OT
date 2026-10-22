@@ -18,14 +18,18 @@ function direction(look,position,focus){
   return {camera,vector:camera.getWorldDirection(new Vector3())};
 }
 
-test('dragging follows the hand and reaches 135 degrees on either side at every stop',()=>{
+test('dragging completes repeated full turns in either direction at every stop',()=>{
   for(const {position,focus} of stops){
-    const look=new RoomLook();
+    const look=new RoomLook(),initial=direction(look,position,focus).vector;
     look.turn(20,0,position,focus);assert.ok(look.yaw<0,'drag right turns toward the left');
-    look.turn(10000,0,position,focus);near(degrees(look.yaw),-135);
-    const left=look.yaw;
-    look.turn(-20000,0,position,focus);near(degrees(look.yaw),135);
-    near(degrees(look.yaw-left),270);
+    look.reset();
+    for(let i=0;i<5;i++){
+      look.turn(-2*Math.PI/.0045,0,position,focus);
+      near(degrees(look.yaw),360*(i+1));
+      assert.ok(direction(look,position,focus).vector.distanceTo(initial)<1e-10,'complete turn returns to the original view');
+    }
+    look.turn(12*Math.PI/.0045,0,position,focus);
+    near(degrees(look.yaw),-360);
     const {camera}=direction(look,position,focus);
     assert.ok(camera.position.equals(position),'looking never moves the visitor');
   }
@@ -33,7 +37,7 @@ test('dragging follows the hand and reaches 135 degrees on either side at every 
 
 test('looking reaches the ceiling and floor without turning upside down, even beside the book',()=>{
   for(const {position,focus} of stops){
-    for(const [drag,angle] of [[100000,80],[-100000,-55]]){
+    for(const [drag,angle] of [[100000,89],[-100000,-89]]){
       const look=new RoomLook();look.turn(100000,drag,position,focus);
       const {camera,vector}=direction(look,position,focus);
       near(degrees(Math.asin(vector.y)),angle);
@@ -44,7 +48,7 @@ test('looking reaches the ceiling and floor without turning upside down, even be
   }
 });
 
-test('a small reverse drag responds immediately after reaching a limit',()=>{
+test('a small reverse drag responds immediately after repeated revolutions and a pitch limit',()=>{
   const {position,focus}=stops[2],look=new RoomLook();
   look.turn(1e6,1e6,position,focus);
   const yaw=look.yaw,pitch=look.pitch;
@@ -77,7 +81,7 @@ test('walking between stops cannot move the visitor beneath the floor',()=>{
     look.turn(-15,-30,position,focus);
     const {camera,vector}=direction(look,position,focus);
     assert.ok(camera.position.y>=1.6);
-    assert.ok(degrees(Math.asin(vector.y))>=-55-1e-8);
+    assert.ok(degrees(Math.asin(vector.y))>=-89-1e-8);
     assert.ok(camera.position.equals(position));
   }
 });
