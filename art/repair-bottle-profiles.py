@@ -2,7 +2,7 @@
 
 Run after ground-and-add-curiosities.py and before atlas-shelf/bake. The complete
 input checkpoint is preserved in rendering.quarantine. Only the nineteen glass
-assemblies and fourteen flat labels are replaced. Two floor map bundles are
+assemblies and fourteen flat labels are replaced. Three map bundles are
 grounded and their existing ties fitted without changing topology or UVs.
 Corks and unrelated geometry retain their positions and UV correspondence.
 """
@@ -98,7 +98,7 @@ for (x, y), bodies in sorted(groups.items()):
 assert sum(item['label'] is not None for item in inventory) == 14, 'Expected fourteen existing paper labels.'
 cork_positions = {index: tuple(mesh.vertices[index].co) for index in cork_vertices}
 
-# The two source floor bundles originally floated by about six centimeters.
+# All three source map bundles were unsupported, including the rear-room one.
 # Ground all three rolls together and fit the existing circular tie to a snug
 # capsule around them. Its 1.5 mm string radius then physically supports paper.
 floor_faces = [list(face.vertices) for face in mesh.polygons
@@ -107,16 +107,16 @@ floor_faces = [list(face.vertices) for face in mesh.polygons
 floor_tree = BVHTree.FromPolygons(world, floor_faces, all_triangles=False)
 inverse = shop.matrix_world.inverted()
 floor_updates, floor_evidence = {}, []
-for x, y in ((-1.75, -4.6), (1.55, -2.7)):
+for x, y, source_z in ((-1.75, -4.6, .10), (1.55, -2.7, .10), (-2.1, 5.8, .65)):
     rolls = []
     for i in range(3):
         matches = [part for part in components if
-                   (part['center'] - Vector((x + i * .06, y, .10))).length < .003 and
+                   (part['center'] - Vector((x + i * .06, y, source_z))).length < .003 and
                    any(mesh.materials[index].name == 'Antique paper' for index in part['materials'])]
         assert len(matches) == 1, ('Floor roll identity changed', x, y, i)
         rolls.append(matches[0])
     ties = [part for part in components if
-            (part['center'] - Vector((x + .06, y, .10))).length < .003 and
+            (part['center'] - Vector((x + .06, y, source_z))).length < .003 and
             any(mesh.materials[index].name == 'Dusty canvas' for index in part['materials'])]
     assert len(ties) == 1, ('Floor bundle tie identity changed', x, y)
     tie = ties[0]
@@ -130,14 +130,14 @@ for x, y in ((-1.75, -4.6), (1.55, -2.7)):
                 support_samples.append(float(hit.z))
     support = max(support_samples)
     center_z = support + .028 + .0004
-    delta_z = center_z - .10
+    delta_z = center_z - source_z
     for part in rolls:
         for index in part['indices']:
             point = world[index].copy()
             point.z += delta_z
             floor_updates[index] = inverse @ point
     for index in tie['indices']:
-        rel = world[index] - Vector((x + .06, y, .10))
+        rel = world[index] - Vector((x + .06, y, source_z))
         theta = math.atan2(rel.z, rel.x)
         radius = math.hypot(rel.x, rel.z)
         fitted_radius = .0265 + (radius - .07) * .375
