@@ -17,11 +17,11 @@
   "bake_extension_pixels": 3,
   "static_runtime_diffuse_lights_must_be_disabled": true,
   "statistics": {
-    "max_linear_occupied": 6.476396560668945,
-    "mean_linear_occupied": 0.0923110768198967,
+    "max_linear_occupied": 6.476396083831787,
+    "mean_linear_occupied": 0.09231112152338028,
     "linear_percentiles_occupied": {
       "p01": 0.0,
-      "p50": 0.005212589632719755,
+      "p50": 0.005212599411606789,
       "p95": 0.5496299326419822,
       "p9999": 2.3819021508690703
     },
@@ -29,13 +29,13 @@
     "fraction_occupied_channels_clipped": 0.0,
     "nonfinite_channels": 0,
     "negative_channels_clamped": 0,
-    "black_pixels_including_unused_atlas": 9260470,
+    "black_pixels_including_unused_atlas": 9260467,
     "max_abs_decode_error_occupied": 0.019169282755545858,
-    "mean_abs_decode_error_occupied": 0.00022773225046013315,
-    "mean_abs_decode_error_shadow_channels": 3.8926064177444866e-05,
+    "mean_abs_decode_error_occupied": 0.0002277308040645789,
+    "mean_abs_decode_error_shadow_channels": 3.892612576362091e-05,
     "minimum_positive_decoded_occupied": 1.892035432502301e-09,
     "total_pixels": 16777216,
-    "bytes": 23315123,
+    "bytes": 23315166,
     "occupied_texels": 9836641,
     "atlas_coverage_fraction": 0.5863094925880432,
     "interior_overlap_texels": 0,
@@ -60,7 +60,7 @@
     "invalid_uv_examples": [],
     "collision_examples": []
   },
-  "sha256": "fa73bc05ea876c66bd557b0e20c9848e6a7695552dc835dd6b4340aefb0dc820",
+  "sha256": "b566ca8572dd5efece96bb74bd4d3665955a77cb437ab6f4f26e67488691f31b",
   "texel_density": {
     "major_wood_triangles": 172,
     "major_wood_area_m2": 42.9915675722032,
@@ -72,15 +72,15 @@
   },
   "export": {
     "path": "dist/assets/bookstore-depth.gltf",
-    "bytes": 129986,
-    "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7",
+    "bytes": 129987,
+    "sha256": "17599897dbf1e9192a000ce977a4180031bfe912f4d1f2a807125991d2076e28",
     "format": "gltf",
-    "total_bytes": 43826842,
+    "total_bytes": 43826843,
     "files": [
       {
         "path": "dist/assets/bookstore-depth.gltf",
-        "bytes": 129986,
-        "sha256": "1768a79cd966329ff59e9380d8f76f17bbb60af8a08913b961969312b19d32a7"
+        "bytes": 129987,
+        "sha256": "17599897dbf1e9192a000ce977a4180031bfe912f4d1f2a807125991d2076e28"
       },
       {
         "path": "dist/assets/bookstore-depth/part-001.bin",
@@ -95,7 +95,7 @@
       {
         "path": "dist/assets/bookstore-depth/part-003.bin",
         "bytes": 8304188,
-        "sha256": "8b386f6a0f5da45f3a4eebf2b53190d29e87bc510ef4409c34084ec0272011ec"
+        "sha256": "c910b852b6ec5f9a47f74faf2f4d067cec53878cc4f93ce38dd73c3cf1bab68d"
       },
       {
         "path": "dist/assets/bookstore-depth/part-004.bin",
@@ -119,8 +119,8 @@
     "geometry_bytes_preserved": true,
     "source_glb": {
       "path": "art/bookstore-depth.glb",
-      "bytes": 43827080,
-      "sha256": "f29802399f9ea1a87cd028b2337c5e38c073a6ed875a8e8a2b4ad9e1620b04ad"
+      "bytes": 43827084,
+      "sha256": "4f420b8c22bb984006c9a8344dd1f3e1cbafe3c756fef605500c734e3ef71ce1"
     },
     "static_primitives": 55,
     "static_nodes": {
