@@ -12,29 +12,30 @@
   "samples": 1024,
   "dynamic_cover_excluded": true,
   "volume_excluded": true,
+  "complete_static_scene_visible": true,
   "atlas_inter_island_gap_pixels": 8,
   "bake_extension_pixels": 3,
   "static_runtime_diffuse_lights_must_be_disabled": true,
   "statistics": {
-    "max_linear_occupied": 636.5969848632812,
-    "mean_linear_occupied": 0.09969060868024826,
+    "max_linear_occupied": 636.5971069335938,
+    "mean_linear_occupied": 0.09675231575965881,
     "linear_percentiles_occupied": {
       "p01": 0.0,
-      "p50": 0.006182427518069744,
-      "p95": 0.4065758347511288,
-      "p9999": 81.44785919158312
+      "p50": 0.005607693223282695,
+      "p95": 0.3867973506450646,
+      "p9999": 81.44798076140796
     },
     "channels_clipped": 0,
     "fraction_occupied_channels_clipped": 0.0,
     "nonfinite_channels": 0,
     "negative_channels_clamped": 0,
-    "black_pixels_including_unused_atlas": 7601444,
-    "max_abs_decode_error_occupied": 2.041028046980159,
-    "mean_abs_decode_error_occupied": 0.00025824016702467563,
-    "mean_abs_decode_error_shadow_channels": 5.898811922940441e-05,
+    "black_pixels_including_unused_atlas": 7656366,
+    "max_abs_decode_error_occupied": 2.041211152448909,
+    "mean_abs_decode_error_occupied": 0.0002504983907603365,
+    "mean_abs_decode_error_shadow_channels": 5.8852607440877083e-05,
     "minimum_positive_decoded_occupied": 2.421805353602945e-07,
     "total_pixels": 16777216,
-    "bytes": 23939052,
+    "bytes": 23811482,
     "occupied_texels": 11927070,
     "atlas_coverage_fraction": 0.7109087705612183,
     "interior_overlap_texels": 0,
@@ -59,18 +60,21 @@
     "invalid_uv_examples": [],
     "collision_examples": []
   },
-  "sha256": "c8d1155a66c35bdaef78af35980606b587a8ca09923400bcdb097f8f779d604a",
+  "sha256": "35004b92b8992dbb9b27dcfb08ea04dfdb82576aab93b71903171596d60983e6",
+  "additionalLightmaps": [
+    "curiosity-lightmap.json"
+  ],
   "export": {
     "path": "dist/assets/bookstore-depth.gltf",
-    "bytes": 113058,
-    "sha256": "45a736a3ddb3b5892c4db64bfc81a45b31a450014f9d110a63994b6c23013227",
+    "bytes": 129923,
+    "sha256": "93758fdf7264ef737514ac34dc25007deb2bd60f443b4ffa6d06a0585643c340",
     "format": "gltf",
-    "total_bytes": 36893714,
+    "total_bytes": 42893587,
     "files": [
       {
         "path": "dist/assets/bookstore-depth.gltf",
-        "bytes": 113058,
-        "sha256": "45a736a3ddb3b5892c4db64bfc81a45b31a450014f9d110a63994b6c23013227"
+        "bytes": 129923,
+        "sha256": "93758fdf7264ef737514ac34dc25007deb2bd60f443b4ffa6d06a0585643c340"
       },
       {
         "path": "dist/assets/bookstore-depth/part-001.bin",
@@ -85,29 +89,38 @@
       {
         "path": "dist/assets/bookstore-depth/part-003.bin",
         "bytes": 8372108,
-        "sha256": "c0a5fcbee861dbbc5e78ff061c434f0c3054ed1b50da0484057ff5b7b41c250c"
+        "sha256": "e6306e1eeb97619438fd4cae96467cbfb9c5ab8f41ee282df6506e7a28a60b34"
       },
       {
         "path": "dist/assets/bookstore-depth/part-004.bin",
         "bytes": 8388080,
-        "sha256": "5158487a7ed21a3996d1b402f129d6207c7f1e5cdb143e4d83db01077ff4e506"
+        "sha256": "a01427854891f3b1144e6e7877788792f0033fad552e1dfdcb80c46c6b504a0c"
       },
       {
         "path": "dist/assets/bookstore-depth/part-005.bin",
-        "bytes": 3984172,
-        "sha256": "0d1d07c43bd05954fd56a6b15c64360a1b521c4f6bc327dce9a558049c094a6e"
+        "bytes": 8243872,
+        "sha256": "485f5fcc692c497b2e926e66d73f7b5727b3dfd93b2121b09d8d11f308a9b6b1"
+      },
+      {
+        "path": "dist/assets/bookstore-depth/part-006.bin",
+        "bytes": 1723308,
+        "sha256": "b56be90aaecd49140f66d8b1713e8dc49058cec867a474bca4d4cf52178ad8a3"
       }
     ],
-    "buffer_parts": 5,
+    "buffer_parts": 6,
     "max_part_bytes": 8388608,
-    "buffer_views_verified": 415,
+    "buffer_views_verified": 475,
     "geometry_bytes_preserved": true,
     "source_glb": {
       "path": "art/bookstore-depth.glb",
-      "bytes": 36893960,
-      "sha256": "c0fb9feb5ca27004361dceb47e63ef156f9e6439f2435e8505b5e8151fadec51"
+      "bytes": 42893844,
+      "sha256": "0fd2772c0e4c5ab36452010562f22f1e2d7c5b32a3834e3cd7865c45864c312b"
     },
     "static_primitives": 59,
+    "static_nodes": {
+      "OldCuriosityShop": 59,
+      "CenterCuriosityShelf": 10
+    },
     "required_texcoords": [
       0,
       1,
