@@ -1,42 +1,82 @@
-# LEGACY_OB-OT
+# Legacy
+## Or: You Were Only Supposed to Look Around
 
-Sunday's Old Books & Odd Things — an explorable curiosity shop and the home of Douglas's book.
+---
 
-Live site: https://sundays-old-books.captainphantasy.chatgpt.site/
+**DOCUMENT CLASSIFICATION:** Curiosity shop / questionable use of your afternoon  
+**LOCATION:** Somewhere between a garage and a rabbit hole  
+**BEVERAGE:** Coffee that tastes like motor oil. Still works.  
+**CURRENT STATE:** The lamps are on. Make of that what you will.
 
-The repository preserves the original GitHub commit and the complete Sites history through version 9, source commit `945d960b852455e105146fa99a9449ed99952da9`. The site identity remains `appgprj_6ad8807dd7f881919dec6e1a28881f9e`.
+---
 
-The natural movement update is GitHub commit `3d73326ce03ec34dc1ba624e903b38e558527b3d`, also saved as Sites version 10 from source `f5f9833ded9b41f7984edf9e5995896d3a351aea`. These commits contain identical runtime code; the separate histories keep native Blender files in GitHub LFS and deployment assets in Sites.
+A little shop full of old things. Some familiar. Some that raise more questions than their labels answer.
 
-## Run locally
+Walk in. Look around. Pick something that catches your eye. Follow it somewhere you weren't planning to go.
 
-Serve `dist/` with any static HTTP server. For example:
+**[Step inside Legacy →](https://sundays-old-books.captainphantasy.chatgpt.site/)**
+
+The street carries on outside. Inside, you can take your time.
+
+## Have a wander (Or: Curiosity doesn't need a productivity target)
+
+Legacy is a place you explore in your browser. Move through the room, look closely at the shelves, and choose your own detours. Objects lead to real places on the wider internet; those open in another tab, so the shop stays where you left it.
+
+No required order. No quiz at the end. Nobody needs a quarterly report on what you found.
+
+- **Phone or tablet:** use the movement circle to walk. Drag the room with your other hand to look around.
+- **Keyboard and mouse:** use W A S D or the arrow keys to walk, and drag to look.
+- **Prefer named choices?** Open **Look around** and choose a place. Tab and Enter work too.
+- **Make yourself comfortable:** sound is optional. Settings include gentler movement, brighter lighting, and a still view.
+
+That's enough of a map. Something on a shelf can handle the next introduction.
+
+## From the garage (Or: Because “I could make that” keeps getting out of hand)
+
+This is Floyd Labs territory: Douglas building things because an idea wouldn't leave him alone, questionable coffee doing its best, and absolutely no need for a boardroom.
+
+A little *Meddle* energy. A lot of attention to the person on the other side of the screen.
+
+Bella, the larger of the two black cats, would like her workspace back. Bowser, the skinny one, would probably get there first. Neither has submitted a PowerPoint.
+
+## Run your own copy (Or: The useful bit under the dust)
+
+From the project folder, serve the `dist/` directory:
 
 ```sh
 python3 -m http.server 8080 --directory dist
 ```
 
-Open http://localhost:8080/. Asset URLs remain relative so the site can also live in a subdirectory.
+Then open [localhost:8080](http://localhost:8080/). Keep the asset paths relative so the shop can also live inside a larger website.
 
-## Check the experience
+Run the checks with:
 
 ```sh
-node --test --test-reporter=spec scripts/room-*.test.mjs
+node --test --test-reporter=spec scripts/*.test.mjs
 ```
 
-The current movement update passes 52 automated checks, plus an independent review of 768 routes and complete walks around both shelf ends. See `art/v10-movement-verification.md` for controls, evidence, and the live WebGL test limitation.
+## Work on the room (Or: Mind where you put the screwdriver)
 
-Version 9 passed 36 automated checks and inspection of 36 rendered stills. See `art/v9-verification.md` for evidence and limitations. Those stills are not live browser screenshots.
+Read `AGENTS.md` before editing. Preserve the authored material, keep discoveries optional, and leave visitors room to find things for themselves.
 
-## Editable 3D source
+The editable Blender scenes are stored with Git LFS, which handles the repository's larger files. After installing Git LFS and cloning the repository, download them with:
 
-Install Git LFS, then run `git lfs pull` after cloning to download the native Blender scenes:
+```sh
+git lfs pull
+```
 
-- `art/room-rabbit-holes.blend`: completed version 9 scene.
-- `art/room-curiosities.blend`: preceding scene used by the shelf-generation script.
+The scenes and supporting records are in `art/`; checks and supporting scripts are in `scripts/`. The existing scene files are earlier building blocks, not a promise that they contain every later runtime improvement.
 
-Both were checked in Blender 4.5.7: all 19 file images are packed and no linked libraries are required. `art/native-scene-manifest.json` records their sizes and hashes. The generation, baking, export, and verification scripts are retained in `art/` and `scripts/`.
+Use a separate working copy for rebuilding. Keep replaced working files in quarantine rather than deleting them.
 
-The reproduction sequence is documented in `art/v9-verification.md`. Use a separate working copy for a fresh rebuild: the shelf builder intentionally refuses to overwrite an existing final scene. Intermediate EXRs, quarantine copies, and render logs are not needed to open the packed scenes.
+---
 
-Read `AGENTS.md` before editing. Douglas's authored book content must remain unchanged unless he supplies a revision.
+**DOCUMENT ENDS**
+
+*— Floyd Labs, Department of “What Happens If I Touch This?”*
+
+**Coffee quality:** disputed.  
+**Curiosity:** encouraged.  
+**Corporate polish:** misplaced somewhere in the garage.
+
+The door's there. Have a look.
