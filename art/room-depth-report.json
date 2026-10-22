@@ -44,18 +44,41 @@
   },
   "room-depth-preview": {
     "images": [
-      "art/room-depth-preview-bottles-west.png",
-      "art/room-depth-preview-bottles-east.png",
-      "art/room-depth-preview-shelf-east-front.png"
+      "art/room-depth-preview-object-crypto-museum.png",
+      "art/room-depth-preview-object-long-now.png",
+      "art/room-depth-preview-object-optical-illusions.png",
+      "art/room-depth-preview-object-unworkable-devices.png",
+      "art/room-depth-preview-object-apollo.png",
+      "art/room-depth-preview-object-darpa.png",
+      "art/room-depth-preview-object-subbrit.png"
     ],
     "samples_ceiling": 64,
     "depth_of_field": false,
-    "viewed_by_agent": false,
+    "viewed_by_agent": true,
     "previous_images_retained": [
-      "art/rendering.quarantine/room-depth-preview-bottles-west-64977ba9d6eb6490.png",
-      "art/rendering.quarantine/room-depth-preview-bottles-east-099cf81c9debd082.png"
+      "art/rendering.quarantine/room-depth-preview-object-crypto-museum-d6d5beacdd2b809a.png",
+      "art/rendering.quarantine/room-depth-preview-object-long-now-783ebd646d9176b7.png",
+      "art/rendering.quarantine/room-depth-preview-object-optical-illusions-6a9d0c238594c9bc.png",
+      "art/rendering.quarantine/room-depth-preview-object-unworkable-devices-c7bde4f3018556e4.png",
+      "art/rendering.quarantine/room-depth-preview-object-apollo-e4bdf828cc1dac22.png",
+      "art/rendering.quarantine/room-depth-preview-object-darpa-a1bb39e1c871cc32.png",
+      "art/rendering.quarantine/room-depth-preview-object-subbrit-8d602d44fa26db5c.png"
     ],
-    "poster": null
+    "poster": null,
+    "inspection": {
+      "date": "2026-10-22",
+      "scope": "Actual final rendered PNGs visually inspected. Export review checks baked diffuse placement and contact; native previews check physical metal and glass. Not browser screenshots.",
+      "reviewers": "Root and delegated shelf reviewers"
+    },
+    "inspected_image_sha256": {
+      "art/room-depth-preview-object-crypto-museum.png": "95f7666cf9fa60fb19944676506d738edaa9178daf38411d07ce9b364fa0b0ec",
+      "art/room-depth-preview-object-long-now.png": "bc9e71687040ef5771d51e9420e6df5a7388aaef00dbef0eac91587980b6105b",
+      "art/room-depth-preview-object-optical-illusions.png": "02d2b9c44cbe6841f89b7258a4923191563b331e7c012dc8191012b830d26a6d",
+      "art/room-depth-preview-object-unworkable-devices.png": "d93f57ca495dd3d34111a15a726117e80a4fb499baf4f8c65cf1c04707cef733",
+      "art/room-depth-preview-object-apollo.png": "d623b3b568bd56cf4fdfbb7291e52f1aa99b46130abd2a60515d2131c10d43e1",
+      "art/room-depth-preview-object-darpa.png": "5d81e1f07489891171ad8359b8342ec6a12527a943774358cf322faaf047f116",
+      "art/room-depth-preview-object-subbrit.png": "00d7f46636b37b7363a4207e6a51cdedfdc0831ae29764bba59887cac2eaa526"
+    }
   },
   "atlas_repair": {
     "attempts": [
@@ -3836,12 +3859,18 @@
     "depth_of_field": true,
     "viewed_by_agent": true,
     "previous_images_retained": [
-      "art/rendering.quarantine/room-depth-beauty-entrance-e661057bcd9de02e.png",
-      "art/rendering.quarantine/poster-depth-e661057bcd9de02e.png"
+      "art/rendering.quarantine/room-depth-beauty-entrance-36b2dc5b2dc773cb.png",
+      "art/rendering.quarantine/poster-depth-36b2dc5b2dc773cb.png"
     ],
     "poster": "dist/assets/poster-depth.png",
-    "viewed_at_utc": "2026-10-22T11:50:56.770390+00:00",
-    "inspection_scope": "Visual inspection of the rendered stills; not a live browser or GPU shader test."
+    "inspection": {
+      "date": "2026-10-22",
+      "scope": "Actual final rendered PNGs visually inspected. Export review checks baked diffuse placement and contact; native previews check physical metal and glass. Not browser screenshots.",
+      "reviewers": "Root and delegated shelf reviewers"
+    },
+    "inspected_image_sha256": {
+      "art/room-depth-beauty-entrance.png": "8f94cf8f164a0537d78ffe3c1b0404daba0389b55a96637e33f8f11d3d349b45"
+    }
   },
   "bake": {
     "version": 1,
@@ -3862,25 +3891,25 @@
     "bake_extension_pixels": 3,
     "static_runtime_diffuse_lights_must_be_disabled": true,
     "statistics": {
-      "max_linear_occupied": 636.5971069335938,
-      "mean_linear_occupied": 0.0967264324426651,
+      "max_linear_occupied": 618.85986328125,
+      "mean_linear_occupied": 0.11650780588388443,
       "linear_percentiles_occupied": {
         "p01": 0.0,
-        "p50": 0.005587949650362134,
-        "p95": 0.38654112815856934,
-        "p9999": 81.57760993955299
+        "p50": 0.007674986030906439,
+        "p95": 0.5189334601163864,
+        "p9999": 71.84237706374495
       },
       "channels_clipped": 0,
       "fraction_occupied_channels_clipped": 0.0,
       "nonfinite_channels": 0,
       "negative_channels_clamped": 0,
-      "black_pixels_including_unused_atlas": 7662788,
-      "max_abs_decode_error_occupied": 2.041272187605159,
-      "mean_abs_decode_error_occupied": 0.000250398452624797,
-      "mean_abs_decode_error_shadow_channels": 5.883017934605233e-05,
+      "black_pixels_including_unused_atlas": 7590454,
+      "max_abs_decode_error_occupied": 2.0587577411215534,
+      "mean_abs_decode_error_occupied": 0.00030204010642801175,
+      "mean_abs_decode_error_shadow_channels": 5.884104852594994e-05,
       "minimum_positive_decoded_occupied": 2.421805353602945e-07,
       "total_pixels": 16777216,
-      "bytes": 23784591,
+      "bytes": 23992170,
       "occupied_texels": 11914402,
       "atlas_coverage_fraction": 0.7101536989212036,
       "interior_overlap_texels": 0,
@@ -3905,21 +3934,21 @@
       "invalid_uv_examples": [],
       "collision_examples": []
     },
-    "sha256": "0c992a52228a8e9226630c6da069aa79cbb55160850d7d6eb44e897744034c9a",
+    "sha256": "d24459327fcacbcbe2b2d42d6545e3b6f66374ecb2193f263591bb875085464e",
     "additionalLightmaps": [
       "curiosity-lightmap.json"
     ],
     "export": {
       "path": "dist/assets/bookstore-depth.gltf",
-      "bytes": 129987,
-      "sha256": "17599897dbf1e9192a000ce977a4180031bfe912f4d1f2a807125991d2076e28",
+      "bytes": 163663,
+      "sha256": "7ac4d841b460d66d3e971917d7bbc934cc341c4529095a6699488e04059af936",
       "format": "gltf",
-      "total_bytes": 43826843,
+      "total_bytes": 77968555,
       "files": [
         {
           "path": "dist/assets/bookstore-depth.gltf",
-          "bytes": 129987,
-          "sha256": "17599897dbf1e9192a000ce977a4180031bfe912f4d1f2a807125991d2076e28"
+          "bytes": 163663,
+          "sha256": "7ac4d841b460d66d3e971917d7bbc934cc341c4529095a6699488e04059af936"
         },
         {
           "path": "dist/assets/bookstore-depth/part-001.bin",
@@ -3934,37 +3963,57 @@
         {
           "path": "dist/assets/bookstore-depth/part-003.bin",
           "bytes": 8304188,
-          "sha256": "c910b852b6ec5f9a47f74faf2f4d067cec53878cc4f93ce38dd73c3cf1bab68d"
+          "sha256": "423e3487fd268849d64298ceeec7bc1011f2f9f7e4810e7c56a9b6d43670b8e9"
         },
         {
           "path": "dist/assets/bookstore-depth/part-004.bin",
           "bytes": 8042608,
-          "sha256": "c7db16eb39fdeb801bbae23e18195aa0b0b198eba4adc6d8d50182784684e18e"
+          "sha256": "a929a93297d865634778cc40c81e757c06df7df0dfd99e7da7ccd6214ec8a320"
         },
         {
           "path": "dist/assets/bookstore-depth/part-005.bin",
-          "bytes": 8204996,
-          "sha256": "6527c0ad95905a519f4d0a45b4bfdddd4f1634e7e982fc72df146ad7bcc5880d"
+          "bytes": 7044368,
+          "sha256": "f3f6f94265976b631aa894cea076ed42352c953613720207b83b451c3fe00321"
         },
         {
           "path": "dist/assets/bookstore-depth/part-006.bin",
-          "bytes": 3108768,
-          "sha256": "78dd9b5a43ab43e98976b1e71ea29a16692b7fdb5c02ce586edad5438d2ac6e7"
+          "bytes": 7725564,
+          "sha256": "2d1adbe1fd3a5d8458d1cf7b8665a8585a7a6e3bfe79133e67a496ea66d31225"
+        },
+        {
+          "path": "dist/assets/bookstore-depth/part-007.bin",
+          "bytes": 7468312,
+          "sha256": "3f44ac2d01ec09d986a7a0283c5e4053139d81834ec6eb26b0d83ed204a57d8b"
+        },
+        {
+          "path": "dist/assets/bookstore-depth/part-008.bin",
+          "bytes": 8224760,
+          "sha256": "4d7c9d8be23ebc0e3a5b94675826febfa76c8ab8ca729371c52e1fdd58beb4a8"
+        },
+        {
+          "path": "dist/assets/bookstore-depth/part-009.bin",
+          "bytes": 8316984,
+          "sha256": "a3782ccd2aaf19e5f7a2d676d7e5c7b9c8cec09ede498f71d0ea79af9bfe1f88"
+        },
+        {
+          "path": "dist/assets/bookstore-depth/part-010.bin",
+          "bytes": 6641812,
+          "sha256": "bdf57388854ef8fda09bb6bfa9c5d274e08e7feda58ff3a78b86cc7c9b721e7e"
         }
       ],
-      "buffer_parts": 6,
+      "buffer_parts": 10,
       "max_part_bytes": 8388608,
-      "buffer_views_verified": 475,
+      "buffer_views_verified": 535,
       "geometry_bytes_preserved": true,
       "source_glb": {
         "path": "art/bookstore-depth.glb",
-        "bytes": 43827084,
-        "sha256": "4f420b8c22bb984006c9a8344dd1f3e1cbafe3c756fef605500c734e3ef71ce1"
+        "bytes": 77968668,
+        "sha256": "d1b50e7f2301c960aba82b2c7407d342a4f1896cf1b348da15d845678b79c6cc"
       },
       "static_primitives": 55,
       "static_nodes": {
         "OldCuriosityShop": 55,
-        "CenterCuriosityShelf": 14
+        "CenterCuriosityShelf": 24
       },
       "required_texcoords": [
         0,
@@ -4362,48 +4411,170 @@
           0.054999999701976776,
           0.02199999988079071,
           1.0
+        ],
+        "Warm ivory shelf diffuser / delivery": [
+          0.5799999833106995,
+          0.4300000071525574,
+          0.25999999046325684,
+          1.0
+        ],
+        "Brushed silver display metal / delivery": [
+          0.47999998927116394,
+          0.5099999904632568,
+          0.5400000214576721,
+          1.0
+        ],
+        "Faded red display enamel / delivery": [
+          0.3100000023841858,
+          0.03500000014901161,
+          0.02199999988079071,
+          1.0
+        ],
+        "Indigo painted display enamel / delivery": [
+          0.02500000037252903,
+          0.08500000089406967,
+          0.14000000059604645,
+          1.0
+        ],
+        "Clear display glass / delivery": [
+          0.8799999952316284,
+          0.9700000286102295,
+          0.9800000190734863,
+          1.0
+        ],
+        "Verdigris botanical enamel / delivery": [
+          0.07999999821186066,
+          0.1899999976158142,
+          0.10499999672174454,
+          1.0
+        ],
+        "Terracotta replica pottery / delivery": [
+          0.3499999940395355,
+          0.11500000208616257,
+          0.04800000041723251,
+          1.0
+        ],
+        "Aged ivory appliance shell / delivery": [
+          0.5799999833106995,
+          0.5099999904632568,
+          0.3700000047683716,
+          1.0
+        ],
+        "Vortex pale water / delivery": [
+          0.25999999046325684,
+          0.5699999928474426,
+          0.6299999952316284,
+          1.0
+        ],
+        "Black steel archive case / delivery": [
+          0.02500000037252903,
+          0.029999999329447746,
+          0.03500000014901161,
+          1.0
         ]
       }
     }
   },
   "room-depth-export-review": {
     "images": [
-      "art/room-depth-export-review-backroom-floor.png",
-      "art/room-depth-export-review-table.png",
-      "art/room-depth-export-review-close.png",
-      "art/room-depth-export-review-open.png",
       "art/room-depth-export-review-entrance.png",
       "art/room-depth-export-review-aisle.png",
       "art/room-depth-export-review-shelf-west-front.png",
       "art/room-depth-export-review-shelf-east-front.png",
-      "art/room-depth-export-review-shelf-west.png",
-      "art/room-depth-export-review-shelf-east.png",
       "art/room-depth-export-review-bottles-west.png",
       "art/room-depth-export-review-bottles-east.png",
-      "art/room-depth-export-review-maps.png",
-      "art/room-depth-export-review-globe.png"
+      "art/room-depth-export-review-table.png",
+      "art/room-depth-export-review-open.png",
+      "art/room-depth-export-review-object-priyom.png",
+      "art/room-depth-export-review-object-stargate.png",
+      "art/room-depth-export-review-object-black-vault.png",
+      "art/room-depth-export-review-object-crypto-museum.png",
+      "art/room-depth-export-review-object-darpa.png",
+      "art/room-depth-export-review-object-atlas-obscura.png",
+      "art/room-depth-export-review-object-subbrit.png",
+      "art/room-depth-export-review-object-airfields.png",
+      "art/room-depth-export-review-object-rumsey.png",
+      "art/room-depth-export-review-object-phaistos.png",
+      "art/room-depth-export-review-object-babel.png",
+      "art/room-depth-export-review-object-internet-artifacts.png",
+      "art/room-depth-export-review-object-optical-illusions.png",
+      "art/room-depth-export-review-object-unworkable-devices.png",
+      "art/room-depth-export-review-object-long-now.png",
+      "art/room-depth-export-review-object-apollo.png",
+      "art/room-depth-export-review-object-ancient-earth.png",
+      "art/room-depth-export-review-object-onezoom.png",
+      "art/room-depth-export-review-object-earth-nullschool.png",
+      "art/room-depth-export-review-object-zooniverse.png"
     ],
     "samples_ceiling": 64,
     "depth_of_field": false,
     "viewed_by_agent": true,
     "previous_images_retained": [
-      "art/rendering.quarantine/room-depth-export-review-table-f39b42750f55df22.png",
-      "art/rendering.quarantine/room-depth-export-review-close-2bbcfade57458aa4.png",
-      "art/rendering.quarantine/room-depth-export-review-open-75447fdc07c7677a.png",
-      "art/rendering.quarantine/room-depth-export-review-entrance-1f20f42ed3e33e39.png",
-      "art/rendering.quarantine/room-depth-export-review-aisle-f8703fd1efd4f72c.png",
-      "art/rendering.quarantine/room-depth-export-review-shelf-west-front-5ed69e2e29cb817c.png",
-      "art/rendering.quarantine/room-depth-export-review-shelf-east-front-e96eb284d95cbb29.png",
-      "art/rendering.quarantine/room-depth-export-review-shelf-west-747659721c8fbb56.png",
-      "art/rendering.quarantine/room-depth-export-review-shelf-east-cf837178685b03bd.png",
-      "art/rendering.quarantine/room-depth-export-review-bottles-west-d92d2f3622afc46d.png",
-      "art/rendering.quarantine/room-depth-export-review-bottles-east-dbbff8e2bfd4c901.png",
-      "art/rendering.quarantine/room-depth-export-review-maps-9e1feaacd22ba550.png",
-      "art/rendering.quarantine/room-depth-export-review-globe-31238efb59b06fda.png"
+      "art/rendering.quarantine/room-depth-export-review-entrance-e384fc97c0f3ad5d.png",
+      "art/rendering.quarantine/room-depth-export-review-aisle-2a415f34293392c0.png",
+      "art/rendering.quarantine/room-depth-export-review-shelf-west-front-a008b942546fd996.png",
+      "art/rendering.quarantine/room-depth-export-review-shelf-east-front-597a1c6903602406.png",
+      "art/rendering.quarantine/room-depth-export-review-bottles-west-52658e539a3c802c.png",
+      "art/rendering.quarantine/room-depth-export-review-bottles-east-eb0415896630cbc3.png",
+      "art/rendering.quarantine/room-depth-export-review-table-358d18a7cb06aad5.png",
+      "art/rendering.quarantine/room-depth-export-review-open-16821a873fc1323b.png",
+      "art/rendering.quarantine/room-depth-export-review-object-priyom-b11fca00bb37a4e0.png",
+      "art/rendering.quarantine/room-depth-export-review-object-stargate-02c561cc4a1365f3.png",
+      "art/rendering.quarantine/room-depth-export-review-object-black-vault-1f59e847d70cc3e8.png",
+      "art/rendering.quarantine/room-depth-export-review-object-crypto-museum-f493b965ceb0059f.png",
+      "art/rendering.quarantine/room-depth-export-review-object-darpa-59078f8ffdef6496.png",
+      "art/rendering.quarantine/room-depth-export-review-object-atlas-obscura-88565fdbbabf0f5a.png",
+      "art/rendering.quarantine/room-depth-export-review-object-subbrit-f241ee5bd10df120.png",
+      "art/rendering.quarantine/room-depth-export-review-object-airfields-8ae78e0449cf8371.png",
+      "art/rendering.quarantine/room-depth-export-review-object-rumsey-b52d10d8b87c50cc.png",
+      "art/rendering.quarantine/room-depth-export-review-object-phaistos-40b8c79670490e7d.png",
+      "art/rendering.quarantine/room-depth-export-review-object-babel-45eb8cadd44c01df.png",
+      "art/rendering.quarantine/room-depth-export-review-object-internet-artifacts-07121297d69007c1.png",
+      "art/rendering.quarantine/room-depth-export-review-object-optical-illusions-64558a3fb83e6d97.png",
+      "art/rendering.quarantine/room-depth-export-review-object-unworkable-devices-22665e8fbcdb7b86.png",
+      "art/rendering.quarantine/room-depth-export-review-object-long-now-34a321c51c3f3e43.png",
+      "art/rendering.quarantine/room-depth-export-review-object-apollo-32eaad54c2998206.png",
+      "art/rendering.quarantine/room-depth-export-review-object-ancient-earth-97b15ea506c8999b.png",
+      "art/rendering.quarantine/room-depth-export-review-object-onezoom-cfe571e446143ac7.png",
+      "art/rendering.quarantine/room-depth-export-review-object-earth-nullschool-7ffee6315cce8a77.png",
+      "art/rendering.quarantine/room-depth-export-review-object-zooniverse-08074b36f7e71cd7.png"
     ],
     "poster": null,
-    "viewed_at_utc": "2026-10-22T11:50:56.770390+00:00",
-    "inspection_scope": "Visual inspection of the rendered stills; not a live browser or GPU shader test."
+    "inspection": {
+      "date": "2026-10-22",
+      "scope": "Actual final rendered PNGs visually inspected. Export review checks baked diffuse placement and contact; native previews check physical metal and glass. Not browser screenshots.",
+      "reviewers": "Root and delegated shelf reviewers"
+    },
+    "inspected_image_sha256": {
+      "art/room-depth-export-review-entrance.png": "2e8ef2a2a43878f828bd0e14f1375860fe627d942617c595c5f381810140cc0e",
+      "art/room-depth-export-review-aisle.png": "074d66a8737614803164613bdacc19a801b8e01be50752ab31aa581f237c7e76",
+      "art/room-depth-export-review-shelf-west-front.png": "4ceca6fe874cae9a28efea1816aa7b83140ced7c17686c6dc7a469ea7956020e",
+      "art/room-depth-export-review-shelf-east-front.png": "9744c1b2d8d93de8c23202bde6deecec041a54578344e33f72b4f6e972674669",
+      "art/room-depth-export-review-bottles-west.png": "481db1d4c5b9b3adb9c654b843b20c9e1d70039e1fe7e567424d5c6e5b2c1836",
+      "art/room-depth-export-review-bottles-east.png": "6d3ec4541664fccc2948b4613456cfba15ad62389683cc05e9fc406235b890bd",
+      "art/room-depth-export-review-table.png": "2284833dc1c5513f3113e0ca4547096947d95a0094615d4046ac03a2df344543",
+      "art/room-depth-export-review-open.png": "9854261c82420de58196691a73cef1504846852b952fcf1f6a39c95ec088d157",
+      "art/room-depth-export-review-object-priyom.png": "5924866b76e722b6eed7df34028b060b8a0e509e3cee7c1c95b0775a3aaac802",
+      "art/room-depth-export-review-object-stargate.png": "88c8570c43c53bfb9752f1fce0c4cef9be71eae98e380de91c4bc2094e40d5fb",
+      "art/room-depth-export-review-object-black-vault.png": "3f7248249df03e5a3aa8fc576f07d0694f1536ab63d5a77513ac374bab1df212",
+      "art/room-depth-export-review-object-crypto-museum.png": "5f798fa794b6f828ed94137f434778a1c7ab1d6f0398172e1750caac381b5366",
+      "art/room-depth-export-review-object-darpa.png": "05dffe5b4312d2f46d5d9bb8b96d08136330ddecdd8ba6886e311f2b6e103217",
+      "art/room-depth-export-review-object-atlas-obscura.png": "2cac4ee8353cc5996619859406ef81988d98217dec995dbca70b035002c6ba82",
+      "art/room-depth-export-review-object-subbrit.png": "4feb16da3f09a168809e23116f3c656dcfc3031fa70ec3d3e1631f9434144f89",
+      "art/room-depth-export-review-object-airfields.png": "3571065d8b6d139813adf302aa4271f7371e2c716c1f9ec1699364103a207fa9",
+      "art/room-depth-export-review-object-rumsey.png": "a253633900d5d7dafdd189b4d92b1572dcd23556b970a8e5fca5b91d755ecb4b",
+      "art/room-depth-export-review-object-phaistos.png": "dec5037c1b016522998b370b7b1af627adb1aa203094b5a278dfd8ac7d2e5e16",
+      "art/room-depth-export-review-object-babel.png": "271f4d68365821da19f03bf7395f229b37f78467be88d3eee7754000f0b14ce0",
+      "art/room-depth-export-review-object-internet-artifacts.png": "d7be5157532820e7e13268e1baac997489cf5253d8f8e2d822b1fd401940a3ad",
+      "art/room-depth-export-review-object-optical-illusions.png": "9f6dbc211d5f1b97305e472e2ee17536af1b543b06160540dbe457212b356d57",
+      "art/room-depth-export-review-object-unworkable-devices.png": "513b22b181ae3ed0ed3ee134d97245558c8c0753e4163aec6fb65f6c9fab6f82",
+      "art/room-depth-export-review-object-long-now.png": "d413c2800c8344356cae20ccc03a63d89753c1bc7f27e60cc420b5e9b17069c2",
+      "art/room-depth-export-review-object-apollo.png": "46ddbf00f9d41cf0a31b682b3a458ce947c8218b2dc8b6d47c791887f04fd21d",
+      "art/room-depth-export-review-object-ancient-earth.png": "45295f334f1db1c8b58dc738f71b37537e8405e7033648d216087707e0d206b1",
+      "art/room-depth-export-review-object-onezoom.png": "f9a4b74b81bcb326cc42c406c7554efe345a2b5c934615ed03f2a09e18594d1a",
+      "art/room-depth-export-review-object-earth-nullschool.png": "d934c3a6b6ae4e9017aec14b5061e8d1e6f761a9fbc977bcfc1e76bc74c24fce",
+      "art/room-depth-export-review-object-zooniverse.png": "656f1a6ca1ae1b190b2b5139b0d76326dd344a6989cbcc8874a03c6e9364b90b"
+    }
   },
   "export_review_mode": "Clean GLB reimport; static base color multiplied by decoded baked illumination. Moving cover uses native direct lights. Runtime specular/reflections and browser shaders are not tested by this image.",
   "export_only": {
@@ -5640,75 +5811,38 @@
   "shelf_atlas": {
     "attempts": [
       {
-        "resolution": 2048,
-        "atlas": {
-          "occupied_texels": 1674335,
-          "atlas_coverage_fraction": 0.39919257164001465,
-          "interior_overlap_texels": 0,
-          "degenerate_uv_triangles": 20,
-          "positive_area_degenerate_uv_faces": [],
-          "conflicting_faces": [],
-          "collision_triangle_pair_count": 0,
-          "uv_loops_checked": 241188,
-          "nonfinite_uv_loops": 0,
-          "out_of_bounds_uv_loops": 0,
-          "invalid_uv_faces": [],
-          "nonfinite_uv_faces": [],
-          "out_of_bounds_uv_faces": [],
-          "uv_min": [
-            0.003906202269718051,
-            0.0039062330033630133
-          ],
-          "uv_max": [
-            0.9960935711860657,
-            0.9900245666503906
-          ],
-          "invalid_uv_examples": [],
-          "collision_examples": []
-        },
-        "density": {
-          "major_wood_triangles": 172,
-          "major_wood_area_m2": 42.9915675722032,
-          "texels_per_metre_min": 163.24267097741816,
-          "texels_per_metre_p10": 163.2749853508453,
-          "texels_per_metre_median": 163.69079226838625,
-          "required_p10": 256,
-          "measurement": "Wood triangles >=0.02m2 with minimum altitude >=0.03m; UV area / world area"
-        }
-      },
-      {
         "resolution": 4096,
         "atlas": {
-          "occupied_texels": 9836641,
-          "atlas_coverage_fraction": 0.5863094925880432,
+          "occupied_texels": 5707972,
+          "atlas_coverage_fraction": 0.340221643447876,
           "interior_overlap_texels": 0,
-          "degenerate_uv_triangles": 20,
+          "degenerate_uv_triangles": 130,
           "positive_area_degenerate_uv_faces": [],
           "conflicting_faces": [],
           "collision_triangle_pair_count": 0,
-          "uv_loops_checked": 241188,
+          "uv_loops_checked": 1162212,
           "nonfinite_uv_loops": 0,
           "out_of_bounds_uv_loops": 0,
           "invalid_uv_faces": [],
           "nonfinite_uv_faces": [],
           "out_of_bounds_uv_faces": [],
           "uv_min": [
-            0.0019531226716935635,
-            0.0019530790159478784
+            0.0019530376885086298,
+            0.0019530956633388996
           ],
           "uv_max": [
-            0.9980451464653015,
-            0.9941127300262451
+            0.9949362277984619,
+            0.9980408549308777
           ],
           "invalid_uv_examples": [],
           "collision_examples": []
         },
         "density": {
-          "major_wood_triangles": 172,
-          "major_wood_area_m2": 42.9915675722032,
-          "texels_per_metre_min": 395.58189154846383,
-          "texels_per_metre_p10": 395.66057656735217,
-          "texels_per_metre_median": 396.66807909339565,
+          "major_wood_triangles": 208,
+          "major_wood_area_m2": 42.96046127543254,
+          "texels_per_metre_min": 317.915393506005,
+          "texels_per_metre_p10": 318.1049210400623,
+          "texels_per_metre_median": 320.3035350047248,
           "required_p10": 256,
           "measurement": "Wood triangles >=0.02m2 with minimum altitude >=0.03m; UV area / world area"
         }
@@ -5716,21 +5850,21 @@
     ],
     "resolution": 4096,
     "density": {
-      "major_wood_triangles": 172,
-      "major_wood_area_m2": 42.9915675722032,
-      "texels_per_metre_min": 395.58189154846383,
-      "texels_per_metre_p10": 395.66057656735217,
-      "texels_per_metre_median": 396.66807909339565,
+      "major_wood_triangles": 208,
+      "major_wood_area_m2": 42.96046127543254,
+      "texels_per_metre_min": 317.915393506005,
+      "texels_per_metre_p10": 318.1049210400623,
+      "texels_per_metre_median": 320.3035350047248,
       "required_p10": 256,
       "measurement": "Wood triangles >=0.02m2 with minimum altitude >=0.03m; UV area / world area"
     },
     "orientation": {
-      "components": 601,
-      "closed_components": 241,
-      "positive_components": 241,
+      "components": 4756,
+      "closed_components": 1335,
+      "positive_components": 1335,
       "negative_components_reversed": 0,
       "near_zero_closed_components": 0,
-      "open_or_nonmanifold_components_unchanged": 360,
+      "open_or_nonmanifold_components_unchanged": 3421,
       "inconsistent_closed_components_unchanged": 0,
       "faces_reversed": 0,
       "verified_negative_components_remaining": 0,
@@ -5745,15 +5879,15 @@
     },
     "shelf_uv0_and_positions_unchanged": true,
     "requires_rebake": true,
-    "backup": "/Volumes/Storage/LAI-BookOfTruths/sites/legacy-depth-v7/art/room-curiosities-before-shelf-atlas.blend"
+    "backup": "/Volumes/Storage/LAI-BookOfTruths/sites/legacy-depth-v7/art/room-rabbit-holes-before-shelf-atlas.blend"
   },
   "additional_bakes": [
     {
       "version": 1,
       "node": "CenterCuriosityShelf",
       "uv_channel": 2,
-      "scale": 8.0,
-      "illuminationScale": 8.0,
+      "scale": 32.0,
+      "illuminationScale": 32.0,
       "resolution": 4096,
       "encoding": "RGBM_SQRT",
       "decode": "(rgb * alpha)^2 * illuminationScale; all channels are non-color data",
@@ -5767,70 +5901,70 @@
       "bake_extension_pixels": 3,
       "static_runtime_diffuse_lights_must_be_disabled": true,
       "statistics": {
-        "max_linear_occupied": 6.476396083831787,
-        "mean_linear_occupied": 0.09231112152338028,
+        "max_linear_occupied": 16.60662269592285,
+        "mean_linear_occupied": 0.43652549386024475,
         "linear_percentiles_occupied": {
           "p01": 0.0,
-          "p50": 0.005212599411606789,
-          "p95": 0.5496299326419822,
-          "p9999": 2.3819021508690703
+          "p50": 0.0943770632147789,
+          "p95": 1.9833480715751648,
+          "p9999": 9.125560449123885
         },
         "channels_clipped": 0,
         "fraction_occupied_channels_clipped": 0.0,
         "nonfinite_channels": 0,
         "negative_channels_clamped": 0,
-        "black_pixels_including_unused_atlas": 9260467,
-        "max_abs_decode_error_occupied": 0.019169282755545858,
-        "mean_abs_decode_error_occupied": 0.0002277308040645789,
-        "mean_abs_decode_error_shadow_channels": 3.892612576362091e-05,
-        "minimum_positive_decoded_occupied": 1.892035432502301e-09,
+        "black_pixels_including_unused_atlas": 10824139,
+        "max_abs_decode_error_occupied": 0.06439912191493136,
+        "mean_abs_decode_error_occupied": 0.0010841431474615199,
+        "mean_abs_decode_error_shadow_channels": 6.877016881742245e-05,
+        "minimum_positive_decoded_occupied": 7.568141730009204e-09,
         "total_pixels": 16777216,
-        "bytes": 23315166,
-        "occupied_texels": 9836641,
-        "atlas_coverage_fraction": 0.5863094925880432,
+        "bytes": 16363562,
+        "occupied_texels": 5707972,
+        "atlas_coverage_fraction": 0.340221643447876,
         "interior_overlap_texels": 0,
-        "degenerate_uv_triangles": 20,
+        "degenerate_uv_triangles": 130,
         "positive_area_degenerate_uv_faces": [],
         "conflicting_faces": [],
         "collision_triangle_pair_count": 0,
-        "uv_loops_checked": 241188,
+        "uv_loops_checked": 1162212,
         "nonfinite_uv_loops": 0,
         "out_of_bounds_uv_loops": 0,
         "invalid_uv_faces": [],
         "nonfinite_uv_faces": [],
         "out_of_bounds_uv_faces": [],
         "uv_min": [
-          0.0019531226716935635,
-          0.0019530790159478784
+          0.0019530376885086298,
+          0.0019530956633388996
         ],
         "uv_max": [
-          0.9980451464653015,
-          0.9941127300262451
+          0.9949362277984619,
+          0.9980408549308777
         ],
         "invalid_uv_examples": [],
         "collision_examples": []
       },
-      "sha256": "b566ca8572dd5efece96bb74bd4d3665955a77cb437ab6f4f26e67488691f31b",
+      "sha256": "2c87308b86586bbea435cc64868077a66a214d3b6c38511e30f5ce4279648cc6",
       "texel_density": {
-        "major_wood_triangles": 172,
-        "major_wood_area_m2": 42.9915675722032,
-        "texels_per_metre_min": 395.58189154846383,
-        "texels_per_metre_p10": 395.66057656735217,
-        "texels_per_metre_median": 396.66807909339565,
+        "major_wood_triangles": 196,
+        "major_wood_area_m2": 42.60109653881689,
+        "texels_per_metre_min": 317.915393506005,
+        "texels_per_metre_p10": 318.1048403692454,
+        "texels_per_metre_median": 320.3046654040261,
         "required_p10": 256,
         "measurement": "Wood triangles >=0.02m2 with minimum altitude >=0.03m; UV area / world area"
       },
       "export": {
         "path": "dist/assets/bookstore-depth.gltf",
-        "bytes": 129987,
-        "sha256": "17599897dbf1e9192a000ce977a4180031bfe912f4d1f2a807125991d2076e28",
+        "bytes": 163663,
+        "sha256": "7ac4d841b460d66d3e971917d7bbc934cc341c4529095a6699488e04059af936",
         "format": "gltf",
-        "total_bytes": 43826843,
+        "total_bytes": 77968555,
         "files": [
           {
             "path": "dist/assets/bookstore-depth.gltf",
-            "bytes": 129987,
-            "sha256": "17599897dbf1e9192a000ce977a4180031bfe912f4d1f2a807125991d2076e28"
+            "bytes": 163663,
+            "sha256": "7ac4d841b460d66d3e971917d7bbc934cc341c4529095a6699488e04059af936"
           },
           {
             "path": "dist/assets/bookstore-depth/part-001.bin",
@@ -5845,37 +5979,57 @@
           {
             "path": "dist/assets/bookstore-depth/part-003.bin",
             "bytes": 8304188,
-            "sha256": "c910b852b6ec5f9a47f74faf2f4d067cec53878cc4f93ce38dd73c3cf1bab68d"
+            "sha256": "423e3487fd268849d64298ceeec7bc1011f2f9f7e4810e7c56a9b6d43670b8e9"
           },
           {
             "path": "dist/assets/bookstore-depth/part-004.bin",
             "bytes": 8042608,
-            "sha256": "c7db16eb39fdeb801bbae23e18195aa0b0b198eba4adc6d8d50182784684e18e"
+            "sha256": "a929a93297d865634778cc40c81e757c06df7df0dfd99e7da7ccd6214ec8a320"
           },
           {
             "path": "dist/assets/bookstore-depth/part-005.bin",
-            "bytes": 8204996,
-            "sha256": "6527c0ad95905a519f4d0a45b4bfdddd4f1634e7e982fc72df146ad7bcc5880d"
+            "bytes": 7044368,
+            "sha256": "f3f6f94265976b631aa894cea076ed42352c953613720207b83b451c3fe00321"
           },
           {
             "path": "dist/assets/bookstore-depth/part-006.bin",
-            "bytes": 3108768,
-            "sha256": "78dd9b5a43ab43e98976b1e71ea29a16692b7fdb5c02ce586edad5438d2ac6e7"
+            "bytes": 7725564,
+            "sha256": "2d1adbe1fd3a5d8458d1cf7b8665a8585a7a6e3bfe79133e67a496ea66d31225"
+          },
+          {
+            "path": "dist/assets/bookstore-depth/part-007.bin",
+            "bytes": 7468312,
+            "sha256": "3f44ac2d01ec09d986a7a0283c5e4053139d81834ec6eb26b0d83ed204a57d8b"
+          },
+          {
+            "path": "dist/assets/bookstore-depth/part-008.bin",
+            "bytes": 8224760,
+            "sha256": "4d7c9d8be23ebc0e3a5b94675826febfa76c8ab8ca729371c52e1fdd58beb4a8"
+          },
+          {
+            "path": "dist/assets/bookstore-depth/part-009.bin",
+            "bytes": 8316984,
+            "sha256": "a3782ccd2aaf19e5f7a2d676d7e5c7b9c8cec09ede498f71d0ea79af9bfe1f88"
+          },
+          {
+            "path": "dist/assets/bookstore-depth/part-010.bin",
+            "bytes": 6641812,
+            "sha256": "bdf57388854ef8fda09bb6bfa9c5d274e08e7feda58ff3a78b86cc7c9b721e7e"
           }
         ],
-        "buffer_parts": 6,
+        "buffer_parts": 10,
         "max_part_bytes": 8388608,
-        "buffer_views_verified": 475,
+        "buffer_views_verified": 535,
         "geometry_bytes_preserved": true,
         "source_glb": {
           "path": "art/bookstore-depth.glb",
-          "bytes": 43827084,
-          "sha256": "4f420b8c22bb984006c9a8344dd1f3e1cbafe3c756fef605500c734e3ef71ce1"
+          "bytes": 77968668,
+          "sha256": "d1b50e7f2301c960aba82b2c7407d342a4f1896cf1b348da15d845678b79c6cc"
         },
         "static_primitives": 55,
         "static_nodes": {
           "OldCuriosityShop": 55,
-          "CenterCuriosityShelf": 14
+          "CenterCuriosityShelf": 24
         },
         "required_texcoords": [
           0,
@@ -6273,30 +6427,69 @@
             0.054999999701976776,
             0.02199999988079071,
             1.0
+          ],
+          "Warm ivory shelf diffuser / delivery": [
+            0.5799999833106995,
+            0.4300000071525574,
+            0.25999999046325684,
+            1.0
+          ],
+          "Brushed silver display metal / delivery": [
+            0.47999998927116394,
+            0.5099999904632568,
+            0.5400000214576721,
+            1.0
+          ],
+          "Faded red display enamel / delivery": [
+            0.3100000023841858,
+            0.03500000014901161,
+            0.02199999988079071,
+            1.0
+          ],
+          "Indigo painted display enamel / delivery": [
+            0.02500000037252903,
+            0.08500000089406967,
+            0.14000000059604645,
+            1.0
+          ],
+          "Clear display glass / delivery": [
+            0.8799999952316284,
+            0.9700000286102295,
+            0.9800000190734863,
+            1.0
+          ],
+          "Verdigris botanical enamel / delivery": [
+            0.07999999821186066,
+            0.1899999976158142,
+            0.10499999672174454,
+            1.0
+          ],
+          "Terracotta replica pottery / delivery": [
+            0.3499999940395355,
+            0.11500000208616257,
+            0.04800000041723251,
+            1.0
+          ],
+          "Aged ivory appliance shell / delivery": [
+            0.5799999833106995,
+            0.5099999904632568,
+            0.3700000047683716,
+            1.0
+          ],
+          "Vortex pale water / delivery": [
+            0.25999999046325684,
+            0.5699999928474426,
+            0.6299999952316284,
+            1.0
+          ],
+          "Black steel archive case / delivery": [
+            0.02500000037252903,
+            0.029999999329447746,
+            0.03500000014901161,
+            1.0
           ]
         }
       }
     }
-  ],
-  "v8_final_verification": {
-    "checked_at_utc": "2026-10-22T11:50:56.770390+00:00",
-    "room_tests_passed": 25,
-    "room_tests_failed": 0,
-    "export_review_images_inspected": 14,
-    "native_entrance_poster_inspected": true,
-    "new_links": 22,
-    "total_links": 40,
-    "shelf_displays": 6,
-    "continuous_bottles": 19,
-    "grounded_map_bundles": 3,
-    "material_count": 75,
-    "original_material_names_retained": 65,
-    "additional_delivery_material_copies": 10,
-    "binary_chunks": 6,
-    "image_sha256_matched_inspected_stills": true,
-    "both_4k_1024_sample_atlases_verified": true,
-    "book_text_unchanged": true,
-    "browser_preview_available": false,
-    "browser_limitation": "Managed Sites preview service mailbox unavailable; no live WebGL, DOM, or device performance validation claimed."
-  }
+  ]
 }
