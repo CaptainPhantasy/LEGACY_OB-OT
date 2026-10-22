@@ -6,8 +6,9 @@ import { RoomAtmosphere } from './room-atmosphere.js';
 import { RoomLook } from './room-look.js';
 import { RoomRadiance } from './room-radiance.js';
 import { enhanceMaterials } from './room-materials.js?depth=1';
-import { applyRoomLightmap, updateRoomRevelation } from './room-lightmap.js';
-import { curiosities } from './curiosities.js';
+import { applyRoomLightmap, updateRoomRevelation } from './room-lightmap.js?scene=curiosities-1';
+import { ROOM_POSES, planRoomPath, sampleRoomPath } from './room-path.js';
+import { curiosities } from './curiosities.js?scene=curiosities-1';
 import { escapeHTML, inline, markdown, loadBook } from './book-content.js';
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -21,14 +22,14 @@ let bright=!!saved.bright, simple=false, place='entrance', busy=false, hasOpened
 let scene,renderer,camera,room,hinge,hingeStart,mixer,openAction,magicLight,atmosphere,radiance;
 let revealAt=0,renderReady=false,move=null,closing=null,lastFrame=performance.now(),time=0,dragging=false,dragPointer=null,dragX=0,dragY=0,openingToken=0,pointerTravel=0;
 let pose=new THREE.Vector3(0,1.6,6.6),focus=new THREE.Vector3(0,1.25,-5.4);
-const roomLook=new RoomLook(),lookTarget=new THREE.Vector3();
+const roomLook=new RoomLook(),lookTarget=new THREE.Vector3(),walkPoint=[0,0,0];
 const audio=new ShopSound();
 const listenerDirection=new THREE.Vector3();
 let soundCaptions=!!saved.soundCaptions,captionTimer;
 $('#captions-setting').checked=soundCaptions;
 $('#captions-setting').onchange=e=>{soundCaptions=e.target.checked;saved.soundCaptions=soundCaptions;persist();$('#sound-caption').hidden=!soundCaptions;$('#sound-caption').textContent=soundCaptions?'Sounds will be described here when they happen.':'';};
 document.addEventListener('shop-sound',e=>{const name=e.detail.name;const words={steps:'Your footsteps on the worn boards.',page:'A dry leaf of paper turns.',leather:'The old leather creaks.',bus:'A city bus sounds far away, above the cellar.'};const el=$('#book-reader').open?$('#reader-sound-caption'):$('#sound-caption');el.dataset.lastSound=name;el.dataset.soundTime=String(Date.now());if(!soundCaptions)return;clearTimeout(captionTimer);el.textContent=words[name]||'';el.hidden=false;captionTimer=setTimeout(()=>el.hidden=true,name==='bus'?6000:3500);});
-const poses={entrance:[[0,1.6,6.6],[0,1.25,-5.4]],aisle:[[0,1.6,1.6],[0,1.3,-5.1]],table:[[.35,1.82,-3.48],[0,1.06,-4.92]],shelves:[[.55,1.55,.6],[2.01,1.18,-.82]],chair:[[-.55,1.5,1],[-2.17,1,-.1]],leave:[[0,1.6,6.6],[0,1.35,-3]]};
+const poses={...ROOM_POSES};
 const spots={table:new THREE.Vector3(0,1.14,-4.92)};
 for(const c of curiosities){poses[c.id]=c.pose;spots[c.id]=new THREE.Vector3(...c.position);}
 let currentCuriosity='maps';
@@ -39,13 +40,16 @@ for(const c of [...curiosities,{id:'table',name:'Farther into the back',mark:'·
   b.innerHTML=`<span class="point" aria-hidden="true"></span><span>${escapeHTML(c.name)}</span>`;
   $('#waypoints').append(b);
 }
-for(const c of curiosities){const b=document.createElement('button');b.dataset.go=c.id;b.innerHTML=`<span aria-hidden="true">${c.mark}</span>${escapeHTML(c.name)}<b aria-hidden="true">↗</b>`;$('#curiosity-menu').append(b);}
+for(const [label,items] of [['The middle shelf',curiosities.filter(c=>c.shelf)],['Around the room',curiosities.filter(c=>!c.shelf)]]){
+  const heading=document.createElement('h3');heading.className='curiosity-group';heading.textContent=label;$('#curiosity-menu').append(heading);
+  for(const c of items){const b=document.createElement('button');b.dataset.go=c.id;b.innerHTML=`<span aria-hidden="true">${c.mark}</span>${escapeHTML(c.name)}<b aria-hidden="true">↗</b>`;$('#curiosity-menu').append(b);}
+}
 function showCuriosity(id){
   const c=curiosities.find(c=>c.id===id);if(!c)return;currentCuriosity=id;
   glide(id);$('#curiosity-eyebrow').textContent=c.eyebrow;$('#curiosity-mark').textContent=c.mark;$('#shelf-title').textContent=c.title;$('#curiosity-description').textContent=c.description;
   $('#curiosity-links').replaceChildren();
-  for(const [title,description,url] of c.links){const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.innerHTML=`<span class="shelf-number" aria-hidden="true">${c.mark}</span><span>${escapeHTML(title)}<small>${escapeHTML(description)}</small></span><span aria-hidden="true">↗</span>`;$('#curiosity-links').append(a);}
-  $('#shelf-panel').hidden=false;$('#shelf-panel').scrollTop=0;announce(`${c.name}. Three paths into the wider internet. Each opens a new tab.`);
+  for(const [title,description,url,kind] of c.links){const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.innerHTML=`<span class="shelf-number" aria-hidden="true">${c.mark}</span><span>${kind?`<span class="source-kind">${escapeHTML(kind)}</span>`:''}${escapeHTML(title)}<small>${escapeHTML(description)}</small></span><span aria-hidden="true">↗</span>`;$('#curiosity-links').append(a);}
+  $('#shelf-panel').hidden=false;$('#shelf-panel').scrollTop=0;announce(`${c.name}. ${c.links.length} paths into the wider internet. Each opens a new tab.`);
 }
 function rummage(){const others=curiosities.filter(c=>c.id!==currentCuriosity);go(others[Math.floor(Math.random()*others.length)].id);$('#rummage').focus();}
 $('#rummage').onclick=rummage;
@@ -71,7 +75,9 @@ async function initScene(){
     radiance=new RoomRadiance(scene,renderer);
     magicLight=new THREE.PointLight(0xffd893,0,12,1.5);magicLight.position.set(0,1.45,-5);scene.add(magicLight);atmosphere=new RoomAtmosphere(scene);applyComfort();
     $('#load-note').textContent='The lamps are warming. The room is coming into view…';
-    const gltf=await new GLTFLoader().loadAsync('./assets/bookstore-depth.gltf');room=gltf.scene;scene.add(room);
+    const sceneFiles=new THREE.LoadingManager();
+    sceneFiles.setURLModifier(url=>/^(blob:|data:)/.test(url)?url:`${url}${url.includes('?')?'&':'?'}scene=curiosities-1`);
+    const gltf=await new GLTFLoader(sceneFiles).loadAsync('./assets/bookstore-depth.gltf');room=gltf.scene;scene.add(room);
     room.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
     await enhanceMaterials(room,renderer);
     try{await applyRoomLightmap(room,renderer);}catch(error){console.warn('Baked room lighting unavailable; live lighting remains active.',error);}
@@ -87,11 +93,11 @@ async function initScene(){
 }
 
 function useSimpleView(message='A still room, with all the same choices.'){
-  simple=true;document.body.classList.add('simple-mode','scene-ready');if(!$('.fallback-scene')){const el=document.createElement('div');el.className='fallback-scene';document.body.prepend(el);}
+  finishMove();simple=true;document.body.classList.add('simple-mode','scene-ready');if(!$('.fallback-scene')){const el=document.createElement('div');el.className='fallback-scene';document.body.prepend(el);}
   $('#load-note').textContent=message;$('#simple-view').textContent='Simple shop view is on';$('#settings-panel').hidden=true;$('#settings-toggle').setAttribute('aria-expanded','false');
-  if(place!=='entrance')$('#waypoints').hidden=false;$$('.waypoint').forEach(b=>b.tabIndex=0);announce(message);
+  if(place!=='entrance')$('#waypoints').hidden=false;$$('.waypoint').forEach(b=>{b.tabIndex=0;b.setAttribute('aria-hidden','false');});announce(message);
 }
-$('#simple-view').onclick=()=>{audio.stopFootsteps();if(move){pose.copy(move.to);focus.copy(move.lookTo);move.onArrive?.(true);}move=null;busy=false;useSimpleView();};
+$('#simple-view').onclick=()=>useSimpleView();
 $('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{announce('This browser keeps the room in its window. You can still explore every part of it.');}};
 addEventListener('fullscreenchange',()=>{$('#fullscreen').textContent=document.fullscreenElement?'Return to the window ↙':'Fill the screen with the room ↗';});
 addEventListener('visibilitychange',()=>{if(document.hidden&&move){move.hiddenAt=performance.now();}else if(move?.hiddenAt){move.start+=performance.now()-move.hiddenAt;delete move.hiddenAt;}});
@@ -101,11 +107,11 @@ function frame(now){
     let bob=0,sway=0;
     if(move){
       const p=Math.min((now-move.start)/move.duration,1),t=p*p*(3-2*p);
-      pose.lerpVectors(move.from,move.to,t);focus.lerpVectors(move.lookFrom,move.lookTo,t);
+      pose.fromArray(sampleRoomPath(move.path,t,walkPoint));focus.lerpVectors(move.lookFrom,move.lookTo,t);
       const distance=move.distance*t,stepIndex=Math.floor(distance/.62),envelope=Math.sin(Math.PI*p);
       bob=-Math.abs(Math.sin(distance/.62*Math.PI))*.025*envelope;sway=Math.sin(distance/.62*Math.PI)*.012*envelope;
       if(stepIndex>move.lastStep){audio.step(stepIndex);move.lastStep=stepIndex;}
-      if(p===1){const arrival=move.onArrive;move=null;busy=false;audio.stopFootsteps();arrival?.(true);}
+      if(p===1)finishMove();
     }
     camera.position.copy(pose);if(!gentle){camera.position.y+=bob;camera.position.x+=sway;}
     camera.lookAt(roomLook.target(camera.position,focus,lookTarget));
@@ -126,12 +132,33 @@ function frame(now){
   }
   requestAnimationFrame(frame);
 }
-function updateWaypoints(){if($('#waypoints').hidden)return;for(const b of $$('.waypoint')){const v=spots[b.dataset.place].clone().project(camera);const visible=v.z>-1&&v.z<1&&Math.abs(v.x)<.86&&Math.abs(v.y)<.72;b.style.left=`${(v.x*.5+.5)*innerWidth}px`;b.style.top=`${(-v.y*.5+.5)*innerHeight}px`;b.style.opacity=visible?'1':'0';b.style.pointerEvents=visible?'auto':'none';b.tabIndex=visible?0:-1;}}
+function updateWaypoints(){
+  if($('#waypoints').hidden)return;
+  const mobile=innerWidth<600,placed=[],limit=mobile?3:5;
+  const candidates=$$('.waypoint').map(b=>{
+    const point=spots[b.dataset.place],c=curiosities.find(c=>c.id===b.dataset.place),v=point.clone().project(camera);
+    return {b,c,v,distance:point.distanceToSquared(camera.position),x:(v.x*.5+.5)*innerWidth,y:(-v.y*.5+.5)*innerHeight};
+  }).sort((a,b)=>a.distance-b.distance);
+  for(const {b,c,v,x,y} of candidates){
+    // The opposite face is hidden by the shelf; every choice remains in Look around.
+    const facing=!c?.shelf||camera.position.x*c.side>.52;
+    const clear=placed.every(p=>Math.abs(p.x-x)>(mobile?134:184)||Math.abs(p.y-y)>78);
+    const visible=facing&&clear&&placed.length<limit&&v.z>-1&&v.z<1&&Math.abs(v.x)<.84&&y>112&&y<innerHeight*(mobile?.57:.69);
+    if(visible)placed.push({x,y});
+    b.style.left=`${x}px`;b.style.top=`${y}px`;b.style.opacity=visible?'1':'0';b.style.pointerEvents=visible?'auto':'none';b.tabIndex=visible?0:-1;b.setAttribute('aria-hidden',String(!visible));
+  }
+}
+function finishMove(){
+  const completed=move;move=null;busy=false;audio.stopFootsteps();
+  if(!completed)return;
+  pose.copy(completed.to);focus.copy(completed.lookTo);completed.onArrive?.(true);
+}
 function glide(name){
-  const pair=poses[name]||poses.aisle;roomLook.reset();audio.stopFootsteps();move?.onArrive?.(false);
-  if(gentle||simple||!renderReady){pose.fromArray(pair[0]);focus.fromArray(pair[1]);busy=false;move=null;audio.setPosition(pose,focus.clone().sub(pose).normalize());return;}
-  const destination=new THREE.Vector3(...pair[0]),distance=pose.distanceTo(destination);
-  busy=distance>.1;move={from:pose.clone(),to:destination,lookFrom:focus.clone(),lookTo:new THREE.Vector3(...pair[1]),start:performance.now(),duration:THREE.MathUtils.clamp(distance*930,2100,6800),distance,lastStep:0};
+  const pair=poses[name]||poses.aisle,path=planRoomPath(pose.toArray(),pair[0]);
+  roomLook.reset();audio.stopFootsteps();const interrupted=move;move=null;interrupted?.onArrive?.(false);
+  if(gentle||simple||!renderReady){pose.fromArray(pair[0]);focus.fromArray(pair[1]);busy=false;audio.setPosition(pose,focus.clone().sub(pose).normalize());return;}
+  const destination=new THREE.Vector3(...pair[0]),distance=path.length;
+  busy=distance>.1;move={path,to:destination,lookFrom:focus.clone(),lookTo:new THREE.Vector3(...pair[1]),start:performance.now(),duration:THREE.MathUtils.clamp(distance*930,2100,6800),distance,lastStep:0};
 }
 function closePanels(){for(const id of ['explore-menu','settings-panel','shelf-panel','chair-panel','leave-panel'])$('#'+id).hidden=true;$('#explore-toggle').setAttribute('aria-expanded','false');$('#settings-toggle').setAttribute('aria-expanded','false');}
 function setCaption(label,title,description,buttons=[]){$('#place-label').textContent=label;$('#place-title').textContent=title;$('#place-description').textContent=description;$('#place-actions').replaceChildren();for(const b of buttons){const el=document.createElement('button');el.className=b.primary?'brass-button':'quiet-button';el.textContent=b.label;el.onclick=()=>b.action();$('#place-actions').append(el);}$('#scene-caption').hidden=false;}
@@ -164,7 +191,7 @@ async function toggleSound(value){
   }catch{const message='Sound could not start. Try the sound switch again, or explore quietly.';$('#sound-status').textContent=message;announce(message);}
 }
 $('#sound-toggle').onclick=()=>toggleSound(!audio.enabled);$('#reader-sound').onclick=()=>toggleSound(!audio.enabled);$('#sound-setting').onchange=e=>toggleSound(e.target.checked);
-function setGentle(value){gentle=value;stopPageTurn();applyComfort();if(move){pose.copy(move.to);focus.copy(move.lookTo);move.onArrive?.(true);move=null;busy=false;audio.stopFootsteps();}}
+function setGentle(value){gentle=value;stopPageTurn();applyComfort();finishMove();}
 $('#motion-setting').onchange=e=>setGentle(e.target.checked);$('#reader-motion').onclick=()=>setGentle(!gentle);
 $('#brightness-setting').onchange=e=>{bright=e.target.checked;applyComfort();};
 $('#world').addEventListener('pointerdown',e=>{if($('#book-reader').open||!e.isPrimary||(e.pointerType==='mouse'&&e.button!==0))return;dragging=true;dragPointer=e.pointerId;dragX=e.clientX;dragY=e.clientY;pointerTravel=0;$('#world').focus({preventScroll:true});$('#world').setPointerCapture(e.pointerId);});

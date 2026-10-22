@@ -57,6 +57,9 @@ VIEWS = {
     'open': ((.35, 3.48, 1.82), (0, 4.92, 1.06), 34),
     'shelf-west': ((-1.17, -2.50, 1.62), (-.12, -1.50, 1.08), 22),
     'shelf-east': ((1.17, -2.50, 1.62), (.12, -1.50, 1.08), 22),
+    'shelf-west-front': ((-1.45, -4.90, 1.85), (0, -1.40, .80), 22),
+    'shelf-east-front': ((1.45, -4.90, 1.85), (0, -1.40, .80), 22),
+    'aisle': ((1.05, -4.50, 1.60), (0, -1, .90), 36.9),
     'bottles-west': ((-1.40, -1.25, 1.64), (-2.60, -.80, 1.33), 32),
     'bottles-east': ((1.30, -2.05, 1.67), (2.55, -.85, 1.32), 32),
     'maps': ((1.05, -3.25, 1.50), (1.64, -1.48, .95), 36),
@@ -1525,7 +1528,7 @@ def camera_view(name, dof=False):
     camera.data.sensor_width = 36
     # The web camera's 52 degrees are vertical. Use its framing for the
     # exported room/table diagnostics; beauty/close views remain photographic.
-    if ARGS.stage == 'review' and name in ('entrance', 'table', 'open'):
+    if ARGS.stage == 'review' and name in ('entrance', 'aisle', 'table', 'open'):
         camera.data.sensor_fit = 'VERTICAL'
         camera.data.sensor_height = 24
         camera.data.lens = 24 / (2 * math.tan(math.radians(52) / 2))

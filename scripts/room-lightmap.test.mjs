@@ -15,11 +15,12 @@ const { enhanceMaterials } = await import('../dist/room-materials.js');
 const manifestURL = new URL('../dist/assets/room-lightmap.json', import.meta.url);
 const roomURL = new URL('../dist/assets/bookstore-depth.gltf', import.meta.url);
 
-async function withImageTransport(callback, resolution = 4096) {
+async function withImageTransport(callback, resolution = 4096, imageSizes = {}) {
   const originalLoad = THREE.TextureLoader.prototype.load, oldSelf = globalThis.self;
   globalThis.self = { URL };
   THREE.TextureLoader.prototype.load = function(_url, onLoad) {
-    const texture = new THREE.Texture({ width: resolution, height: resolution });
+    const size = imageSizes[new URL(_url, import.meta.url).pathname.split('/').pop()] ?? resolution;
+    const texture = new THREE.Texture({ width: size, height: size });
     queueMicrotask(() => onLoad(texture));
     return texture;
   };
@@ -77,12 +78,27 @@ async function loadRoom({ syntheticUV = false } = {}) {
 const renderer = () => ({ capabilities: { getMaxAnisotropy: () => 16 }, shadowMap: { needsUpdate: false } });
 const testManifest = { version: 1, node: 'OldCuriosityShop', resolution: 4096, illuminationScale: 8 };
 async function applyFixture(room, manifest = testManifest) {
+  const documents = { 'room-lightmap.json': manifest };
+  // Synthetic shader fixtures still exercise every static node in the actual
+  // export. The real-asset test below uses its unmodified published manifests.
+  if (manifest === testManifest && room.getObjectByName('CenterCuriosityShelf')) {
+    documents['room-lightmap.json'] = { ...manifest, additionalLightmaps: ['curiosity-lightmap.json'] };
+    documents['curiosity-lightmap.json'] = { ...manifest, node: 'CenterCuriosityShelf', file: 'curiosity-lightmap.png', resolution: 2048 };
+  } else {
+    for (const name of manifest.additionalLightmaps ?? []) {
+      assert.equal(name, 'curiosity-lightmap.json');
+      documents[name] = JSON.parse(await readFile(new URL(name, manifestURL), 'utf8'));
+    }
+  }
+  const imageSizes = Object.fromEntries(Object.entries(documents).map(([name, value]) =>
+    [value.file || name.replace('.json', '.png'), value.resolution]));
   const oldFetch = globalThis.fetch;
   globalThis.fetch = async url => {
-    assert.equal(new URL(url).pathname.split('/').pop(), 'room-lightmap.json');
-    return new Response(JSON.stringify(manifest));
+    const name = new URL(url).pathname.split('/').pop();
+    assert.ok(documents[name], `Unexpected lightmap manifest ${name}`);
+    return new Response(JSON.stringify(documents[name]));
   };
-  try { return await withImageTransport(() => applyRoomLightmap(room, renderer()), manifest.resolution); }
+  try { return await withImageTransport(() => applyRoomLightmap(room, renderer()), manifest.resolution, imageSizes); }
   finally { globalThis.fetch = oldFetch; }
 }
 
@@ -295,12 +311,23 @@ test('an invalid atlas fails before any room materials or shadow flags change', 
 test('the shipped export has a finite atlas matching the published lightmap manifest',
   { skip: !existsSync(manifestURL) }, async () => {
     const manifest = JSON.parse(await readFile(manifestURL, 'utf8'));
-    const bytes = await readFile(new URL('../dist/assets/room-lightmap.png', import.meta.url));
-    assert.equal(bytes.subarray(1, 4).toString(), 'PNG');
-    assert.equal(bytes.readUInt32BE(16), manifest.resolution);
-    assert.equal(bytes.readUInt32BE(20), manifest.resolution);
+    const manifests = [manifest];
+    for (const name of manifest.additionalLightmaps ?? []) {
+      assert.equal(name, 'curiosity-lightmap.json');
+      manifests.push(JSON.parse(await readFile(new URL(name, manifestURL), 'utf8')));
+    }
+    for (const atlas of manifests) {
+      const file = atlas.file || 'room-lightmap.png';
+      assert.ok(['room-lightmap.png', 'curiosity-lightmap.png'].includes(file));
+      const bytes = await readFile(new URL(file, manifestURL));
+      assert.equal(bytes.subarray(1, 4).toString(), 'PNG');
+      assert.equal(bytes.readUInt32BE(16), atlas.resolution);
+      assert.equal(bytes.readUInt32BE(20), atlas.resolution);
+      if (atlas.encoding === 'RGBM_SQRT') assert.equal(bytes[25], 6, 'RGBM requires all four RGBA channels');
+    }
     // Actual exported UVs are checked here; no synthetic atlas is inserted.
     const room = await loadRoom();
     const result = await applyFixture(room, manifest);
     assert.ok(result.meshes > 0);
+    assert.equal(result.atlases.length, manifests.length);
   });

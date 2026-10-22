@@ -24,7 +24,7 @@
   <meta name="twitter:image" content="https://sundays-old-books.captainphantasy.chatgpt.site/assets/legacy-social-book-2ddb4e959565.jpg">
   <meta name="twitter:image:alt" content="An antique leather book branded LEGACY with a brass four-point star.">
   <link rel="icon" type="image/svg+xml" href="./assets/mark.svg">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?scene=curiosities-1">
   <link rel="alternate" type="application/json" href="./content/book.json" title="Book contents">
   <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
 </head>
@@ -89,7 +89,7 @@
       <p id="curiosity-description" class="panel-intro"></p>
       <div id="curiosity-links" class="rabbit-holes"></div>
       <p class="small-note">These doors open other websites in a new tab. The shop stays here.</p>
-      <div class="rummage-actions"><button id="rummage" class="underlined">Pull out another drawer ↝</button><button class="underlined" data-close="shelf-panel">Back into the cellar →</button></div>
+      <div class="rummage-actions"><button id="rummage" class="underlined">Find another curiosity ↝</button><button class="underlined" data-close="shelf-panel">Back into the cellar →</button></div>
     </section>
     <section id="chair-panel" class="discovery-panel chair-panel" hidden aria-labelledby="chair-title">
       <button class="close-panel" data-close="chair-panel" aria-label="Step away from the cabinet">×</button>
@@ -132,7 +132,7 @@
   <div id="announcement" class="sr-only" aria-live="polite"></div>
   <noscript><div class="noscript">You’re welcome here. The moving shop needs JavaScript, but <a href="./content/oath.txt">the book is still yours to read</a>.</div></noscript>
   <script type="module">
-    import('./app.js?depth=1').catch(error => {
+    import('./app.js?scene=curiosities-1').catch(error => {
       console.error('The shop could not finish opening.', error);
       const note=document.querySelector('#load-note');
       note.textContent='Part of the room could not arrive. Your saved place is safe. You can try opening the door again.';

@@ -91,3 +91,7 @@ body.gentle *,body.gentle *:before,body.gentle *:after{scroll-behavior:auto!impo
 .grain{opacity:.022}
 .vignette{background:linear-gradient(90deg,rgba(13,11,8,.74),rgba(13,11,8,.38) 29%,transparent 65%),linear-gradient(0deg,rgba(12,10,8,.72),transparent 22%,transparent 78%,rgba(12,10,8,.5))}
 body.inside .vignette{background:radial-gradient(ellipse at 50% 42%,transparent 42%,rgba(12,10,8,.19) 78%,rgba(12,10,8,.5)),linear-gradient(0deg,rgba(12,10,8,.72),transparent 26%)}
+
+.curiosity-group{font:9px/1.6 Arial,sans-serif;letter-spacing:1.7px;text-transform:uppercase;color:#c8ae81;margin:22px 0 7px;padding:7px 10px;background:#17130fb8;width:fit-content}
+.curiosity-group:first-child{margin-top:0}
+.source-kind{display:block;width:fit-content;font:8px/1.5 Arial,sans-serif;letter-spacing:1.1px;text-transform:uppercase;color:#d2b98f;border:1px solid #ad916652;border-radius:2px;padding:2px 5px;margin-bottom:7px}

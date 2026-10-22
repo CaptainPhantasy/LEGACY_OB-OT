@@ -1,6 +1,13 @@
 import * as THREE from 'three';
 
 const revelationByRoom = new WeakMap();
+const atlasRevision = 'curiosities-1';
+
+function atlasURL(file) {
+  const url = new URL(`./assets/${file}`, import.meta.url);
+  url.searchParams.set('scene', atlasRevision);
+  return url;
+}
 
 // The book's temporary reveal light is deliberately absent from the fixed bake.
 // Share its power across static materials without recompiling their shaders.
@@ -74,16 +81,40 @@ function lightmappedMaterial(source, texture, scale, shadowStrength, revelation,
   return material;
 }
 
-function validateManifest(manifest) {
+const atlasSources = {
+  'room-lightmap.json': { node: 'OldCuriosityShop', file: 'room-lightmap.png' },
+  'curiosity-lightmap.json': { node: 'CenterCuriosityShelf', file: 'curiosity-lightmap.png' }
+};
+
+function validateManifest(manifest, source) {
+  if (!manifest || typeof manifest !== 'object') throw new Error('The room lightmap has an unexpected format.');
   const { resolution, illuminationScale, encoding } = manifest;
   const rgbm = encoding === 'RGBM_SQRT';
-  if (manifest.version !== 1 || manifest.node !== 'OldCuriosityShop' ||
+  const expected = atlasSources[source];
+  if (manifest.version !== 1 || manifest.node !== expected.node ||
+      (manifest.file !== expected.file && !(source === 'room-lightmap.json' && manifest.file === undefined)) ||
+      (manifest.uv_channel !== undefined && manifest.uv_channel !== 2) ||
       (encoding !== undefined && !rgbm) ||
       !Number.isInteger(resolution) || resolution < 256 || resolution > 8192 ||
       (resolution & (resolution - 1)) !== 0 ||
       !Number.isFinite(illuminationScale) || illuminationScale <= 0 || illuminationScale > (rgbm ? 4096 : 64)) {
     throw new Error('The room lightmap has an unexpected format.');
   }
+}
+
+async function loadManifest(source) {
+  const response = await fetch(atlasURL(source));
+  if (!response.ok) throw new Error(`The room lightmap manifest ${source} could not load.`);
+  const manifest = await response.json();
+  validateManifest(manifest, source);
+  const additional = manifest.additionalLightmaps ?? [];
+  if (!Array.isArray(additional) ||
+      (source !== 'room-lightmap.json' && additional.length) ||
+      additional.some(name => name !== 'curiosity-lightmap.json') ||
+      new Set(additional).size !== additional.length) {
+    throw new Error('The additional room lightmaps have an unexpected format.');
+  }
+  return { manifest, source, file: atlasSources[source].file, additional };
 }
 
 function staticMeshes(room, manifest) {
@@ -117,46 +148,75 @@ export async function applyRoomLightmap(room, renderer, { movingShadowStrength =
   if (!Number.isFinite(movingShadowStrength) || movingShadowStrength < 0 || movingShadowStrength > 1) {
     throw new Error('The moving book shadow strength must be between zero and one.');
   }
-  const response = await fetch(new URL('./assets/room-lightmap.json', import.meta.url));
-  if (!response.ok) throw new Error('The room lightmap could not load.');
-  const manifest = await response.json();
-  validateManifest(manifest);
-  // Check all geometry before fetching the image or changing any materials.
-  const meshes = staticMeshes(room, manifest);
-  const texture = await new THREE.TextureLoader().loadAsync(new URL('./assets/room-lightmap.png', import.meta.url).href);
-  if (texture.image.width !== manifest.resolution || texture.image.height !== manifest.resolution) {
-    texture.dispose();
-    throw new Error('The room lightmap image does not match its manifest.');
+  const primary = await loadManifest('room-lightmap.json');
+  if (room.getObjectByName('CenterCuriosityShelf') && !primary.additional.includes('curiosity-lightmap.json')) {
+    throw new Error('The center shelf lightmap is missing from the room manifest.');
   }
-  // RGBM's alpha is a multiplier, not opacity. Raw bytes must reach the shader:
-  // automatic sRGB decoding would corrupt their product and crush low light.
-  texture.colorSpace = manifest.encoding === 'RGBM_SQRT' ? THREE.NoColorSpace : THREE.SRGBColorSpace;
-  texture.premultiplyAlpha = false;
-  texture.flipY = false;
-  texture.channel = 2;
-  texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
-  // Atlas islands have a finite three-pixel bleed. Global mipmaps would mix
-  // distant islands with the unused black atlas and reintroduce dark seams.
-  texture.generateMipmaps = false;
-  texture.minFilter = texture.magFilter = THREE.LinearFilter;
-  texture.anisotropy = 1;
-  texture.needsUpdate = true;
+  const atlases = [primary, ...await Promise.all(primary.additional.map(loadManifest))];
+  // Validate every atlas before changing the room. Shared materials need a
+  // separate clone for each atlas, but no mesh may be claimed by two atlases.
+  const claimed = new Set(), moving = new Set();
+  room.getObjectByName('BookCoverHinge')?.traverse(mesh => { if (mesh.isMesh) moving.add(mesh); });
+  for (const atlas of atlases) {
+    atlas.meshes = staticMeshes(room, atlas.manifest);
+    for (const mesh of atlas.meshes) {
+      if (claimed.has(mesh) || moving.has(mesh)) throw new Error('The room lightmaps overlap or include the moving book.');
+      claimed.add(mesh);
+    }
+  }
+  const loaded = await Promise.allSettled(atlases.map(atlas =>
+    new THREE.TextureLoader().loadAsync(atlasURL(atlas.file).href)));
+  const textures = loaded.filter(result => result.status === 'fulfilled').map(result => result.value);
+  const failed = loaded.find(result => result.status === 'rejected');
+  if (failed) {
+    textures.forEach(texture => texture.dispose());
+    throw failed.reason;
+  }
+  if (textures.some((texture, i) => texture.image?.width !== atlases[i].manifest.resolution ||
+      texture.image?.height !== atlases[i].manifest.resolution)) {
+    textures.forEach(texture => texture.dispose());
+    throw new Error('A room lightmap image does not match its manifest.');
+  }
+  atlases.forEach((atlas, i) => {
+    const texture = atlas.texture = textures[i];
+    // RGBM's alpha is a numeric multiplier, not opacity or sRGB color.
+    texture.colorSpace = atlas.manifest.encoding === 'RGBM_SQRT' ? THREE.NoColorSpace : THREE.SRGBColorSpace;
+    texture.premultiplyAlpha = false;
+    texture.flipY = false;
+    texture.channel = 2;
+    texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+    // The finite three-pixel bleed cannot support global atlas mipmaps.
+    texture.generateMipmaps = false;
+    texture.minFilter = texture.magFilter = THREE.LinearFilter;
+    texture.anisotropy = 1;
+    texture.needsUpdate = true;
+  });
 
   const revelation = {
     power: { value: 0 },
     color: { value: new THREE.Color(0xffd893) },
     position: { value: new THREE.Vector3(0, 1.45, -5) }
   };
-  const copies = new Map();
-  const replacements = meshes.map(mesh => {
-    const source = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-    const materials = source.map(material => {
-      if (!copies.has(material)) copies.set(material,
-        lightmappedMaterial(material, texture, manifest.illuminationScale, movingShadowStrength, revelation, manifest.encoding));
-      return copies.get(material);
-    });
-    return [mesh, Array.isArray(mesh.material) ? materials : materials[0]];
-  });
+  const replacements = [];
+  try {
+    for (const atlas of atlases) {
+      const copies = atlas.copies = new Map();
+      const { manifest, texture } = atlas;
+      for (const mesh of atlas.meshes) {
+        const source = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        const materials = source.map(material => {
+          if (!copies.has(material)) copies.set(material,
+            lightmappedMaterial(material, texture, manifest.illuminationScale, movingShadowStrength, revelation, manifest.encoding));
+          return copies.get(material);
+        });
+        replacements.push([mesh, Array.isArray(mesh.material) ? materials : materials[0]]);
+      }
+    }
+  } catch (error) {
+    textures.forEach(texture => texture.dispose());
+    atlases.forEach(atlas => atlas.copies?.forEach(material => material.dispose()));
+    throw error;
+  }
   for (const [mesh, material] of replacements) mesh.material = material;
   revelationByRoom.set(room, revelation);
 
@@ -165,8 +225,10 @@ export async function applyRoomLightmap(room, renderer, { movingShadowStrength =
   room.traverse(mesh => { if (mesh.isMesh) mesh.castShadow = false; });
   room.getObjectByName('BookCoverHinge')?.traverse(mesh => { if (mesh.isMesh) mesh.castShadow = true; });
   renderer.shadowMap.needsUpdate = true;
-  const result = { meshes: meshes.length, materials: copies.size, resolution: manifest.resolution,
-    illuminationScale: manifest.illuminationScale, uvChannel: 2 };
+  const result = { meshes: claimed.size, materials: atlases.reduce((count, atlas) => count + atlas.copies.size, 0),
+    resolution: primary.manifest.resolution, illuminationScale: primary.manifest.illuminationScale, uvChannel: 2,
+    atlases: atlases.map(atlas => ({ node: atlas.manifest.node, file: atlas.file, meshes: atlas.meshes.length,
+      materials: atlas.copies.size, resolution: atlas.manifest.resolution, illuminationScale: atlas.manifest.illuminationScale })) };
   room.userData.roomLightmap = result;
   return result;
 }
